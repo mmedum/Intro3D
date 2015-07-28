@@ -40,7 +40,7 @@ function render() {
 
 function turtle() {
 	init(-1, -1, 0);
-	gasket(2.0, 11);
+	gasket(2.0, 6);
 }
 
 function gasket(length, depth) {
