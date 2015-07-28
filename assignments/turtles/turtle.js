@@ -44,24 +44,24 @@ function turtle() {
 }
 
 function gasket(length, depth) {
-	if (depth>0) {
-		drawTriangle(length/2);
-		gasket(length/2, depth-1);
+	if (depth > 0) {
+		drawTriangle(length / 2);
+		gasket(length / 2, depth - 1);
 
-		forward(length/2);
+		forward(length / 2);
 
-		drawTriangle(length/2);
-		gasket(length/2, depth-1);
+		drawTriangle(length / 2);
+		gasket(length / 2, depth - 1);
 
 		left(120);
-		forward(length/2);
+		forward(length / 2);
 		right(120);
 
-		drawTriangle(length/2);
-		gasket(length/2, depth-1);
+		drawTriangle(length / 2);
+		gasket(length / 2, depth - 1);
 
 		right(120);
-		forward(length/2);
+		forward(length / 2);
 		left(120);
 	}
 }
