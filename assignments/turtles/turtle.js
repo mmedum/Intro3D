@@ -40,7 +40,7 @@ function render() {
 
 function turtle() {
 	init(-1, -1, 0);
-	gasket(2.0, 6);
+	gasketMountain(2.0, 6);
 }
 
 function gasket(length, depth) {
@@ -64,6 +64,49 @@ function gasket(length, depth) {
 		forward(length / 2);
 		left(120);
 	}
+}
+
+function gasketMountain(length, depth) {
+	if (depth > 0) {
+		moveRandom(length);
+		drawTriangle(length / 2);
+		gasketMountain(length / 2, depth - 1);
+
+		penUp();
+		forward(length / 2);
+		penDown();
+
+		moveRandom(length);
+		drawTriangle(length / 2);
+		gasketMountain(length / 2, depth - 1);
+
+		left(120);
+		penUp();
+		forward(length / 2);
+		penDown();
+		right(120);
+
+		moveRandom(length);
+		drawTriangle(length / 2);
+		gasketMountain(length / 2, depth - 1);
+
+		right(120);
+		penUp();
+		forward(length / 2);
+		penDown();
+		left(120);
+	}
+}
+
+function moveRandom(length) {
+	var randomDegree = Math.random() * 360;
+	var randomLength = Math.random() * (length / 10.0);
+
+	left(randomDegree);
+	forward(randomLength);
+	right(randomDegree);
+
+
 }
 
 function drawTriangle(length) {

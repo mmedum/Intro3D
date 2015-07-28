@@ -1,14 +1,14 @@
 var turtleX;
 var turtleY;
 var turtleTheta;
-var penUp;
+var turtlePenUp;
 var points;
 
 function init(x, y, theta){
 	turtleX = x;
 	turtleY = y;
 	turtleTheta = theta;
-	penUp = false;
+	turtlePenUp = false;
 	points = [];
 }
 
@@ -16,7 +16,7 @@ function forward(distance){
 	var newX = turtleX + Math.cos(toRadians(turtleTheta)) * distance;
 	var newY = turtleY + Math.sin(toRadians(turtleTheta)) * distance;
 	
-	if(!penUp){
+	if(!turtlePenUp){
 		points.push(vec2(turtleX, turtleY), vec2(newX, newY));
 	}	
 	
@@ -33,11 +33,11 @@ function left(angle){
 }
 
 function penUp(){
-	penUp = true;
+	turtlePenUp = true;
 }
 
 function penDown(){
-	penUp = false;
+	turtlePenUp = false;
 }
 
 function toDegrees (angle) {
