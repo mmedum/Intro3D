@@ -39,8 +39,11 @@ function render() {
 }
 
 function turtle() {
-	init(-1, -1, 0);
-	gasketMountain(2.0, 6);
+	//init(-1, -1, 0);
+	//gasketMountain(2.0, 6);
+	
+	init(0.5, -0.5, 0.0);
+	drawRandomTriangle(1.0, 25, 0);
 }
 
 function gasket(length, depth) {
@@ -68,7 +71,6 @@ function gasket(length, depth) {
 
 function gasketMountain(length, depth) {
 	if (depth > 0) {
-		moveRandom(length);
 		drawTriangle(length / 2);
 		gasketMountain(length / 2, depth - 1);
 
@@ -76,7 +78,6 @@ function gasketMountain(length, depth) {
 		forward(length / 2);
 		penDown();
 
-		moveRandom(length);
 		drawTriangle(length / 2);
 		gasketMountain(length / 2, depth - 1);
 
@@ -86,7 +87,6 @@ function gasketMountain(length, depth) {
 		penDown();
 		right(120);
 
-		moveRandom(length);
 		drawTriangle(length / 2);
 		gasketMountain(length / 2, depth - 1);
 
@@ -98,15 +98,36 @@ function gasketMountain(length, depth) {
 	}
 }
 
-function moveRandom(length) {
-	var randomDegree = Math.random() * 360;
-	var randomLength = Math.random() * (length / 10.0);
+function drawRandomTriangle(length, angleVariation, distanceVariation) {
+	var a1 = 120.0 - 0.5 * angleVariation + Math.random() * angleVariation;
+	var d1 = length - 0.5 * distanceVariation + Math.random() * distanceVariation;
 
-	left(randomDegree);
-	forward(randomLength);
-	right(randomDegree);
+	console.log(a1);
+	console.log(d1);
 
+	var a2 = 120.0 - 0.5 * angleVariation + Math.random() * angleVariation;
+	var d2 = length - 0.5 * distanceVariation + Math.random() * distanceVariation;
 
+	console.log(a2);
+	console.log(d2);
+
+	var dx = Math.cos(toRadians(a1)) * d1 + Math.cos(toRadians(a1 + a2)) * d2;
+	var dy = Math.sin(toRadians(a1)) * d1 + Math.sin(toRadians(a1 + a2)) * d2;
+
+	var a3 = 360 - a1 - a2;
+	var d3 = Math.sqrt(dx * dx + dy * dy);
+
+	console.log(a3);
+	console.log(d3);
+
+	left(a1);
+	forward(d1);
+
+	left(a2);
+	forward(d2);
+
+	left(a3);
+	forward(d3);
 }
 
 function drawTriangle(length) {
