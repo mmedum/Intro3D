@@ -45,4 +45,6 @@ function turtle(){
 	forward(0.1);
 	right(15);
 	forward(0.4);
+	left(60);
+	forward(0.6);
 }
