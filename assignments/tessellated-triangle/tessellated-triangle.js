@@ -106,19 +106,20 @@ function triangle(a, b, c) {
 }
 
 function rotateVertex(vertex) {
-	var rotaionInRadian = (Math.PI * rotaionInDegree) / 180;
+	//var rotaionInRadian = (Math.PI * rotaionInDegree) / 180;
 
-	// vertex = [x, y]
-	// x = vertex[0]
-	// y = vertex[1]
+	//// vertex = [x, y]
+	//// x = vertex[0]
+	//// y = vertex[1]
 
-	// d = sqrt( x^2 + y^2 )
-	var d = Math.sqrt((vertex[0] * vertex[0]) + (vertex[1] * vertex[1]));
+	//// d = sqrt( x^2 + y^2 )
+	//var d = Math.sqrt((vertex[0] * vertex[0]) + (vertex[1] * vertex[1]));
 
-	// x' = x * cos( d * theta ) - y * sin ( d * theta)
-	// y' = x * sin( d * theta ) + y * cos ( d * theta)
-	var newX = vertex[0] * Math.cos(d * rotaionInRadian) - vertex[1] * Math.sin(d * rotaionInRadian);
-	var newY = vertex[0] * Math.sin(d * rotaionInRadian) + vertex[1] * Math.cos(d * rotaionInRadian);
+	//// x' = x * cos( d * theta ) - y * sin ( d * theta)
+	//// y' = x * sin( d * theta ) + y * cos ( d * theta)
+	//var newX = vertex[0] * Math.cos(d * rotaionInRadian) - vertex[1] * Math.sin(d * rotaionInRadian);
+	//var newY = vertex[0] * Math.sin(d * rotaionInRadian) + vertex[1] * Math.cos(d * rotaionInRadian);
 
-	return vec2(newX, newY);
+	//return vec2(newX, newY);
+	return vertex;
 }

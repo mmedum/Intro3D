@@ -7,8 +7,26 @@ attribute vec4 vColor;
 
 varying lowp vec4 fColor; // send color to fragment shader
 
+vec2 rotate(vec2 vertex) {
+	float rotaionInRadian = (3.14 * 20.0) / 180.0;
+
+	// vertex = [x, y]
+	// x = vertex[0]
+	// y = vertex[1]
+
+	// d = sqrt( x^2 + y^2 )
+	float d = sqrt((vertex[0] * vertex[0]) + (vertex[1] * vertex[1]));
+
+	// x' = x * cos( d * theta ) - y * sin ( d * theta)
+	// y' = x * sin( d * theta ) + y * cos ( d * theta)
+	float newX = vertex[0] * cos(d * rotaionInRadian) - vertex[1] * sin(d * rotaionInRadian);
+	float newY = vertex[0] * sin(d * rotaionInRadian) + vertex[1] * cos(d * rotaionInRadian);
+	
+	return vec2(newX, newY);
+}
+
 void main() {
-    gl_Position = vPosition;
+    gl_Position = vec4(rotate(vPosition.xy), 0, 1); 
     fColor = vColor;
 }
 </script>
