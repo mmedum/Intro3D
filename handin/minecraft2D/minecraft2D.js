@@ -2,56 +2,21 @@ var BLOCKS_X = 40;
 var BLOCKS_Y = 30;
 
 var BlockType = {
-	OFB		: {},	// out of bounds
-	AIR		: {},
-	STONE 	: {},
-	GRASS	: {},
-	DIRT 	: {},
-	WOOD 	: {},
-	METAL 	: {},
-	WATER 	: {},
-	FIRE 	: {}
+	OFB		: [],	// out of bounds
+	AIR		: [0.0, 0.0, 1.0],
+	STONE 	: [0.5, 0.5, 0.5],
+	GRASS		: [0.0, 1.0, 0.0],
+	DIRT		: [0.7, 0.4, 0.3],
+	WOOD		: [0.8, 0.4, 0.4],
+	METAL 	: [0.8, 0.8, 0.8],
+	WATER 	: [0.2, 0.2, 1.0],
+	FIRE		: [1.0, 0.0, 0.0]
 };
 
 var gl;
 var program;
 var world;
-
-function createWorld() {
-	var result = {
-		data : new Array((BLOCKS_X + 1) * (BLOCKS_Y + 1))		
-	};
-	
-	for(var y = 0; y < BLOCKS_Y + 1; y++) {
-		result.data[0 + y * BLOCKS_X] = BlockType.OFB;
-		result.data[BLOCKS_X + y * BLOCKS_X] = BlockType.OFB;
-	}
-	
-	for(var x = 0; x < BLOCKS_X + 1; x++) {
-		result.data[x + 0 * BLOCKS_X] = BlockType.OFB;
-		result.data[x + BLOCKS_Y * BLOCKS_X] = BlockType.OFB;
-	}
-	
-	for(var y = 0; y < BLOCKS_Y; y++) {
-		for(var x = 0; x < BLOCKS_X; x++) {
-			if(y > 15) {
-				result.data[(x + 1) + (y + 1) * BLOCKS_X] = BlockType.AIR;
-			} else if(y == 15) {
-				result.data[(x + 1) + (y + 1) * BLOCKS_X] = BlockType.GRASS;
-			} else {
-				result.data[(x + 1) + (y + 1) * BLOCKS_X] = BlockType.DIRT;
-			}			
-		}
-	}
-	
-	//result.draw = function 
-	
-	return result;
-}
-
-function getBlock(x, y) {
-	return world[(x + 1) + (y + 1) * BLOCKS_X];
-}
+var worldBufferId;
 
 window.onload = function init() {
 	var canvas = document.getElementById("gl-canvas");
@@ -71,8 +36,10 @@ window.onload = function init() {
 		gl.useProgram(program);
 		
 		world = createWorld();
+
+		worldBufferId = gl.createBuffer();
 		
-		//render();
+		render();
 /*
 		var bufferId = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
@@ -88,7 +55,101 @@ window.onload = function init() {
 
 function render() {
 	gl.clear(gl.COLOR_BUFFER_BIT);
-	//gl.drawArrays(gl.LINES, 0, points.length);
+	drawWorld();		
+	//requestAnimFrame(render());
+}
+
+function drawWorld(){
+	gl.bindBuffer(gl.ARRAY_BUFFER, worldBufferId);
+	var vertexWorld = new Float32Array(BLOCKS_X*BLOCKS_Y*5*6);
+	var index = 0;
+	//world setup	
+	for(var y = 0; y < BLOCKS_Y; y++) {
+		for(var x = 0; x < BLOCKS_X; x++) {
+			var block = getBlock(x,y);
+			vertexWorld[index++] = x;	
+			vertexWorld[index++] = y;	
+			vertexWorld[index++] = block[0];	
+			vertexWorld[index++] = block[1];
+			vertexWorld[index++] = block[2];
+		
+			vertexWorld[index++] = x+1;	
+			vertexWorld[index++] = y+1;	
+			vertexWorld[index++] = block[0];	
+			vertexWorld[index++] = block[1];
+			vertexWorld[index++] = block[2];
 	
-	requestAnimFrame(render());
+			vertexWorld[index++] = x;	
+			vertexWorld[index++] = y+1;	
+			vertexWorld[index++] = block[0];	
+			vertexWorld[index++] = block[1];
+			vertexWorld[index++] = block[2];	
+		
+			vertexWorld[index++] = x;	
+			vertexWorld[index++] = y;	
+			vertexWorld[index++] = block[0];	
+			vertexWorld[index++] = block[1];
+			vertexWorld[index++] = block[2];
+			
+			vertexWorld[index++] = x+1;	
+			vertexWorld[index++] = y;	
+			vertexWorld[index++] = block[0];	
+			vertexWorld[index++] = block[1];
+			vertexWorld[index++] = block[2];
+			
+			vertexWorld[index++] = x+1;	
+			vertexWorld[index++] = y+1;	
+			vertexWorld[index++] = block[0];	
+			vertexWorld[index++] = block[1];
+			vertexWorld[index++] = block[2];
+		}
+	}
+
+	gl.bufferData(gl.ARRAY_BUFFER, vertexWorld, gl.DYNAMIC_DRAW); 
+	
+	var vPosition = gl.getAttribLocation(program, "vPosition");
+	gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 20, 0);
+	gl.enableVertexAttribArray(vPosition);
+	
+	var vColor = gl.getAttribLocation(program, "vColor");
+	gl.vertexAttribPointer(vColor, 3, gl.FLOAT, false, 20, 8);
+	gl.enableVertexAttribArray(vColor);
+	
+	gl.drawArrays(gl.TRIANGLES, 0, vertexWorld.length/5);
+}
+
+function createWorld() {
+	var result = {
+		data : new Array((BLOCKS_X + 2) * (BLOCKS_Y + 2))	
+	};
+	
+	//out of bounds setup
+	for(var y = 0; y < BLOCKS_Y + 1; y++) {
+		result.data[0 + y * BLOCKS_X] = BlockType.OFB;
+		result.data[BLOCKS_X + y * BLOCKS_X] = BlockType.OFB;
+	}
+	
+	for(var x = 0; x < BLOCKS_X + 1; x++) {
+		result.data[x + 0 * BLOCKS_X] = BlockType.OFB;
+		result.data[x + BLOCKS_Y * BLOCKS_X] = BlockType.OFB;
+	}
+	
+	//world setup	
+	for(var y = 0; y < BLOCKS_Y; y++) {
+		for(var x = 0; x < BLOCKS_X; x++) {
+			if(y > 15) {
+				result.data[(x + 1) + (y + 1) * BLOCKS_X] = BlockType.AIR;
+			} else if(y == 15) {
+				result.data[(x + 1) + (y + 1) * BLOCKS_X] = BlockType.GRASS;
+			} else {
+				result.data[(x + 1) + (y + 1) * BLOCKS_X] = BlockType.DIRT;
+			}			
+		}
+	}
+	
+	return result;
+}
+
+function getBlock(x, y) {
+	return world.data[(x + 1) + (y + 1) * BLOCKS_X];
 }

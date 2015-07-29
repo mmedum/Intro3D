@@ -3,17 +3,31 @@
 <head>
 <script id="vertex-shader" type="x-shader/x-vertex">
 attribute vec4 vPosition;
+attribute vec3 vColor;
+
+varying vec3 fColor; 
+varying vec2 fPosition;
+
+const int TILES_X = 40;
+const int TILES_Y = 30;
 
 void main() {
-    gl_Position = vPosition;
+	gl_Position = vec4((vPosition.xy/vec2(TILES_X, TILES_Y))*2.0-1.0, 0, 1);
+	fColor = vColor;
+	fPosition = vPosition.xy;
 }
 </script>
 
 <script id="fragment-shader" type="x-shader/x-fragment">
 precision mediump float;
 
+varying vec3 fColor;
+varying vec2 fPosition;
+
 void main() {
-    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+	vec2 fractPosition = fract(fPosition)-0.5;
+	float distanceToCenter = length(fractPosition)/1.0;
+	gl_FragColor = vec4(fColor-distanceToCenter, 1.0);
 }
 </script>
 
