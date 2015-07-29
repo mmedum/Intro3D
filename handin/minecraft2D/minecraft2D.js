@@ -22,8 +22,14 @@ var worldBufferId;
 var wireProgram;
 var wireBufferId;
 
+var stickmanProgram;
+var stickmanBufferId;
+
 var mouseX;
 var mouseY;
+
+var walkX = 20;
+var walkY = 16;
 
 var selectedBlock = BlockType.DIRT;
 
@@ -44,11 +50,13 @@ window.onload = function init() {
 
 		blockProgram = initShaders(gl, "vertex-block-shader", "fragment-block-shader");
 		wireProgram = initShaders(gl, "vertex-wire-shader", "fragment-wire-shader");
+		stickmanProgram = initShaders(gl, "vertex-stickman-shader", "fragment-stickman-shader");
 
 		world = createWorld();
 		worldBufferId = gl.createBuffer();
 
 		wireBufferId = createWireFrame();
+		stickmanBufferId = createStickman();
 
 		render();
 	}
@@ -93,16 +101,29 @@ function setListeners() {
 			case '7':
 				selectedBlock = BlockType.METAL;
 				break;
+			case 'a':
+				walkX--;
+				break;
+			case 'd':
+				walkX++;
+				break;
+			case 'w':
+				walkY++;
+				break;
+			case 's':
+				walkY--;
+				break;
 		}
 	});
 }
 
 function render() {
 	gl.clear(gl.COLOR_BUFFER_BIT);
-	
+
 	drawWorld();
 	drawWireFrame();
-	
+	drawStickman();
+
 	window.requestAnimFrame(render);
 }
 
@@ -114,7 +135,8 @@ function canPlaceBlock() {
 	var current = getBlock(mouseX, mouseY);
 
 	if (current == BlockType.AIR) {
-		if (up == BlockType.AIR && down == BlockType.AIR && left == BlockType.AIR && right == BlockType.AIR) {
+		if (up == BlockType.AIR && down == BlockType.AIR &&
+			left == BlockType.AIR && right == BlockType.AIR) {
 			return false;
 		} else {
 			return true;
@@ -124,18 +146,54 @@ function canPlaceBlock() {
 	}
 }
 
+function drawStickman() {
+	gl.bindBuffer(gl.ARRAY_BUFFER, stickmanBufferId);
+
+	var vPosition = gl.getAttribLocation(stickmanProgram, "vPosition");
+	gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
+	gl.enableVertexAttribArray(vPosition);
+
+	gl.useProgram(stickmanProgram);
+
+	var uPosition = gl.getUniformLocation(stickmanProgram, "uPosition");
+	gl.uniform2f(uPosition, walkX, walkY);
+
+	gl.drawArrays(gl.LINES, 0, 10);
+}
+
+function createStickman() {
+	var points = new Float32Array([
+		0.5, 0.0,
+		1.0, 1.0,
+		1.5, 0.0,
+		1.0, 1.0,
+		1.0, 1.0,
+		1.0, 2.0,
+		0.5, 1.0,
+		1.0, 2.0,
+		1.5, 1.0,
+		1.0, 2.0
+	]);
+
+	var stickmanBufferId = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, stickmanBufferId);
+	gl.bufferData(gl.ARRAY_BUFFER, points, gl.STATIC_DRAW);
+	return stickmanBufferId;
+}
+
 function drawWireFrame() {
 	if (canPlaceBlock()) {
 		gl.bindBuffer(gl.ARRAY_BUFFER, wireBufferId);
-		
+
 		var vPosition = gl.getAttribLocation(wireProgram, "vPosition");
 		gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
 		gl.enableVertexAttribArray(vPosition);
-		
+
 		gl.useProgram(wireProgram);
-		
+
 		var uPosition = gl.getUniformLocation(wireProgram, "uPosition");
 		gl.uniform2f(uPosition, mouseX, mouseY);
+		
 		gl.drawArrays(gl.LINE_LOOP, 0, 4);
 	}
 }

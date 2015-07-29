@@ -1,6 +1,9 @@
 <!doctype html>
 <html>
 <head>
+
+<!-- blockProgram -->
+
 <script id="vertex-block-shader" type="x-shader/x-vertex">
 attribute vec4 vPosition;
 attribute vec3 vColor;
@@ -17,7 +20,6 @@ void main() {
 	fPosition = vPosition.xy;
 }
 </script>
-
 <script id="fragment-block-shader" type="x-shader/x-fragment">
 precision mediump float;
 
@@ -31,6 +33,8 @@ void main() {
 }
 </script>
 
+<!-- wireProgram -->
+
 <script id="vertex-wire-shader" type="x-shader/x-vertex">
 uniform vec2 uPosition;
 
@@ -43,10 +47,30 @@ void main() {
 	gl_Position = vec4(((vPosition.xy + uPosition.xy)/vec2(TILES_X, TILES_Y))*2.0-1.0, 0, 1);
 }
 </script>
-
 <script id="fragment-wire-shader" type="x-shader/x-fragment">
 precision mediump float;
 
+void main() {
+	gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+}
+</script>
+
+<!-- stickmanProgram -->
+
+<script id="vertex-stickman-shader" type="x-shader/x-vertex">
+uniform vec2 uPosition;
+
+attribute vec4 vPosition;
+
+const int TILES_X = 40;
+const int TILES_Y = 30;
+
+void main() {
+	gl_Position = vec4(((vPosition.xy + uPosition.xy)/vec2(TILES_X, TILES_Y))*2.0-1.0, 0, 1);
+}
+</script>
+<script id="fragment-stickman-shader" type="x-shader/x-fragment">
+precision mediump float;
 
 void main() {
 	gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
