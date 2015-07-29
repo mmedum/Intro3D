@@ -63,13 +63,13 @@ function render() {
 	gl.drawArrays(gl.TRIANGLES, 0, points.length);
 }
 
-function tessellatedTriangles(a, b, c, numTimesToDivide) {
+function tessellatedTriangles(a, b, c, count) {
 	// http://www.slowlybutconstantly.org/?p=292
 	// http://slowlybutconstantly.org/html/Twist.html
 
 	// check for end of recursion
 
-	if (numTimesToDivide == 0) {
+	if (count === 0) {
 		triangle(a, b, c);
 	} else {
 
@@ -88,12 +88,12 @@ function tessellatedTriangles(a, b, c, numTimesToDivide) {
 		 *	         bc
 		 */
 
-		--numTimesToDivide;
+		--count;
 
-		tessellatedTriangles(a, ab, ca, numTimesToDivide);
-		tessellatedTriangles(ab, bc, ca, numTimesToDivide);
-		tessellatedTriangles(ab, b, bc, numTimesToDivide);
-		tessellatedTriangles(ca, bc, c, numTimesToDivide);
+		tessellatedTriangles(a, ab, ca, count);
+		tessellatedTriangles(ab, bc, ca, count);
+		tessellatedTriangles(ab, b, bc, count);
+		tessellatedTriangles(ca, bc, c, count);
 	}
 }
 
@@ -101,8 +101,8 @@ function triangle(a, b, c) {
 	points.push(rotateVertex(a), rotateVertex(b), rotateVertex(c));
 
 	// update colors for the next triangle
-	var col = vec4(Math.random(), Math.random(), Math.random(), 1.0);
-	colors.push(col, col, col);
+	var color = vec4(Math.random(), Math.random(), Math.random(), 1.0);
+	colors.push(color, color, color);
 }
 
 function rotateVertex(vertex) {
