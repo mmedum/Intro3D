@@ -57,21 +57,20 @@ window.onload = function init() {
 function setListeners() {
 	//click function	
 	canvas.addEventListener("click", function(event) {
-		var tileX = Math.floor((event.x - canvas.offsetLeft) / 20);
-		var tileY = BLOCKS_Y - Math.floor((event.y - canvas.offsetTop) / 20) - 1;
+		var tileX = Math.floor((event.clientX - canvas.offsetLeft) / 20);
+		var tileY = BLOCKS_Y - Math.floor((event.clientY - canvas.offsetTop) / 20) - 1;
 		setBlock(tileX, tileY, selectedBlock);
-
-		console.log("mouseX="+mouseX+", mouseY="+mouseY);
-		console.log("clientX="+event.clientX+", clientY="+event.clientY);
 	});
 	//mouse movement function	
 	canvas.addEventListener("mousemove", function(event) {
-		mouseX = Math.floor((event.x - canvas.offsetLeft) / 20);
-		mouseY = BLOCKS_Y - Math.floor((event.y - canvas.offsetTop) / 20) - 1;
+		mouseX = Math.floor((event.clientX - canvas.offsetLeft) / 20);
+		mouseY = BLOCKS_Y - Math.floor((event.clientY - canvas.offsetTop) / 20) - 1;
 	});
 	//keyboard selection function
 	window.addEventListener("keypress", function(event) {
-		var key = String.fromCharCode(event.keyCode);
+		var intKey = event.which || event.keyCode; // firefox or chrome
+		var key = String.fromCharCode(intKey);
+
 		switch (key) {
 			case '1':
 				selectedBlock = BlockType.DIRT;
