@@ -270,4 +270,4 @@ sympy-plots-for-*.tex/
 hs_err_pid*
 
 # mac
-.DS_Store
+*.DS_Store
