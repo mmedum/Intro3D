@@ -14,10 +14,13 @@ var BlockType = {
 };
 
 var gl;
+
 var blockProgram;
-var wireProgram;
 var world;
 var worldBufferId;
+
+var wireProgram;
+var wireBufferId;
 
 var mouseX;
 var mouseY;
@@ -49,9 +52,10 @@ window.onload = function init() {
 		wireProgram = initShaders(gl, "vertex-wire-shader", "fragment-wire-shader");
 
 		world = createWorld();
-
 		worldBufferId = gl.createBuffer();
 		
+		wireBufferId = createWireFrame();
+
 		render();
 	}
 }
@@ -64,7 +68,36 @@ function render() {
 }
 
 function drawWireFrame(){
+	var up = getBlock(mouseX, mouseY+1);
+	var down = getBlock(mouseX, mouseY-1);
+	var left = getBlock(mouseX-1, mouseY);
+	var right = getBlock(mouseX+1, mouseY);
 
+	if(up == BlockType.AIR && down == BlockType.AIR && left == BlockType.AIR && right == BlockType.AIR){
+		return;
+	}
+
+	gl.bindBuffer(gl.ARRAY_BUFFER, wireBufferId);	
+	var vPosition = gl.getAttribLocation(wireProgram, "vPosition");
+	gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
+	gl.enableVertexAttribArray(vPosition);
+	gl.useProgram(wireProgram);
+	var uPosition = gl.getUniformLocation(wireProgram, "uPosition");
+	gl.uniform2f(uPosition, mouseX, mouseY);
+	gl.drawArrays(gl.LINE_LOOP, 0, 4); 
+}
+
+function createWireFrame(){
+	var points = new Float32Array([
+			0.0, 0.0, 
+			1.0, 0.0, 
+			1.0, 1.0, 
+			0.0, 1.0]);
+	
+	var wireBufferId = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, wireBufferId);
+	gl.bufferData(gl.ARRAY_BUFFER, points, gl.STATIC_DRAW);
+	return wireBufferId;
 }
 
 function drawWorld(){
