@@ -63,13 +63,13 @@ function render() {
 	gl.drawArrays(gl.TRIANGLES, 0, points.length);
 }
 
-function tessellatedTriangles(a, b, c, count) {
+function tessellatedTriangles(a, b, c, numTimesToDivide) {
 	// http://www.slowlybutconstantly.org/?p=292
 	// http://slowlybutconstantly.org/html/Twist.html
 
 	// check for end of recursion
 
-	if (count === 0) {
+	if (numTimesToDivide == 0) {
 		triangle(a, b, c);
 	} else {
 
@@ -88,12 +88,12 @@ function tessellatedTriangles(a, b, c, count) {
 		 *	         bc
 		 */
 
-		--count;
+		--numTimesToDivide;
 
-		tessellatedTriangles(a, ab, ca, count);
-		tessellatedTriangles(ab, bc, ca, count);
-		tessellatedTriangles(ab, b, bc, count);
-		tessellatedTriangles(ca, bc, c, count);
+		tessellatedTriangles(a, ab, ca, numTimesToDivide);
+		tessellatedTriangles(ab, bc, ca, numTimesToDivide);
+		tessellatedTriangles(ab, b, bc, numTimesToDivide);
+		tessellatedTriangles(ca, bc, c, numTimesToDivide);
 	}
 }
 
