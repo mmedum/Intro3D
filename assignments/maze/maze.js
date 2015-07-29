@@ -38,9 +38,19 @@ function render() {
 	gl.drawArrays(gl.LINES, 0, points.length);
 }
 
+function depthFirstMaze(n, m){
+	points = [];
+	for(var i=0; i<n; i++){
+		for(var j=0; j<m; j++){
+
+		}
+	}
+}
+
 function maze(n, m){
 	points = [];
-
+	
+	//Old implementation
 	//i = m
 	//j = n
 	for(var i=0; i<n; i++){
