@@ -48,9 +48,11 @@ window.onload = function init() {
 		gl.viewport(0, 0, canvas.width, canvas.height);
 		gl.clearColor(1.0, 1.0, 1.0, 1.0);
 
+		// program for world
 		blockProgram = initShaders(gl, "vertex-block-shader", "fragment-block-shader");
+		
+		// program for wire frame and stickman
 		wireProgram = initShaders(gl, "vertex-wire-shader", "fragment-wire-shader");
-		stickmanProgram = initShaders(gl, "vertex-stickman-shader", "fragment-stickman-shader");
 
 		world = createWorld();
 		worldBufferId = gl.createBuffer();
@@ -149,13 +151,13 @@ function canPlaceBlock() {
 function drawStickman() {
 	gl.bindBuffer(gl.ARRAY_BUFFER, stickmanBufferId);
 
-	var vPosition = gl.getAttribLocation(stickmanProgram, "vPosition");
+	var vPosition = gl.getAttribLocation(wireProgram, "vPosition");
 	gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
 	gl.enableVertexAttribArray(vPosition);
 
-	gl.useProgram(stickmanProgram);
+	gl.useProgram(wireProgram);
 
-	var uPosition = gl.getUniformLocation(stickmanProgram, "uPosition");
+	var uPosition = gl.getUniformLocation(wireProgram, "uPosition");
 	gl.uniform2f(uPosition, walkX, walkY);
 
 	gl.drawArrays(gl.LINES, 0, 10);
