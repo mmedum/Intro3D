@@ -2,7 +2,7 @@ var BLOCKS_X = 40;
 var BLOCKS_Y = 30;
 
 var BlockType = {
-	OFB		: [],	// out of bounds
+	OFB		: [0.0, 0.0, 0.0],	// out of bounds
 	AIR		: [0.0, 0.0, 1.0],
 	STONE 	: [0.5, 0.5, 0.5],
 	GRASS		: [0.0, 1.0, 0.0],
@@ -14,9 +14,13 @@ var BlockType = {
 };
 
 var gl;
-var program;
+var blockProgram;
+var wireProgram;
 var world;
 var worldBufferId;
+
+var mouseX;
+var mouseY;
 
 window.onload = function init() {
 	var canvas = document.getElementById("gl-canvas");
@@ -25,6 +29,15 @@ window.onload = function init() {
 	if (!gl) {
 		alert("gl not working");
 	} else {
+		canvas.addEventListener("click", function() {
+			var tileX = Math.floor((event.x - canvas.offsetLeft)/20);
+			var tileY = BLOCKS_Y-Math.floor((event.y - canvas.offsetTop)/20)-1;	
+			setBlock(tileX, tileY, BlockType.AIR);
+		});
+		canvas.addEventListener("mousemove", function() {
+			mouseX = Math.floor((event.x - canvas.offsetLeft)/20);
+			mouseY = BLOCKS_Y-Math.floor((event.y - canvas.offsetTop)/20)-1;	
+		});	
 		// Gief debug
 		gl = WebGLDebugUtils.makeDebugContext(gl);
 
@@ -32,31 +45,26 @@ window.onload = function init() {
 		gl.viewport(0, 0, canvas.width, canvas.height);
 		gl.clearColor(1.0, 1.0, 1.0, 1.0);
 
-		program = initShaders(gl, "vertex-shader", "fragment-shader");
-		gl.useProgram(program);
-		
+		blockProgram = initShaders(gl, "vertex-block-shader", "fragment-block-shader");
+		wireProgram = initShaders(gl, "vertex-wire-shader", "fragment-wire-shader");
+
 		world = createWorld();
 
 		worldBufferId = gl.createBuffer();
 		
 		render();
-/*
-		var bufferId = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
-		gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
-
-		var vPosition = gl.getAttribLocation(program, "vPosition");
-		gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
-		gl.enableVertexAttribArray(vPosition);
-
-		render();*/
 	}
 }
 
 function render() {
 	gl.clear(gl.COLOR_BUFFER_BIT);
-	drawWorld();		
-	//requestAnimFrame(render());
+	drawWorld();
+	drawWireFrame();	
+	window.requestAnimFrame(render);
+}
+
+function drawWireFrame(){
+
 }
 
 function drawWorld(){
@@ -107,14 +115,15 @@ function drawWorld(){
 
 	gl.bufferData(gl.ARRAY_BUFFER, vertexWorld, gl.DYNAMIC_DRAW); 
 	
-	var vPosition = gl.getAttribLocation(program, "vPosition");
+	var vPosition = gl.getAttribLocation(blockProgram, "vPosition");
 	gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 20, 0);
 	gl.enableVertexAttribArray(vPosition);
 	
-	var vColor = gl.getAttribLocation(program, "vColor");
+	var vColor = gl.getAttribLocation(blockProgram, "vColor");
 	gl.vertexAttribPointer(vColor, 3, gl.FLOAT, false, 20, 8);
 	gl.enableVertexAttribArray(vColor);
-	
+
+	gl.useProgram(blockProgram);	
 	gl.drawArrays(gl.TRIANGLES, 0, vertexWorld.length/5);
 }
 
@@ -152,4 +161,8 @@ function createWorld() {
 
 function getBlock(x, y) {
 	return world.data[(x + 1) + (y + 1) * BLOCKS_X];
+}
+
+function setBlock(x, y, type) {
+	world.data[(x + 1) + (y + 1) * BLOCKS_X] = type;
 }
