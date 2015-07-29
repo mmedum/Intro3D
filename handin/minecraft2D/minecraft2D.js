@@ -7,12 +7,12 @@ var BlockType = {
 	STONE 	: [0.5, 0.5, 0.5],
 	GRASS		: [0.0, 1.0, 0.0],
 	DIRT		: [0.7, 0.4, 0.3],
-	WOOD		: [0.8, 0.4, 0.4],
+	WOOD		: [0.8901, 0.6627, 0.4352],
 	METAL 	: [0.8, 0.8, 0.8],
-	WATER 	: [0.2, 0.2, 1.0],
+	WATER 	: [0.6, 0.8509, 0.9176],
 	FIRE		: [1.0, 0.0, 0.0]
 };
-
+var canvas;
 var gl;
 
 var blockProgram;
@@ -25,22 +25,16 @@ var wireBufferId;
 var mouseX;
 var mouseY;
 
+var selectedBlock = BlockType.DIRT;
+
 window.onload = function init() {
-	var canvas = document.getElementById("gl-canvas");
+	canvas = document.getElementById("gl-canvas");
 	gl = WebGLUtils.setupWebGL(canvas);
 
 	if (!gl) {
 		alert("gl not working");
 	} else {
-		canvas.addEventListener("click", function() {
-			var tileX = Math.floor((event.x - canvas.offsetLeft)/20);
-			var tileY = BLOCKS_Y-Math.floor((event.y - canvas.offsetTop)/20)-1;	
-			setBlock(tileX, tileY, BlockType.AIR);
-		});
-		canvas.addEventListener("mousemove", function() {
-			mouseX = Math.floor((event.x - canvas.offsetLeft)/20);
-			mouseY = BLOCKS_Y-Math.floor((event.y - canvas.offsetTop)/20)-1;	
-		});	
+		setListeners();
 		// Gief debug
 		gl = WebGLDebugUtils.makeDebugContext(gl);
 
@@ -60,6 +54,51 @@ window.onload = function init() {
 	}
 }
 
+function setListeners(){
+	//click function	
+	canvas.addEventListener("click", function() {
+		var tileX = Math.floor((event.x - canvas.offsetLeft)/20);
+		var tileY = BLOCKS_Y-Math.floor((event.y - canvas.offsetTop)/20)-1;	
+		setBlock(tileX, tileY, selectedBlock);
+	});
+	//mouse movement function	
+	canvas.addEventListener("mousemove", function() {
+		mouseX = Math.floor((event.x - canvas.offsetLeft)/20);
+		mouseY = BLOCKS_Y-Math.floor((event.y - canvas.offsetTop)/20)-1;	
+	});	
+	//keyboard selection function
+	window.addEventListener("keypress", function() {
+		//1
+		if(event.keyCode == 49){
+			selectedBlock = BlockType.DIRT;
+		}
+		//2
+		if(event.keyCode == 50){
+			selectedBlock = BlockType.GRASS;
+		}
+		//3
+		if(event.keyCode == 51){
+			selectedBlock = BlockType.WOOD;
+		}
+		//4
+		if(event.keyCode == 52){
+			selectedBlock = BlockType.WATER;
+		}
+		//5
+		if(event.keyCode == 53){
+			selectedBlock = BlockType.FIRE;
+		}
+		//6
+		if(event.keyCode == 54){
+			selectedBlock = BlockType.STONE;
+		}
+		//7
+		if(event.keyCode == 55){
+			selectedBlock = BlockType.METAL;
+		}
+	});
+}
+
 function render() {
 	gl.clear(gl.COLOR_BUFFER_BIT);
 	drawWorld();
@@ -67,24 +106,36 @@ function render() {
 	window.requestAnimFrame(render);
 }
 
-function drawWireFrame(){
+function canPlaceBlock(){
 	var up = getBlock(mouseX, mouseY+1);
 	var down = getBlock(mouseX, mouseY-1);
 	var left = getBlock(mouseX-1, mouseY);
 	var right = getBlock(mouseX+1, mouseY);
+	var current = getBlock(mouseX, mouseY);
 
-	if(up == BlockType.AIR && down == BlockType.AIR && left == BlockType.AIR && right == BlockType.AIR){
-		return;
+
+	if(current == BlockType.AIR){
+		if(up == BlockType.AIR && down == BlockType.AIR && left == BlockType.AIR && right == BlockType.AIR){
+			return false;
+		}else {
+			return true;
+		}
+	}else {
+		return false;
 	}
+}
 
-	gl.bindBuffer(gl.ARRAY_BUFFER, wireBufferId);	
-	var vPosition = gl.getAttribLocation(wireProgram, "vPosition");
-	gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
-	gl.enableVertexAttribArray(vPosition);
-	gl.useProgram(wireProgram);
-	var uPosition = gl.getUniformLocation(wireProgram, "uPosition");
-	gl.uniform2f(uPosition, mouseX, mouseY);
-	gl.drawArrays(gl.LINE_LOOP, 0, 4); 
+function drawWireFrame(){
+	if(canPlaceBlock()){
+		gl.bindBuffer(gl.ARRAY_BUFFER, wireBufferId);	
+		var vPosition = gl.getAttribLocation(wireProgram, "vPosition");
+		gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(vPosition);
+		gl.useProgram(wireProgram);
+		var uPosition = gl.getUniformLocation(wireProgram, "uPosition");
+		gl.uniform2f(uPosition, mouseX, mouseY);
+		gl.drawArrays(gl.LINE_LOOP, 0, 4); 
+	}
 }
 
 function createWireFrame(){
@@ -188,7 +239,6 @@ function createWorld() {
 			}			
 		}
 	}
-	
 	return result;
 }
 
@@ -197,5 +247,10 @@ function getBlock(x, y) {
 }
 
 function setBlock(x, y, type) {
-	world.data[(x + 1) + (y + 1) * BLOCKS_X] = type;
+	if(canPlaceBlock()){
+		world.data[(x + 1) + (y + 1) * BLOCKS_X] = type;
+	}else {
+		world.data[(x + 1) + (y + 1) * BLOCKS_X] = BlockType.AIR;
+	}
+
 }
