@@ -38,11 +38,14 @@ var Stickman = {
 
 var selectedBlock = BlockType.DIRT;
 
+<<<<<<< HEAD
 var clickWaveTime = 0.0;
 var clickWaveRadius = 0.0;
 var clickWavePositionX = 0;
 var clickWavePositionY = 0;
 
+=======
+>>>>>>> d2de2c26c896f47906e9c667f4190a6ebb755c9b
 window.onload = function init() {
 	canvas = document.getElementById("gl-canvas");
 	gl = WebGLUtils.setupWebGL(canvas);
@@ -74,6 +77,7 @@ window.onload = function init() {
 	}
 }
 
+<<<<<<< HEAD
 function startClickWave() {
 	clickWaveTime = 2.5;
 	clickWaveRadius = 0.0;
@@ -81,6 +85,8 @@ function startClickWave() {
 	clickWavePositionY = mouseY;
 }
 
+=======
+>>>>>>> d2de2c26c896f47906e9c667f4190a6ebb755c9b
 function setListeners() {
 	//click function	
 	canvas.addEventListener("click", function(event) {
@@ -88,11 +94,17 @@ function setListeners() {
 		var tileY = BLOCKS_Y - Math.floor((event.clientY - canvas.offsetTop) / 20) - 1;
 		
 		if(getBlock(tileX, tileY) != BlockType.AIR) {
+<<<<<<< HEAD
 			startClickWave();
 			setBlock(tileX, tileY, BlockType.AIR);
 		} else {
 			if(canPlaceBlock()) {
 				startClickWave();
+=======
+			setBlock(tileX, tileY, BlockType.AIR);
+		} else {
+			if(canPlaceBlock()) {
+>>>>>>> d2de2c26c896f47906e9c667f4190a6ebb755c9b
 				setBlock(tileX, tileY, selectedBlock);
 			}
 		}
@@ -175,7 +187,7 @@ function update() {
 	lastUpdate = currentTime;
 	
 	var dt = elapsed * 0.001;
-	
+
 	var speed = 15.0;
 	
 	if(Stickman.left) {
@@ -236,11 +248,9 @@ function drawStickman() {
 	var uPosition = gl.getUniformLocation(wireProgram, "uPosition");
 	gl.uniform2f(uPosition, Stickman.x, Stickman.y);
 
-	//gl.enable(gl.LINE_SMOOTH);
 	gl.lineWidth(5);
 	gl.drawArrays(gl.LINES, 0, 10);
-	//gl.lineWidth(1);
-	//gl.disable(gl.LINE_SMOOTH);
+	gl.lineWidth(1);
 }
 
 function createStickman() {
@@ -359,7 +369,7 @@ function drawWorld() {
 	gl.uniform1i(uClickWaveActive, clickWaveTime > 0 ? 1 : 0);
 	gl.uniform1f(uClickWaveRadius, clickWaveRadius);
 	gl.uniform2f(uClickWavePosition, clickWavePositionX, clickWavePositionY);
-	
+
 	gl.drawArrays(gl.TRIANGLES, 0, vertexWorld.length / 5);
 }
 
