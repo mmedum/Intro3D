@@ -28,8 +28,13 @@ var stickmanBufferId;
 var mouseX;
 var mouseY;
 
-var walkX = 20;
-var walkY = 16;
+var Stickman = {
+	x : 20,
+	y : 16,
+	left : false,
+	right : false,
+	jumping : false
+}
 
 var selectedBlock = BlockType.DIRT;
 
@@ -110,23 +115,71 @@ function setListeners() {
 			case '7':
 				selectedBlock = BlockType.METAL;
 				break;
+		}
+	});
+	
+	window.addEventListener("keydown", function(event) {
+		var intKey = event.which || event.keyCode; // firefox or chrome
+		var key = String.fromCharCode(intKey);
+
+		switch (key) {
 			case 'a':
-				walkX--;
+				Stickman.left = true;
 				break;
 			case 'd':
-				walkX++;
+				Stickman.right = true;
 				break;
 			case 'w':
-				walkY++;
+				Stickman.jump = true;
 				break;
-			case 's':
-				walkY--;
+		}
+	});
+	
+	window.addEventListener("keyup", function(event) {
+		var intKey = event.which || event.keyCode; // firefox or chrome
+		var key = String.fromCharCode(intKey);
+
+		switch (key) {
+			case 'a':
+				Stickman.left = false;
+				break;
+			case 'd':
+				Stickman.right = false;
+				break;
+			case 'w':
+				Stickman.jump = false;
 				break;
 		}
 	});
 }
 
+var date = new Date;
+
+var lastUpdate = date.getTime();
+
+function update() {
+	var currentTime = date.getTime();
+	var elapsed = currentTime - lastUpdate;
+	lastUpdate = currentTime;
+	
+	var dt = elapsed * 0.001;
+	
+	var speed = 15.0;
+	
+	console.log(Stickman.left);
+	
+	if(Stickman.left) {
+		Stickman.x += speed * dt;
+	}
+	if(Stickman.right) {
+		Stickman.x -= speed * dt;
+	}
+	
+}
+
 function render() {
+	update();
+
 	gl.clear(gl.COLOR_BUFFER_BIT);
 
 	drawWorld();
@@ -167,7 +220,7 @@ function drawStickman() {
 	gl.useProgram(wireProgram);
 
 	var uPosition = gl.getUniformLocation(wireProgram, "uPosition");
-	gl.uniform2f(uPosition, walkX, walkY);
+	gl.uniform2f(uPosition, Stickman.x, Stickman.y);
 
 	gl.drawArrays(gl.LINES, 0, 10);
 }
