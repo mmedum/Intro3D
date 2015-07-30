@@ -156,8 +156,6 @@ function setListeners() {
 var lastUpdate = new Date().getTime();
 
 function update() {
-	console.log("Current Time: " + lastUpdate);
-
 	var currentTime = new Date().getTime();
 	var elapsed = currentTime - lastUpdate;
 	lastUpdate = currentTime;
@@ -220,11 +218,9 @@ function drawStickman() {
 	var uPosition = gl.getUniformLocation(wireProgram, "uPosition");
 	gl.uniform2f(uPosition, Stickman.x, Stickman.y);
 
-	//gl.enable(gl.LINE_SMOOTH);
 	gl.lineWidth(5);
 	gl.drawArrays(gl.LINES, 0, 10);
-	//gl.lineWidth(1);
-	//gl.disable(gl.LINE_SMOOTH);
+	gl.lineWidth(1);
 }
 
 function createStickman() {
