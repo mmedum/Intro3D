@@ -143,8 +143,6 @@ function canPlaceBlock() {
 	var right = getBlock(mouseX + 1, mouseY);
 	var current = getBlock(mouseX, mouseY);
 	
-	console.log("Up: " + up + " Down: " + down + " Left: " + left + " Right: " + right);
-	
 	if(current != BlockType.AIR) {
 		return false;
 	}
