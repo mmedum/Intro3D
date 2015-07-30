@@ -61,7 +61,7 @@ window.onload = function init() {
 
 		// program for world
 		blockProgram = initShaders(gl, "vertex-block-shader", "fragment-block-shader");
-		
+
 		// program for wire frame and stickman
 		wireProgram = initShaders(gl, "vertex-wire-shader", "fragment-wire-shader");
 
@@ -87,18 +87,18 @@ function setListeners() {
 	canvas.addEventListener("click", function(event) {
 		var tileX = Math.floor((event.clientX - canvas.offsetLeft) / 20);
 		var tileY = BLOCKS_Y - Math.floor((event.clientY - canvas.offsetTop) / 20) - 1;
-		
-		if(getBlock(tileX, tileY) != BlockType.AIR) {
+
+		if (getBlock(tileX, tileY) != BlockType.AIR) {
 			startClickWave();
 			setBlock(tileX, tileY, BlockType.AIR);
 		} else {
-			if(canPlaceBlock()) {
+			if (canPlaceBlock()) {
 				startClickWave();
 				setBlock(tileX, tileY, selectedBlock);
 			}
-		}	
+		}
 	});
-	
+
 	//mouse movement function	
 	canvas.addEventListener("mousemove", function(event) {
 		mouseX = Math.floor((event.clientX - canvas.offsetLeft) / 20);
@@ -133,7 +133,7 @@ function setListeners() {
 				break;
 		}
 	});
-	
+
 	window.addEventListener("keydown", function(event) {
 		var intKey = event.which || event.keyCode; // firefox or chrome
 		var key = String.fromCharCode(intKey);
@@ -150,7 +150,7 @@ function setListeners() {
 				break;
 		}
 	});
-	
+
 	window.addEventListener("keyup", function(event) {
 		var intKey = event.which || event.keyCode; // firefox or chrome
 		var key = String.fromCharCode(intKey);
@@ -175,7 +175,7 @@ function update() {
 	var currentTime = new Date().getTime();
 	var elapsed = currentTime - lastUpdate;
 	lastUpdate = currentTime;
-	
+
 	var dt = elapsed * 0.001;
 
 	var speed = 15.0;
@@ -219,13 +219,12 @@ function update() {
 		}
 		if(rightBlock != BlockType.AIR && rightBlockTop == BlockType.AIR){
 			Stickman.y = currentY + 1;
-		}	
+		}
 	}
-	if(clickWaveTime > 0) {
+	if (clickWaveTime > 0) {
 		clickWaveRadius += 25.0 * dt;
 		clickWaveTime -= dt;
 	}
-
 }
 
 function checkWallCollesion(currentX, currentY, newX, newY){
@@ -233,7 +232,7 @@ function checkWallCollesion(currentX, currentY, newX, newY){
 	var newBlock = getBlock(newX, newY);
 	if(newBlock != BlockType.AIR){
 		return true;
-	}else {
+	} else {
 		return false;
 	}
 }
@@ -256,14 +255,21 @@ function canPlaceBlock() {
 	var left = getBlock(mouseX - 1, mouseY);
 	var right = getBlock(mouseX + 1, mouseY);
 	var current = getBlock(mouseX, mouseY);
-	
-	if(current != BlockType.AIR) {
+
+	if ((Stickman.x == mouseX && Stickman.y == mouseY) ||
+		(Stickman.x + 1 == mouseX && Stickman.y == mouseY) ||
+		(Stickman.x == mouseX && Stickman.y + 1 == mouseY) ||
+		(Stickman.x + 1 == mouseX && Stickman.y + 1 == mouseY)) {
 		return false;
 	}
 
-	if ((up == BlockType.AIR || up == BlockType.OFB) && 
-		(down == BlockType.AIR || down == BlockType.OFB) && 
-		(left == BlockType.AIR || left == BlockType.OFB) && 
+	if (current != BlockType.AIR) {
+		return false;
+	}
+
+	if ((up == BlockType.AIR || up == BlockType.OFB) &&
+		(down == BlockType.AIR || down == BlockType.OFB) &&
+		(left == BlockType.AIR || left == BlockType.OFB) &&
 		(right == BlockType.AIR || right == BlockType.OFB)) {
 		return false;
 	} else {
@@ -320,7 +326,7 @@ function drawWireFrame() {
 
 		var uPosition = gl.getUniformLocation(wireProgram, "uPosition");
 		gl.uniform2f(uPosition, mouseX, mouseY);
-		
+
 		gl.drawArrays(gl.LINE_LOOP, 0, 4);
 	}
 }
@@ -396,11 +402,11 @@ function drawWorld() {
 	gl.enableVertexAttribArray(vColor);
 
 	gl.useProgram(blockProgram);
-	
+
 	var uClickWaveActive = gl.getUniformLocation(blockProgram, "uClickWaveActive");
 	var uClickWaveRadius = gl.getUniformLocation(blockProgram, "uClickWaveRadius");
 	var uClickWavePosition = gl.getUniformLocation(blockProgram, "uClickWavePosition");
-	
+
 	gl.uniform1i(uClickWaveActive, clickWaveTime > 0 ? 1 : 0);
 	gl.uniform1f(uClickWaveRadius, clickWaveRadius);
 	gl.uniform2f(uClickWavePosition, clickWavePositionX, clickWavePositionY);
@@ -418,7 +424,7 @@ function createWorld() {
 		setBlock(-1, y, BlockType.OFB);
 		setBlock(BLOCKS_X, y, BlockType.OFB);
 	}
-	
+
 	for (var x = -1; x < BLOCKS_X + 1; x++) {
 		setBlock(x, -1, BlockType.OFB);
 		setBlock(x, BLOCKS_Y, BlockType.OFB);
