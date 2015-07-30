@@ -38,6 +38,11 @@ var Stickman = {
 
 var selectedBlock = BlockType.DIRT;
 
+var clickWaveTime = 0.0;
+var clickWaveRadius = 0.0;
+var clickWavePositionX = 0;
+var clickWavePositionY = 0;
+
 window.onload = function init() {
 	canvas = document.getElementById("gl-canvas");
 	gl = WebGLUtils.setupWebGL(canvas);
@@ -69,6 +74,13 @@ window.onload = function init() {
 	}
 }
 
+function startClickWave() {
+	clickWaveTime = 2.5;
+	clickWaveRadius = 0.0;
+	clickWavePositionX = mouseX;
+	clickWavePositionY = mouseY;
+}
+
 function setListeners() {
 	//click function	
 	canvas.addEventListener("click", function(event) {
@@ -76,9 +88,11 @@ function setListeners() {
 		var tileY = BLOCKS_Y - Math.floor((event.clientY - canvas.offsetTop) / 20) - 1;
 		
 		if(getBlock(tileX, tileY) != BlockType.AIR) {
+			startClickWave();
 			setBlock(tileX, tileY, BlockType.AIR);
 		} else {
 			if(canPlaceBlock()) {
+				startClickWave();
 				setBlock(tileX, tileY, selectedBlock);
 			}
 		}
@@ -156,8 +170,6 @@ function setListeners() {
 var lastUpdate = new Date().getTime();
 
 function update() {
-	console.log("Current Time: " + lastUpdate);
-
 	var currentTime = new Date().getTime();
 	var elapsed = currentTime - lastUpdate;
 	lastUpdate = currentTime;
@@ -173,6 +185,10 @@ function update() {
 		Stickman.x += speed * dt;
 	}
 	
+	if(clickWaveTime > 0) {
+		clickWaveRadius += 25.0 * dt;
+		clickWaveTime -= dt;
+	}
 }
 
 function render() {
@@ -335,6 +351,15 @@ function drawWorld() {
 	gl.enableVertexAttribArray(vColor);
 
 	gl.useProgram(blockProgram);
+	
+	var uClickWaveActive = gl.getUniformLocation(blockProgram, "uClickWaveActive");
+	var uClickWaveRadius = gl.getUniformLocation(blockProgram, "uClickWaveRadius");
+	var uClickWavePosition = gl.getUniformLocation(blockProgram, "uClickWavePosition");
+	
+	gl.uniform1i(uClickWaveActive, clickWaveTime > 0 ? 1 : 0);
+	gl.uniform1f(uClickWaveRadius, clickWaveRadius);
+	gl.uniform2f(uClickWavePosition, clickWavePositionX, clickWavePositionY);
+	
 	gl.drawArrays(gl.TRIANGLES, 0, vertexWorld.length / 5);
 }
 
