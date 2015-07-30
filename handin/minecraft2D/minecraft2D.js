@@ -114,24 +114,31 @@ function setListeners() {
 		switch (key) {
 			case '1':
 				selectedBlock = BlockType.DIRT;
+				document.getElementById("selectedBlock").innerHTML = "Dirt";
 				break;
 			case '2':
 				selectedBlock = BlockType.GRASS;
+				document.getElementById("selectedBlock").innerHTML = "Grass";
 				break;
 			case '3':
 				selectedBlock = BlockType.WOOD;
+				document.getElementById("selectedBlock").innerHTML = "Wood";
 				break;
 			case '4':
 				selectedBlock = BlockType.WATER;
+				document.getElementById("selectedBlock").innerHTML = "Water";
 				break;
 			case '5':
 				selectedBlock = BlockType.FIRE;
+				document.getElementById("selectedBlock").innerHTML = "Fire";
 				break;
 			case '6':
 				selectedBlock = BlockType.STONE;
+				document.getElementById("selectedBlock").innerHTML = "Stone";
 				break;
 			case '7':
 				selectedBlock = BlockType.METAL;
+				document.getElementById("selectedBlock").innerHTML = "Metal";
 				break;
 		}
 	});
