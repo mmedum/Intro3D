@@ -161,7 +161,6 @@ function update() {
 	lastUpdate = currentTime;
 	
 	var dt = elapsed * 0.001;
-	
 	var speed = 15.0;
 	
 	if(Stickman.left) {
