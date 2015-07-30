@@ -54,7 +54,7 @@ window.onload = function init() {
 		// program for wire frame and stickman
 		wireProgram = initShaders(gl, "vertex-wire-shader", "fragment-wire-shader");
 
-		world = createWorld();
+		createWorld();
 		worldBufferId = gl.createBuffer();
 
 		wireBufferId = createWireFrame();
@@ -69,7 +69,14 @@ function setListeners() {
 	canvas.addEventListener("click", function(event) {
 		var tileX = Math.floor((event.clientX - canvas.offsetLeft) / 20);
 		var tileY = BLOCKS_Y - Math.floor((event.clientY - canvas.offsetTop) / 20) - 1;
-		setBlock(tileX, tileY, selectedBlock);
+		
+		if(getBlock(tileX, tileY) != BlockType.AIR) {
+			setBlock(tileX, tileY, BlockType.AIR);
+		} else {
+			if(canPlaceBlock()) {
+				setBlock(tileX, tileY, selectedBlock);
+			}
+		}
 	});
 	//mouse movement function	
 	canvas.addEventListener("mousemove", function(event) {
@@ -135,16 +142,20 @@ function canPlaceBlock() {
 	var left = getBlock(mouseX - 1, mouseY);
 	var right = getBlock(mouseX + 1, mouseY);
 	var current = getBlock(mouseX, mouseY);
-
-	if (current == BlockType.AIR) {
-		if (up == BlockType.AIR && down == BlockType.AIR &&
-			left == BlockType.AIR && right == BlockType.AIR) {
-			return false;
-		} else {
-			return true;
-		}
-	} else {
+	
+	console.log("Up: " + up + " Down: " + down + " Left: " + left + " Right: " + right);
+	
+	if(current != BlockType.AIR) {
 		return false;
+	}
+
+	if ((up == BlockType.AIR || up == BlockType.OFB) && 
+		(down == BlockType.AIR || down == BlockType.OFB) && 
+		(left == BlockType.AIR || left == BlockType.OFB) && 
+		(right == BlockType.AIR || right == BlockType.OFB)) {
+		return false;
+	} else {
+		return true;
 	}
 }
 
@@ -275,45 +286,39 @@ function drawWorld() {
 }
 
 function createWorld() {
-	var result = {
+	world = {
 		data: new Array((BLOCKS_X + 2) * (BLOCKS_Y + 2))
 	};
 
 	//out of bounds setup
-	for (var y = 0; y < BLOCKS_Y + 1; y++) {
-		result.data[0 + y * BLOCKS_X] = BlockType.OFB;
-		result.data[BLOCKS_X + y * BLOCKS_X] = BlockType.OFB;
+	for (var y = -1; y < BLOCKS_Y + 1; y++) {
+		setBlock(-1, y, BlockType.OFB);
+		setBlock(BLOCKS_X, y, BlockType.OFB);
 	}
-
-	for (var x = 0; x < BLOCKS_X + 1; x++) {
-		result.data[x + 0 * BLOCKS_X] = BlockType.OFB;
-		result.data[x + BLOCKS_Y * BLOCKS_X] = BlockType.OFB;
+	
+	for (var x = -1; x < BLOCKS_X + 1; x++) {
+		setBlock(x, -1, BlockType.OFB);
+		setBlock(x, BLOCKS_Y, BlockType.OFB);
 	}
 
 	//world setup	
 	for (var y = 0; y < BLOCKS_Y; y++) {
 		for (var x = 0; x < BLOCKS_X; x++) {
 			if (y > 15) {
-				result.data[(x + 1) + (y + 1) * BLOCKS_X] = BlockType.AIR;
+				setBlock(x, y, BlockType.AIR);
 			} else if (y == 15) {
-				result.data[(x + 1) + (y + 1) * BLOCKS_X] = BlockType.GRASS;
+				setBlock(x, y, BlockType.GRASS);
 			} else {
-				result.data[(x + 1) + (y + 1) * BLOCKS_X] = BlockType.DIRT;
+				setBlock(x, y, BlockType.DIRT);
 			}
 		}
 	}
-	return result;
 }
 
 function getBlock(x, y) {
-	return world.data[(x + 1) + (y + 1) * BLOCKS_X];
+	return world.data[(x + 1) + (y + 1) * (BLOCKS_X + 2)];
 }
 
 function setBlock(x, y, type) {
-	if (canPlaceBlock()) {
-		world.data[(x + 1) + (y + 1) * BLOCKS_X] = type;
-	} else {
-		world.data[(x + 1) + (y + 1) * BLOCKS_X] = BlockType.AIR;
-	}
-
+	world.data[(x + 1) + (y + 1) * (BLOCKS_X + 2)] = type;
 }
