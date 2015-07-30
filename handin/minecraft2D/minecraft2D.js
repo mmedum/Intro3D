@@ -121,8 +121,8 @@ function setListeners() {
 	window.addEventListener("keydown", function(event) {
 		var intKey = event.which || event.keyCode; // firefox or chrome
 		var key = String.fromCharCode(intKey);
-
-		switch (key) {
+		
+		switch (key.toLowerCase()) {
 			case 'a':
 				Stickman.left = true;
 				break;
@@ -139,7 +139,7 @@ function setListeners() {
 		var intKey = event.which || event.keyCode; // firefox or chrome
 		var key = String.fromCharCode(intKey);
 
-		switch (key) {
+		switch (key.toLowerCase()) {
 			case 'a':
 				Stickman.left = false;
 				break;
@@ -165,8 +165,6 @@ function update() {
 	var dt = elapsed * 0.001;
 	
 	var speed = 15.0;
-	
-	console.log(Stickman.left);
 	
 	if(Stickman.left) {
 		Stickman.x += speed * dt;
