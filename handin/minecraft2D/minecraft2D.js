@@ -31,7 +31,7 @@ var mouseY;
 var Stickman = {
 	x : 20,
 	y : 16,
-	width : 2, 
+	width : 1, 
 	left : false,
 	right : false,
 	jumping : false
@@ -180,35 +180,47 @@ function update() {
 
 	var speed = 15.0;
 	
-	
-
-	if(Stickman.left) {
+	if(Stickman.left || Stickman.right) {
 		var dx = speed*dt;
-		
-		var currentX = Math.floor(Stickman.x);
+
+		var leftLegX = Math.floor(Stickman.x);
+		var rightLegX = leftLegX + 1;
 		var currentY = Math.floor(Stickman.y);
+		
 		var newX = Math.floor(Stickman.x + dx);
 		var newY = Math.floor(Stickman.y) + 1;
-		if(!checkWallCollesion(currentX, currentY, newX, newY)){
-			Stickman.x -= dx;
-		}else {
-			Stickman.x += dx;
+		if(Stickman.left){
+			if(!checkWallCollesion(leftLegX, currentY, newX, newY)){
+				Stickman.x -= dx;
+			}else {
+				Stickman.x += dx;
+			}
 		}
-	}
-	if(Stickman.right) {
-		var dx = speed * dt;
+		if(Stickman.right) {
+			var dx = speed * dt;
 
-		var currentX = Math.floor(Stickman.x) + Stickman.width;
+			newX = newX + Stickman.width;
+			if(!checkWallCollesion(rightLegX, currentY, newX, newY)){
+				Stickman.x += dx;
+			}else {
+				Stickman.x -= dx;
+			}
+		}
+		var leftLegX = Math.floor(Stickman.x);
+		var rightLegX = leftLegX + 1;
 		var currentY = Math.floor(Stickman.y);
-		var newX = Math.floor(Stickman.x + dx) + Stickman.width;
-		var newY = Math.floor(Stickman.y) + 1;
-		if(!checkWallCollesion(currentX, currentY, newX, newY)){
-			Stickman.x += dx;
-		}else {
-			Stickman.x -= dx;
+		
+		var leftBlock = getBlock(leftLegX, currentY);
+		var leftBlockTop = getBlock(leftLegX, currentY + 1);
+		var rightBlock = getBlock(rightLegX, currentY);
+		var rightBlockTop = getBlock(rightLegX, currentY + 1);
+		if(leftBlock != BlockType.AIR && leftBlockTop == BlockType.AIR){
+			Stickman.y = currentY + 1;
 		}
+		if(rightBlock != BlockType.AIR && rightBlockTop == BlockType.AIR){
+			Stickman.y = currentY + 1;
+		}	
 	}
-
 	if(clickWaveTime > 0) {
 		clickWaveRadius += 25.0 * dt;
 		clickWaveTime -= dt;
@@ -216,11 +228,10 @@ function update() {
 
 }
 
-
 function checkWallCollesion(currentX, currentY, newX, newY){
 	var currentBlock = getBlock(currentX, currentY);
 	var newBlock = getBlock(newX, newY);
-	if(newBlock == BlockType.OFB || newBlock == BlockType.DIRT){
+	if(newBlock != BlockType.AIR){
 		return true;
 	}else {
 		return false;
