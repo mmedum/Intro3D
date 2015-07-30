@@ -31,6 +31,7 @@ var mouseY;
 var Stickman = {
 	x : 20,
 	y : 16,
+	width : 2, 
 	left : false,
 	right : false,
 	jumping : false
@@ -163,13 +164,45 @@ function update() {
 	var dt = elapsed * 0.001;
 	var speed = 15.0;
 	
+	
+
 	if(Stickman.left) {
-		Stickman.x -= speed * dt;
+		var dx = speed*dt;
+		
+		var currentX = Math.floor(Stickman.x);
+		var currentY = Math.floor(Stickman.y);
+		var newX = Math.floor(Stickman.x + dx);
+		var newY = Math.floor(Stickman.y) + 1;
+		if(!checkWallCollesion(currentX, currentY, newX, newY)){
+			Stickman.x -= dx;
+		}else {
+			Stickman.x += dx;
+		}
 	}
 	if(Stickman.right) {
-		Stickman.x += speed * dt;
+		var dx = speed * dt;
+
+		var currentX = Math.floor(Stickman.x) + Stickman.width;
+		var currentY = Math.floor(Stickman.y);
+		var newX = Math.floor(Stickman.x + dx) + Stickman.width;
+		var newY = Math.floor(Stickman.y) + 1;
+		if(!checkWallCollesion(currentX, currentY, newX, newY)){
+			Stickman.x += dx;
+		}else {
+			Stickman.x -= dx;
+		}
 	}
-	
+}
+
+
+function checkWallCollesion(currentX, currentY, newX, newY){
+	var currentBlock = getBlock(currentX, currentY);
+	var newBlock = getBlock(newX, newY);
+	if(newBlock == BlockType.OFB || newBlock == BlockType.DIRT){
+		return true;
+	}else {
+		return false;
+	}
 }
 
 function render() {
