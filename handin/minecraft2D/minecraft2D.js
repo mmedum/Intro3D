@@ -122,7 +122,7 @@ function setListeners() {
 		var intKey = event.which || event.keyCode; // firefox or chrome
 		var key = String.fromCharCode(intKey);
 
-		switch (key) {
+		switch (key.toLowerCase()) {
 			case 'a':
 				Stickman.left = true;
 				break;
@@ -139,7 +139,7 @@ function setListeners() {
 		var intKey = event.which || event.keyCode; // firefox or chrome
 		var key = String.fromCharCode(intKey);
 
-		switch (key) {
+		switch (key.toLowerCase()) {
 			case 'a':
 				Stickman.left = false;
 				break;
@@ -153,12 +153,12 @@ function setListeners() {
 	});
 }
 
-var date = new Date;
-
-var lastUpdate = date.getTime();
+var lastUpdate = new Date().getTime();
 
 function update() {
-	var currentTime = date.getTime();
+	console.log("Current Time: " + lastUpdate);
+
+	var currentTime = new Date().getTime();
 	var elapsed = currentTime - lastUpdate;
 	lastUpdate = currentTime;
 	
@@ -167,12 +167,13 @@ function update() {
 	var speed = 15.0;
 	
 	console.log(Stickman.left);
+	console.log("dt: " + dt);
 	
 	if(Stickman.left) {
-		Stickman.x += speed * dt;
+		Stickman.x -= speed * dt;
 	}
 	if(Stickman.right) {
-		Stickman.x -= speed * dt;
+		Stickman.x += speed * dt;
 	}
 	
 }
@@ -222,7 +223,11 @@ function drawStickman() {
 	var uPosition = gl.getUniformLocation(wireProgram, "uPosition");
 	gl.uniform2f(uPosition, Stickman.x, Stickman.y);
 
+	//gl.enable(gl.LINE_SMOOTH);
+	gl.lineWidth(5);
 	gl.drawArrays(gl.LINES, 0, 10);
+	//gl.lineWidth(1);
+	//gl.disable(gl.LINE_SMOOTH);
 }
 
 function createStickman() {

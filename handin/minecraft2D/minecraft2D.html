@@ -28,7 +28,7 @@ varying vec2 fPosition;
 
 void main() {
 	vec2 fractPosition = fract(fPosition)-0.5;
-	float distanceToCenter = length(fractPosition)/1.0;
+	float distanceToCenter = 0.0;//length(fractPosition)/1.0;
 	gl_FragColor = vec4(fColor-distanceToCenter, 1.0);
 }
 </script>
