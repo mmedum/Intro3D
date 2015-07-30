@@ -31,6 +31,8 @@ var mouseY;
 var Stickman = {
 	x : 20,
 	y : 16,
+	velocityY : 0.0,
+	airborn : false,
 	width : 1, 
 	left : false,
 	right : false,
@@ -171,6 +173,22 @@ function setListeners() {
 
 var lastUpdate = new Date().getTime();
 
+var inWaterTimer = 0.0;
+var inWater = false;
+var waterOffset = 0.0;
+
+function updateInWater(dt) {
+	inWaterTimer += dt * 5.0;
+	if(inWaterTimer > 2.0 * Math.PI) {
+		inWaterTimer = 0.0;
+	}	
+	if(inWater) {
+		waterOffset = (Math.sin(inWaterTimer) - 1) * 0.5 * 0.5;
+	} else {
+		waterOffset = 0.0;
+	}
+}
+
 function update() {
 	var currentTime = new Date().getTime();
 	var elapsed = currentTime - lastUpdate;
@@ -221,6 +239,54 @@ function update() {
 			Stickman.y = currentY + 1;
 		}
 	}
+	
+	var intersectingBlocks = [];
+	
+	var baseX = Math.floor(Stickman.x);
+	var baseY = Math.floor(Stickman.y);
+	
+	for(var y = 0; y < 3; y++) {
+		for(var x = 0; x < 2; x++) {
+			var block = getBlock(baseX + x, baseY + y);
+			if(block != BlockType.AIR) {
+				intersectingBlocks.push(block);
+			}
+		}
+	}
+	
+	// Determine which block we stand on:
+	var floorBlock = getBlock(Math.round(Stickman.x), baseY);
+	if(floorBlock == BlockType.AIR) {
+		if(Math.round(Stickman.x) == baseX){
+			floorBlock = getBlock(baseX + 1, baseY);
+		} else {
+			floorBlock = getBlock(baseX, baseY);
+		}
+	}
+	
+	if(floorBlock != BlockType.AIR) {
+		Stickman.airborn = false;
+		Stickman.velocityY = 0.0;
+
+		if(floorBlock == BlockType.FIRE) {
+			Stickman.velocityY = 10.0;
+		}
+		if(floorBlock == BlockType.WATER) {
+			inWater = true;
+		} else {
+			inWater = false;
+		}
+	} else {
+		Stickman.airborn = true;
+	}
+	
+	if(Stickman.airborn) {
+		Stickman.velocityY -= 9.82 * dt;
+	}			
+	Stickman.y += Stickman.velocityY * dt;
+	
+	updateInWater(dt);
+	
 	if (clickWaveTime > 0) {
 		clickWaveRadius += 25.0 * dt;
 		clickWaveTime -= dt;
@@ -287,7 +353,7 @@ function drawStickman() {
 	gl.useProgram(wireProgram);
 
 	var uPosition = gl.getUniformLocation(wireProgram, "uPosition");
-	gl.uniform2f(uPosition, Stickman.x, Stickman.y);
+	gl.uniform2f(uPosition, Stickman.x, Stickman.y + waterOffset);
 
 	gl.lineWidth(5);
 	gl.drawArrays(gl.LINES, 0, 10);
