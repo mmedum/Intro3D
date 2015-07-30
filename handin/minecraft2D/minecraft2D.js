@@ -246,10 +246,10 @@ function canPlaceBlock() {
 	var right = getBlock(mouseX + 1, mouseY);
 	var current = getBlock(mouseX, mouseY);
 
-	if ((Stickman.x == mouseX && Stickman.y == mouseY) ||
-		(Stickman.x + 1 == mouseX && Stickman.y == mouseY) ||
-		(Stickman.x == mouseX && Stickman.y + 1 == mouseY) ||
-		(Stickman.x + 1 == mouseX && Stickman.y + 1 == mouseY)) {
+	if ((Math.floor(Stickman.x) == mouseX && Math.floor(Stickman.y) == mouseY) ||
+		(Math.floor(Stickman.x) + 1 == mouseX && Math.floor(Stickman.y) == mouseY) ||
+		(Math.floor(Stickman.x) == mouseX && Math.floor(Stickman.y) + 1 == mouseY) ||
+		(Math.floor(Stickman.x) + 1 == mouseX && Math.floor(Stickman.y) + 1 == mouseY)) {
 		return false;
 	}
 
@@ -286,16 +286,16 @@ function drawStickman() {
 
 function createStickman() {
 	var points = new Float32Array([
-		0.5, 0.0,
-		1.0, 1.0,
-		1.5, 0.0,
-		1.0, 1.0,
-		1.0, 1.0,
-		1.0, 2.0,
+		0.0, 0.0,
 		0.5, 1.0,
-		1.0, 2.0,
-		1.5, 1.0,
-		1.0, 2.0
+		1.0, 0.0,
+		0.5, 1.0,
+		0.5, 1.0,
+		0.5, 2.0,
+		0.0, 1.0,
+		0.5, 2.0,
+		1.0, 1.0,
+		0.5, 2.0
 	]);
 
 	var stickmanBufferId = gl.createBuffer();
