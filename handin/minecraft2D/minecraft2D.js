@@ -166,9 +166,6 @@ function update() {
 	
 	var speed = 15.0;
 	
-	console.log(Stickman.left);
-	console.log("dt: " + dt);
-	
 	if(Stickman.left) {
 		Stickman.x -= speed * dt;
 	}
