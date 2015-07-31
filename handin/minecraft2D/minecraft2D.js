@@ -84,7 +84,7 @@ window.onload = function init() {
  * function for very pretty wave
  */
 function startClickWave() {
-	clickWaveTime = 2.5;
+	clickWaveTime = 2.5; // sec
 	clickWaveRadius = 0.0;
 	clickWavePositionX = mouseX;
 	clickWavePositionY = mouseY;
