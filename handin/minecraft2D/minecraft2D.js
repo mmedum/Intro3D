@@ -46,6 +46,9 @@ var clickWaveRadius = 0.0;
 var clickWavePositionX = 0;
 var clickWavePositionY = 0;
 
+/*
+ * init function 
+ */
 window.onload = function init() {
 	canvas = document.getElementById("gl-canvas");
 	gl = WebGLUtils.setupWebGL(canvas);
@@ -77,6 +80,9 @@ window.onload = function init() {
 	}
 }
 
+/*
+ * function for very pretty wave
+ */
 function startClickWave() {
 	clickWaveTime = 2.5;
 	clickWaveRadius = 0.0;
@@ -84,6 +90,9 @@ function startClickWave() {
 	clickWavePositionY = mouseY;
 }
 
+/*
+ * Awesome listeners setup
+ */
 function setListeners() {
 	//click function	
 	canvas.addEventListener("click", function(event) {
@@ -184,6 +193,10 @@ var inWaterTimer = 0.0;
 var inWater = false;
 var waterOffset = 0.0;
 
+/*
+ * Calculate water offset
+ * for rendering.
+ */
 function updateInWater(dt) {
 	inWaterTimer += dt * 5.0;
 	if(inWaterTimer > 2.0 * Math.PI) {
@@ -196,6 +209,11 @@ function updateInWater(dt) {
 	}
 }
 
+/*
+ * Movement function for Stickman,
+ * calculating logic in walking, water,
+ * fire and gravity
+ */
 function update() {
 	var currentTime = new Date().getTime();
 	var elapsed = currentTime - lastUpdate;
@@ -222,7 +240,7 @@ function update() {
 			}
 		}
 		if(Stickman.right) {
-			var dx = speed * d;
+			var dx = speed * dt;
 
 			newX = newX + Stickman.width;
 			if(!checkWallCollesion(rightLegX, currentY, newX, newY)){
@@ -322,6 +340,9 @@ function render() {
 	window.requestAnimFrame(render);
 }
 
+/*
+ * Check if it's possible to place a block
+ */
 function canPlaceBlock() {
 	var up = getBlock(mouseX, mouseY + 1);
 	var down = getBlock(mouseX, mouseY - 1);
@@ -350,6 +371,9 @@ function canPlaceBlock() {
 	}
 }
 
+/*
+ * Drawing of Stickman
+ */
 function drawStickman() {
 	gl.bindBuffer(gl.ARRAY_BUFFER, stickmanBufferId);
 
@@ -367,6 +391,10 @@ function drawStickman() {
 	gl.lineWidth(1);
 }
 
+/*
+ * Creation of Stickman, placement and
+ * buffer creation
+ */
 function createStickman() {
 	var points = new Float32Array([
 		0.0, 0.0,
@@ -387,6 +415,10 @@ function createStickman() {
 	return stickmanBufferId;
 }
 
+/*
+ * Drawing of wireframe around blocks
+ * and making connection to the vertex shader
+ */
 function drawWireFrame() {
 	if (canPlaceBlock()) {
 		gl.bindBuffer(gl.ARRAY_BUFFER, wireBufferId);
@@ -404,6 +436,10 @@ function drawWireFrame() {
 	}
 }
 
+/*
+ * Creation of wireframe and
+ * buffer creation.
+ */
 function createWireFrame() {
 	var points = new Float32Array([
 		0.0, 0.0,
@@ -418,6 +454,10 @@ function createWireFrame() {
 	return wireBufferId;
 }
 
+/*
+ * Drawing of world and buffer creation,
+ * even more water and funny stuff
+ */
 function drawWorld() {
 	gl.bindBuffer(gl.ARRAY_BUFFER, worldBufferId);
 	var vertexWorld = new Float32Array(BLOCKS_X * BLOCKS_Y * 5 * 6);
@@ -487,6 +527,9 @@ function drawWorld() {
 	gl.drawArrays(gl.TRIANGLES, 0, vertexWorld.length / 5);
 }
 
+/*
+ * Creation of blocks for different types
+ */
 function createWorld() {
 	world = {
 		data: new Array((BLOCKS_X + 2) * (BLOCKS_Y + 2))
@@ -517,10 +560,16 @@ function createWorld() {
 	}
 }
 
+/*
+ * get a nice block
+ */
 function getBlock(x, y) {
 	return world.data[(x + 1) + (y + 1) * (BLOCKS_X + 2)];
 }
 
+/*
+ * set a nice block
+ */
 function setBlock(x, y, type) {
 	world.data[(x + 1) + (y + 1) * (BLOCKS_X + 2)] = type;
 }

@@ -21,6 +21,7 @@ const float PI = 3.1415926535897932384626433832795;
 const int TILES_X = 40;
 const int TILES_Y = 30;
 
+//Wave function
 float waveFunction(float x) {
 	return (cos(x * 4.0 * PI - PI) + 1.0) * 0.5 * sign(x - 0.5);
 }
