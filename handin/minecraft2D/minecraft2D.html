@@ -16,16 +16,18 @@ varying vec3 fColor;
 varying vec2 fPosition;
 varying float fWaveParam;
 
+//This is PI
 const float PI = 3.1415926535897932384626433832795;
 
 const int TILES_X = 40;
 const int TILES_Y = 30;
 
-//Wave function
+//Wave function for deciding how the vertices should move.
 float waveFunction(float x) {
 	return (cos(x * 4.0 * PI - PI) + 1.0) * 0.5 * sign(x - 0.5);
 }
 
+//Display vertices
 vec3 clickWave() {
 	if(uClickWaveActive == 1) {
 		float clickWaveWidth = 6.0;
@@ -58,6 +60,7 @@ void main() {
 <script id="fragment-block-shader" type="x-shader/x-fragment">
 precision mediump float;
 
+//This is also PI
 const float PI = 3.1415926535897932384626433832795;
 
 varying vec3 fColor;

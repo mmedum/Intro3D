@@ -231,7 +231,7 @@ function update() {
 		var currentY = Math.floor(Stickman.y);
 		
 		var newX = Math.floor(Stickman.x + dx);
-		var newY = Math.floor(Stickman.y) + 2;
+		var newY = Math.floor(Stickman.y) + 1;
 		if(Stickman.left){
 			if(!checkWallCollesion(leftLegX, currentY, newX, newY)){
 				Stickman.x -= dx;
@@ -243,6 +243,7 @@ function update() {
 			var dx = speed * dt;
 
 			newX = newX + Stickman.width;
+			newY++;
 			if(!checkWallCollesion(rightLegX, currentY, newX, newY)){
 				Stickman.x += dx;
 			}else {
