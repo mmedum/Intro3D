@@ -63,6 +63,31 @@ function setListeners() {
 	});
 }
 
+function insertAt(selectedSquare) {
+	var tileX = selectedSquare[0];
+	var tileY = selectedSquare[1];
+
+	if (stateOfBoard[tileX][tileY] > 0) {
+		// selected square is occupied by a piece
+		return;
+	}
+
+	// insert piece at selected square
+	if (currentPlayer == 1) {
+		stateOfBoard[tileX][tileY] = 1; // cross
+		addCrossToBuffer(selectedSquare);
+	} else {
+		stateOfBoard[tileX][tileY] = 2; // circle
+		addCircleToBuffer(selectedSquare);
+	}
+
+	// if three in a row the player win
+	if (threeInARow()) {
+		foundWinner = true;
+		document.getElementById("info").innerHTML = "Player " + currentPlayer + " win!";
+	}
+}
+
 function render() {
 	gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -210,31 +235,6 @@ function changePlayer() {
 	}
 
 	document.getElementById("info").innerHTML = "Current player is Player " + currentPlayer;
-}
-
-function insertAt(selectedSquare) {
-	var tileX = selectedSquare[0];
-	var tileY = selectedSquare[1];
-
-	if (stateOfBoard[tileX][tileY] > 0) {
-		// selected square is occupied by a piece
-		return;
-	}
-
-	// insert piece at selected square
-	if (currentPlayer == 1) {
-		stateOfBoard[tileX][tileY] = 1; // cross
-		addCrossToBuffer(selectedSquare);
-	} else {
-		stateOfBoard[tileX][tileY] = 2; // circle
-		addCircleToBuffer(selectedSquare);
-	}
-
-	// if three in a row the player win
-	if (threeInARow()) {
-		foundWinner = true;
-		document.getElementById("info").innerHTML = "Player " + currentPlayer + " win!";
-	}
 }
 
 function threeInARow() {
