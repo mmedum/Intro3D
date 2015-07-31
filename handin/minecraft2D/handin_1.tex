@@ -1,0 +1,128 @@
+% --------------------------------------------------------------
+% This is all preamble stuff that you don't have to worry about.
+% Head down to where it says "Start here"
+% --------------------------------------------------------------
+\documentclass[12pt,leqno]{article}
+
+\usepackage[margin=1in]{geometry} 
+\usepackage[fleqn]{amsmath}
+\usepackage{amsthm,amssymb} 
+%\usepackage{mathtools}
+\usepackage{changepage} 
+\usepackage{datetime} 
+\usepackage{graphicx} 
+\usepackage{color}
+\usepackage{framed}
+
+% logic proofs
+\usepackage{lplfitch}
+\usepackage{stmaryrd}
+
+% images
+\usepackage{subfigure} 
+\usepackage{float} 
+\usepackage{pdflscape} 
+\usepackage{array}
+
+\newcommand{\N}{\mathbb{N}} 
+\newcommand{\Z}{\mathbb{Z}}
+
+\usepackage{fancyhdr} 
+
+% multiline box in align
+\usepackage{tikz}
+\newcounter{markeq}
+\setcounter{markeq}{0}
+
+\newcommand{\pstrut}[1]{\vrule height0pt depth0pt width0pt #1 \fboxsep}
+\newcommand*\bmarkeq{\stepcounter{markeq}%
+  \tikz[remember picture]\node(startframe-\themarkeq){\pstrut{height}};%
+  \kern\fboxsep}
+\newcommand*\emarkeq{\kern\fboxsep
+  \begin{tikzpicture}[remember picture,overlay]
+    \node (endframe-\themarkeq){\pstrut{depth}};
+    \draw[,red,opacity=0.8] (startframe-\themarkeq.north) 
+      rectangle (endframe-\themarkeq.south);
+  \end{tikzpicture}%
+}
+
+% for headers/footer
+\usepackage{lastpage}
+
+
+\begin{document}
+
+% --------------------------------------------------------------
+%                         Start here
+% --------------------------------------------------------------
+\title{Mandatory Assignment 2} 
+\author{Anders Fog Bunzel, 20112293\\ Mark Medum Bundgaard, 20112423\\Mikkel Brun Jakobsen, 20114457}
+
+\maketitle
+
+\headheight = 15pt
+\thispagestyle{fancy} 
+\pagestyle{fancy} \lhead{
+\date{\today}} \chead{Introduction to Interactive 3D Graphics} \rhead{Group $<$AMM$>$} \cfoot{\thepage\ of 
+\pageref{LastPage}}
+
+\section{Representation of graphical elements}
+
+\subsection{Blocks}
+Our world consists of 40 by 30 blocks of 20 by 20 pixels.
+Each block is represented as two triangles.
+Each vertex has a position and a color attribute. The color is chosen based on the block type.
+The buffer object containing block data is updated with (potentially new) data every frame. With this solution, deleting and creating new blocks is straightforward.
+
+Block-data only needs to be updated interactively when it actually changes. With our current approach we update all blocks no matter what.
+
+We could have used gl.bufferSubData.
+
+Instead of representing the entire world in a single buffer, we could have partitioned it into multiple "chunks" and only update chunks that change.
+
+\subsection{Block-outline}
+We create a buffer containing 4 vertices once and for all.
+The block-outline is drawn using the LINE\_LOOP mode.
+In order to draw the block-outline at the desired position, we use a uniform to offset it.
+
+\subsection{Stickman}
+We create a buffer containing 10 vertices once and for all.
+The Stickman is drawn using the LINES mode.
+In order to draw the Stickman at the desired position, we use a uniform to offset it.
+
+\section{Shaders}
+All our positions are in "block space". Each of our vertex shaders converts block-space to clip-space coordinates.
+
+Our Stickman/block-outline fragment shaders simply outputs a "hardcoded" color. The block fragment shader is augmented with the clickwave effect and a gradient based on a fragments distance to the center of the block it belongs to.
+
+\subsection{ClickWave}
+When the user places or destroys a block we start a "click wave". 
+
+We implemented the click wave by displacing vertices away from the outline of a circle.
+
+We can configure the center/radius of the circle from Javascript using uniforms.
+
+We pass on the result of the calculation from the vertex shader to the fragment shader and use it to slightly darken fragments close to the outline of the circle.
+
+\section{Browsers}
+
+Our solution runs on Chrome and Firefox. For some reason gl.lineWidth(5) does not seem to have any effect on 1 out of 3 of our machines.
+
+\section{Collision Detection}
+
+Note: Our collision detection is far from perfect. 
+
+% --------------------------------------------------------------
+%     You don't have to mess with anything below this line.
+% --------------------------------------------------------------
+\end{document}
+
+
+
+
+
+
+
+
+
+
