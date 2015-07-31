@@ -231,7 +231,8 @@ function update() {
 		var currentY = Math.floor(Stickman.y);
 		
 		var newX = Math.floor(Stickman.x + dx);
-		var newY = Math.floor(Stickman.y) + 2;
+		var newY = Math.floor(Stickman.y) + 1;
+
 		if(Stickman.left){
 			if(!checkWallCollesion(leftLegX, currentY, newX, newY)){
 				Stickman.x -= dx;
@@ -239,16 +240,19 @@ function update() {
 				Stickman.x += dx;
 			}
 		}
+		
 		if(Stickman.right) {
-			var dx = speed * dt;
+			newX += Stickman.width;
+			newY++;
 
-			newX = newX + Stickman.width;
 			if(!checkWallCollesion(rightLegX, currentY, newX, newY)){
 				Stickman.x += dx;
 			}else {
 				Stickman.x -= dx;
 			}
 		}
+		
+		// reset values
 		var leftLegX = Math.floor(Stickman.x);
 		var rightLegX = leftLegX + 1;
 		var currentY = Math.floor(Stickman.y);
@@ -257,9 +261,12 @@ function update() {
 		var leftBlockTop = getBlock(leftLegX, currentY + 1);
 		var rightBlock = getBlock(rightLegX, currentY);
 		var rightBlockTop = getBlock(rightLegX, currentY + 1);
+
+		// staircase walking
 		if(leftBlock != BlockType.AIR && leftBlockTop == BlockType.AIR){
 			Stickman.y = currentY + 1;
 		}
+
 		if(rightBlock != BlockType.AIR && rightBlockTop == BlockType.AIR){
 			Stickman.y = currentY + 1;
 		}
@@ -280,6 +287,8 @@ function update() {
 	}
 	
 	// Determine which block we stand on:
+	// check if stickman is standing with one leg on a block and
+	// the other on air
 	var floorBlock = getBlock(Math.round(Stickman.x), baseY);
 	if(floorBlock == BlockType.AIR) {
 		if(Math.round(Stickman.x) == baseX){
