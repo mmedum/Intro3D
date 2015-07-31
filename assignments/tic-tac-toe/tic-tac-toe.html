@@ -5,6 +5,9 @@
 <!-- program for board -->
 <script id="vertex-board-shader" type="x-shader/x-vertex">
 attribute vec4 vPosition;
+attribute vec4 vColor;
+
+varying vec4 fColor;
 
 const int BOARD_X = 3;
 const int BOARD_Y = 3;
@@ -12,13 +15,17 @@ const int BOARD_Y = 3;
 void main() {
 	// scale window coordinates (0,0)->(3,3) to clip coordinates (-1,-1)->(1,1)
 	gl_Position = vec4((vPosition.xy/vec2(BOARD_X, BOARD_Y))*2.0-1.0, 0, 1);
+
+	fColor = vColor;
 }
 </script>
 <script id="fragment-board-shader" type="x-shader/x-fragment">
 precision mediump float;
 
+varying vec4 fColor;
+
 void main() {
-    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    gl_FragColor = fColor;
 }
 </script>
 
