@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+<head>
+
+<!-- program for board -->
+<script id="vertex-board-shader" type="x-shader/x-vertex">
+attribute vec4 vPosition;
+
+uniform float vTheta;
+uniform vec3 vUnit;
+
+// def quat: a = (q_0, q_1, q_2, q_3) = (q_0, q)
+
+vec4 quatAdd(vec4 a, vec4 b) {
+	// a + b = (a_0 + b_0, a + b)
+
+	float scalar = a.x + b.x;
+	vec3 vector = a.yzw + b.yzw;
+
+	return vec4(scalar, vector);
+}
+
+vec4 quatMult(vec4 a, vec4 b) {
+	// ab = (a_0 MULT b_0 - a DOT b, a_0 MULT b + b_0 MULT a + a CROSS b)
+
+	float scalar = (a.x * b.x) - dot(a.yzw, b.yzw);
+	vec3 vector = (a.x * b.yzw) + (b.x * a.yzw) + cross(a.yzw, b.yzw);
+
+	return vec4(scalar, vector);
+}
+
+vec4 quatNorm(vec4 a) {
+	// |a|^2 = (q_0^2, q DOT q)
+
+	float scalar = a.x * a.x;
+	vec3 vector = vec3(dot(a.yzw, a.yzw));
+
+	return vec4(scalar, vector);
+}
+
+vec4 quatInverse(vec4 a) {
+	// a^(-1) = 1/(|a|^2) MULT (q_0, -q)
+
+	float scalar = a.x;
+	vec3 vector = vec3(-1.0 * a.yzw);
+
+	return (1.0/quatNorm(a)) * vec4(scalar, vector);
+}
+
+vec4 repPoint(vec4 p) {
+	// represent a point p=(x,y,z) as a quaternion
+	// p = (0, p)
+
+	return vec4(0.0, p.x, p.y, p.z);
+}
+
+vec4 repRotation(float theta, vec3 v) {
+	// the rotation quaternion which rotates with theta degrees around the unit vector v
+	// r = (cos(theta/2), sin(theta/2) MULT v)
+
+	float scalar = cos(theta/2.0);
+	vec3 vector = sin(theta/2.0) * v;
+
+	return vec4(scalar, vector);
+}
+
+vec4 quatRotation(vec4 point, float theta, vec3 v) {
+	// rotates the point p around the unit vector v with theta degree
+	// p' = r MULT p MULT r^(-1)
+
+	vec4 p = repPoint(point);
+	vec4 r = repRotation(theta, v);
+
+	return quatMult(r, quatMult(p, quatInverse(r)));
+}
+
+void main() {
+	//gl_Position = vPosition;
+	gl_Position = quatRotation(vPosition, vTheta, vUnit);
+}
+</script>
+<script id="fragment-board-shader" type="x-shader/x-fragment">
+precision mediump float;
+
+void main() {
+    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+}
+</script>
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="quaternion-rotation.js"></script>
+<script type="text/javascript" src="../Common/webgl-debug.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+</head>
+
+<body>
+<canvas id="gl-canvas" width="512" height="512">
+oops ... your browser doesn't support the html5 canvas element
+</canvas>
+
+</body>
+</html>
