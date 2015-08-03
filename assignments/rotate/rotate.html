@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head>
+
+<!-- program for board -->
+<script id="vertex-board-shader" type="x-shader/x-vertex">
+attribute vec4 vPosition;
+attribute vec4 vColor;
+
+uniform mat4 modelViewMatrix; // defines the transformation of the triangle
+
+void main() {
+	gl_Position = modelViewMatrix * vPosition;
+}
+</script>
+<script id="fragment-board-shader" type="x-shader/x-fragment">
+precision mediump float;
+
+void main() {
+    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+}
+</script>
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="rotate.js"></script>
+<script type="text/javascript" src="../Common/webgl-debug.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+</head>
+
+<body>
+<canvas id="gl-canvas" width="512" height="512">
+oops ... your browser doesn't support the html5 canvas element
+</canvas>
+
+</body>
+</html>
