@@ -129,43 +129,43 @@ function createGeo(){
 
 	var backFace = [
 		vec4(-0.5, -0.5, -0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
-		vec4(0.5, 0.5, -0.5, 1.0), vec4(-0.5, 0.5, 42, 42),
-		vec4(-0.5, 0.5, -0.5, 1.0), vec4(0.5, 0.5, 42, 42),
-		vec4(-0.5, -0.5, -0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
+		vec4(0.5, 0.5, -0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
+		vec4(-0.5, 0.5, -0.5, 1.0), vec4(-0.5, 0.5, 42, 42),
+		vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.5, 0.5, 42, 42),
 		vec4(0.5, 0.5, -0.5, 1.0), vec4(0.5, -0.5, 42, 42),
 		vec4(0.5, -0.5, -0.5, 1.0), vec4(0.5, 0.5, 42, 42)];
 		
 	var rightFace = [
-		vec4(-0.5, -0.5, -0.5, 1.0),
-		vec4(-0.5, 0.5, 0.5, 1.0),
-		vec4(-0.5, 0.5, -0.5, 1.0),
-		vec4(-0.5, -0.5, -0.5, 1.0),
-		vec4(-0.5, 0.5, 0.5, 1.0),
-		vec4(-0.5, -0.5, 0.5, 1.0)];
+		vec4(-0.5, -0.5, -0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
+		vec4(-0.5, 0.5, 0.5, 1.0), vec4(-0.5, 0.5, 42, 42),
+		vec4(-0.5, 0.5, -0.5, 1.0),vec4(-0.5, 0.5, 42, 42),
+		vec4(-0.5, -0.5, -0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
+		vec4(-0.5, 0.5, 0.5, 1.0), vec4(0.5, -0.5, 42, 42),
+		vec4(-0.5, -0.5, 0.5, 1.0), vec4(0.5, 0.5, 42, 42)];
 
 	var leftFace = [
-		vec4(0.5, -0.5, -0.5, 1.0),
-		vec4(0.5, 0.5, 0.5, 1.0),
-		vec4(0.5, 0.5, -0.5, 1.0),
-		vec4(0.5, -0.5, -0.5, 1.0),
-		vec4(0.5, -0.5, 0.5, 1.0),
-		vec4(0.5, 0.5, 0.5, 1.0)];
+		vec4(0.5, -0.5, -0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
+		vec4(0.5, 0.5, 0.5, 1.0), vec4(-0.5, 0.5, 42, 42),
+		vec4(0.5, 0.5, -0.5, 1.0), vec4(0.5, 0.5, 42, 42),
+		vec4(0.5, -0.5, -0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
+		vec4(0.5, -0.5, 0.5, 1.0), vec4(0.5, -0.5, 42, 42),
+		vec4(0.5, 0.5, 0.5, 1.0), vec4(0.5, 0.5, 42, 42)];
 
 	var buttomFace = [
-		vec4(-0.5, -0.5, -0.5, 1.0),
-		vec4(-0.5, -0.5, 0.5, 1.0),
-		vec4(0.5, -0.5, 0.5, 1.0),
-		vec4(-0.5, -0.5, -0.5, 1.0),
-		vec4(0.5, -0.5, 0.5, 1.0),
-		vec4(0.5, -0.5, -0.5, 1.0)];
+		vec4(-0.5, -0.5, -0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
+		vec4(-0.5, -0.5, 0.5, 1.0), vec4(-0.5, 0.5, 42, 42),
+		vec4(0.5, -0.5, 0.5, 1.0), vec4(0.5, 0.5, 42, 42),
+		vec4(-0.5, -0.5, -0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
+		vec4(0.5, -0.5, 0.5, 1.0), vec4(0.5, -0.5, 42, 42),
+		vec4(0.5, -0.5, -0.5, 1.0), vec4(0.5, 0.5, 42, 42)];
 
 	var topFace = [
-		vec4(0.5, 0.5, 0.5, 1.0),
-		vec4(-0.5, 0.5, 0.5, 1.0),
-		vec4(-0.5, 0.5, -0.5, 1.0),
-		vec4(0.5, 0.5, -0.5, 1.0),	
-		vec4(0.5, 0.5, 0.5, 1.0),
-		vec4(-0.5, 0.5, -0.5, 1.0)];
+		vec4(0.5, 0.5, 0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
+		vec4(-0.5, 0.5, 0.5, 1.0), vec4(-0.5, 0.5, 42, 42),
+		vec4(-0.5, 0.5, -0.5, 1.0), vec4(0.5, 0.5, 42, 42),
+		vec4(0.5, 0.5, -0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
+		vec4(0.5, 0.5, 0.5, 1.0), vec4(0.5, -0.5, 42, 42),
+		vec4(-0.5, 0.5, -0.5, 1.0), vec4(0.5, 0.5, 42, 42)];
 
 	square = frontFace.concat(backFace, rightFace, leftFace, buttomFace, topFace); 
 
@@ -174,7 +174,7 @@ function createGeo(){
 	gl.bufferData(gl.ARRAY_BUFFER, flatten(square), gl.STATIC_DRAW);
 
 	var vPosition = gl.getAttribLocation(program, "vPosition");
-	gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
+	gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, sizeof['vec4']*2, 0);
 	gl.enableVertexAttribArray(vPosition);
 }
 
@@ -207,7 +207,7 @@ function render(){
 	update();
 	
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	gl.drawArrays(gl.TRIANGLES, 0, square.length);
+	gl.drawArrays(gl.TRIANGLES, 0, square.length/2);
 	
 	var projectionMatrix = perspective(75, (canvas.width/canvas.height), 0.2, 100.0);
 	var uProjectionMatrix = gl.getUniformLocation(program, "uProjectionMatrix");
