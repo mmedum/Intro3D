@@ -30,9 +30,9 @@ function render() {
 	gl.clear(gl.COLOR_BUFFER_BIT);
 
 	var vertices = [
-		vec4(-0.5, -0.5, 0.0, 1.0), // vec4(x, y, z, w)
-		vec4(0.5, -0.5, 0.0, 1.0),
-		vec4(0.0, 0.5, 0.0, 1.0)
+		vec4(-0.3, -0.3, 0.0, 1.0), // vec4(x, y, z, w)
+		vec4(0.3, -0.3, 0.0, 1.0),
+		vec4(0.0, 0.3, 0.0, 1.0)
 	];
 
 	bufferId = gl.createBuffer();
@@ -44,7 +44,7 @@ function render() {
 	gl.enableVertexAttribArray(vPosition);
 	gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
 
-	var vTheta = 10.0;
+	var vTheta = 50.0;
 	var thetaLoc = gl.getUniformLocation(program, "vTheta");
 	gl.uniform1f(thetaLoc, vTheta);
 

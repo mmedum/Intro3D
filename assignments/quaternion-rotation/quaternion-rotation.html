@@ -6,6 +6,8 @@
 <script id="vertex-board-shader" type="x-shader/x-vertex">
 attribute vec4 vPosition;
 
+varying vec4 fColor;
+
 uniform float vTheta;
 uniform vec3 vUnit;
 
@@ -29,13 +31,10 @@ vec4 quatMult(vec4 a, vec4 b) {
 	return vec4(scalar, vector);
 }
 
-vec4 quatNorm(vec4 a) {
-	// |a|^2 = (q_0^2, q DOT q)
+float quatNorm(vec4 a) {
+	// |a|^2 = q_0^2 + (q DOT q)
 
-	float scalar = a.x * a.x;
-	vec3 vector = vec3(dot(a.yzw, a.yzw));
-
-	return vec4(scalar, vector);
+	return (a.x * a.x) + dot(a.yzw, a.yzw);
 }
 
 vec4 quatInverse(vec4 a) {
@@ -71,18 +70,26 @@ vec4 quatRotation(vec4 point, float theta, vec3 v) {
 	vec4 p = repPoint(point);
 	vec4 r = repRotation(theta, v);
 
-	return quatMult(r, quatMult(p, quatInverse(r)));
+	return quatMult(quatMult(r, p), quatInverse(r));
+}
+
+vec4 fromQuatToVertex(vec4 q) {
+	return vec4(q.y, q.z, q.w, 1.0);
 }
 
 void main() {
 	//gl_Position = vPosition;
-	gl_Position = quatRotation(vPosition, vTheta, vUnit);
+	//fColor = quatRotation(vPosition, vTheta, vUnit);
+	gl_Position = fromQuatToVertex(quatRotation(vPosition, radians(vTheta), vUnit));
 }
 </script>
 <script id="fragment-board-shader" type="x-shader/x-fragment">
 precision mediump float;
 
+varying vec4 fColor;
+
 void main() {
+    //gl_FragColor = fColor;
     gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
 }
 </script>
