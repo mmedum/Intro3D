@@ -46,8 +46,8 @@ function render() {
 	gl.enableVertexAttribArray(vPosition);
 	gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
 
-	var theta = 120.0; // degrees
-	var d = vec3(0.0, 0.0, 1.0); // axis
+	var theta = 75.0; // degrees
+	var d = vec3(1.0, 0.0, 0.0); // axis
 	var ctm = rotateAxis(theta, d);
 
 	var modelViewMatrix = gl.getUniformLocation(program, "modelViewMatrix");
@@ -62,23 +62,42 @@ function rotateAxis(theta, alpha) {
 	// rotate by theta degrees about the axis d with a fixed point at the origin
 	// R = R_x(-theta_x) R_y(-theta_y) R_z(theta) R_y(theta_y) R_x(theta_x)
 
-	var d = Math.sqrt((alpha[1] * alpha[1]) + (alpha[2] * alpha[2]));
 
-	var rx = mat4(
-		vec4(1.0, 0.0, 0.0, 0.0),
-		vec4(0.0, alpha[2]/d, -alpha[1]/d, 0.0),
-		vec4(0.0, alpha[1]/d, alpha[2]/d, 0.0),
-		vec4(0.0, 0.0, 0.0, 1.0)
-	);
+	if (Math.abs(alpha[1]) < 0.0001) {
 
-	var ry = mat4(
-		vec4(d, 0.0, -alpha[0], 0.0),
-		vec4(0.0, 1.0, 0.0, 0.0),
-		vec4(alpha[0], 0.0, d, 0.0),
-		vec4(0.0, 0.0, 0.0, 1.0)
-	);
+		var ry = mat4(
+			vec4(0.0, 0.0, -alpha[0], 0.0),
+			vec4(0.0, 1.0, 0.0, 0.0),
+			vec4(alpha[0], 0.0, 0.0, 0.0),
+			vec4(0.0, 0.0, 0.0, 1.0)
+		);
 
-	var rz = rotateZ(theta);
+		var rz = rotateZ(theta);
 
-	return mult(mult(mult(mult(transpose(rx), transpose(ry)), rz), ry), rx);
+		return mult(mult(transpose(ry), rz), ry);
+
+	} else {
+		var d = Math.sqrt((alpha[1] * alpha[1]) + (alpha[2] * alpha[2]));
+
+		var rx = mat4(
+			vec4(1.0, 0.0, 0.0, 0.0),
+			vec4(0.0, alpha[2] / d, -alpha[1] / d, 0.0),
+			vec4(0.0, alpha[1] / d, alpha[2] / d, 0.0),
+			vec4(0.0, 0.0, 0.0, 1.0)
+		);
+
+		var ry = mat4(
+			vec4(d, 0.0, -alpha[0], 0.0),
+			vec4(0.0, 1.0, 0.0, 0.0),
+			vec4(alpha[0], 0.0, d, 0.0),
+			vec4(0.0, 0.0, 0.0, 1.0)
+		);
+
+		var rz = rotateZ(theta);
+
+		return mult(mult(mult(mult(transpose(rx), transpose(ry)), rz), ry), rx);
+
+	}
+
+
 }
