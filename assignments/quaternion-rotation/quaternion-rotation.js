@@ -44,11 +44,11 @@ function render() {
 	gl.enableVertexAttribArray(vPosition);
 	gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
 
-	var vTheta = 50.0;
+	var vTheta = 50.0; // define rotation degree
 	var thetaLoc = gl.getUniformLocation(program, "vTheta");
 	gl.uniform1f(thetaLoc, vTheta);
 
-	var vUnit = vec3(0.0, 0.0, 1.0);
+	var vUnit = vec3(0.0, 0.0, 1.0); // define rotation axis 
 	var unitLoc = gl.getUniformLocation(program, "vUnit");
 	gl.uniform3fv(unitLoc, vUnit);
 

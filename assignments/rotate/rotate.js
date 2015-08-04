@@ -46,31 +46,39 @@ function render() {
 	gl.enableVertexAttribArray(vPosition);
 	gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
 
-	var theata = 10; // degrees
-	var d = vec3(1.0, 0.0, 0.0); // axis
-	var ctm = rotateAxis(theata, d);
+	var theta = 120.0; // degrees
+	var d = vec3(0.0, 0.0, 1.0); // axis
+	var ctm = rotateAxis(theta, d);
 
 	var modelViewMatrix = gl.getUniformLocation(program, "modelViewMatrix");
-	//gl.uniformMatrix4fv(modelViewMatrix, false, flatten(ctm));
-	gl.uniformMatrix4fv(modelViewMatrix, false, flatten(mat4()));
+	gl.uniformMatrix4fv(modelViewMatrix, false, flatten(ctm));
+	//gl.uniformMatrix4fv(modelViewMatrix, false, flatten(mat4()));
 
 	gl.drawArrays(gl.TRIANGLES, 0, vertices.length);
 }
 
-function rotateAxis(theta, d) {
-	// float theta, vec3 d
+function rotateAxis(theta, alpha) {
+	// float theta, vec3 alpha
 	// rotate by theta degrees about the axis d with a fixed point at the origin
 	// R = R_x(-theta_x) R_y(-theta_y) R_z(theta) R_y(theta_y) R_x(theta_x)
-	// M = T(p_0) R T(-p_0)
 
-	var R = mat4(); // init identity matrix
-	var ctm = mat4(); // init identity matrix
-	var origin = mat4();
+	var d = Math.sqrt((alpha[1] * alpha[1]) + (alpha[2] * alpha[2]));
 
+	var rx = mat4(
+		vec4(1.0, 0.0, 0.0, 0.0),
+		vec4(0.0, alpha[2]/d, -alpha[1]/d, 0.0),
+		vec4(0.0, alpha[1]/d, alpha[2]/d, 0.0),
+		vec4(0.0, 0.0, 0.0, 1.0)
+	);
 
-	ctm = mult(ctm, translate(origin));
-	ctm = mult(ctm, R);
-	ctm = mult(ctm, translate(negate(origin)));
+	var ry = mat4(
+		vec4(d, 0.0, -alpha[0], 0.0),
+		vec4(0.0, 1.0, 0.0, 0.0),
+		vec4(alpha[0], 0.0, d, 0.0),
+		vec4(0.0, 0.0, 0.0, 1.0)
+	);
 
-	return ctm;
+	var rz = rotateZ(theta);
+
+	return mult(mult(mult(mult(transpose(rx), transpose(ry)), rz), ry), rx);
 }
