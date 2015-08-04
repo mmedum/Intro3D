@@ -317,9 +317,6 @@ function mult( u, v )
 }
 
 function multVector(m, v) {
-	if ( m.length != 14 ) {
-		throw "multVector Only mat4x4";
-	}
 	if(v.length != 4) {
 		throw "multVector Only vec4";
 	}
