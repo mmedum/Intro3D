@@ -229,18 +229,20 @@ function render(){
 	update();
 	
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	
+	var uModelMatrix = gl.getUniformLocation(program, "uModelMatrix");
+	var uProjectionMatrix = gl.getUniformLocation(program, "uProjectionMatrix");
+	var uViewMatrix = gl.getUniformLocation(program, "uViewMatrix");
+	
+	var projectionMatrix = perspective(75, (canvas.width/canvas.height), 0.2, 100.0);		
+	gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(projectionMatrix));	
+	
+	gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.view));	
 
-	for(var i=0; i<NR_OF_CUBES; i++){	
-		var projectionMatrix = perspective(75, (canvas.width/canvas.height), 0.2, 100.0);
-		var uProjectionMatrix = gl.getUniformLocation(program, "uProjectionMatrix");
-		gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(projectionMatrix));	
-
+	for(var i=0; i<NR_OF_CUBES; i++){
 		var modelMatrix = translate(positions[i]);
-		var uModelMatrix = gl.getUniformLocation(program, "uModelMatrix");
-		gl.uniformMatrix4fv(uModelMatrix, false, flatten(modelMatrix));	
 
-		var uViewMatrix = gl.getUniformLocation(program, "uViewMatrix");
-		gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.view));	
+		gl.uniformMatrix4fv(uModelMatrix, false, flatten(modelMatrix));	
 
 		gl.drawArrays(gl.TRIANGLES, 0, cubes.length/2);
 	}
