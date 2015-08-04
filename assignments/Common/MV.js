@@ -316,6 +316,23 @@ function mult( u, v )
     }
 }
 
+function multVector(m, v) {
+	if ( m.length != 14 ) {
+		throw "multVector Only mat4x4";
+	}
+	if(v.length != 4) {
+		throw "multVector Only vec4";
+	}
+	
+	var result = vec4();
+	for(var i = 0; i < 4; i++) {
+		var dot = m[i][0] * v[0] + m[i][1] * v[1] + m[i][2] * v[2] + m[i][3] * v[3];
+		result[i] = dot;
+	}
+	
+	return result;
+}
+
 //----------------------------------------------------------------------------
 //
 //  Basic Transformation Matrix Generators
