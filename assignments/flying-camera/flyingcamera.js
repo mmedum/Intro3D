@@ -117,9 +117,10 @@ function createGeo() {
 function createCamera() {
 	return {
 		position: vec3(0.0, 0.0, -5.0),
+		view: vec3(),
 
-		yaw: 0.0,
-		pitch: 0.0,
+		pitch: -30.0, // up-down around center of camera
+		yaw: 140.0, // left-right around center of camera
 
 		forward: false,
 		left: false,
@@ -132,6 +133,9 @@ function createCamera() {
 
 		refresh: function() {
 			var rotation = mult(rotateY(this.yaw), rotateX(this.pitch));
+
+			// let camera coordinates follow viewpoint
+			// slice(0, 3) : from vec4 to vec3
 			this.forward_dir = multVector(rotation, vec4(0, 0, -1, 0)).slice(0, 3);
 			this.right_dir = multVector(rotation, vec4(1, 0, 0, 0)).slice(0, 3);
 			this.up_dir = multVector(rotation, vec4(0, 1, 0, 0)).slice(0, 3);
@@ -233,21 +237,26 @@ function update() {
 	var currentTime = new Date().getTime();
 	var elapsed = currentTime - lastUpdate;
 	lastUpdate = currentTime;
+
 	var dt = elapsed * 0.001;
 	var speed = 10.0;
-
 	var movement = speed * dt;
+
 	if (camera.forward) {
 		camera.position = add(camera.position, scale(movement, camera.forward_dir));
 	}
+
 	if (camera.backward) {
 		camera.position = subtract(camera.position, scale(movement, camera.forward_dir));
 	}
-	if (camera.left) {
-		camera.position = subtract(camera.position, scale(movement, camera.right_dir));
-	}
+	
 	if (camera.right) {
 		camera.position = add(camera.position, scale(movement, camera.right_dir));
 	}
+
+	if (camera.left) {
+		camera.position = subtract(camera.position, scale(movement, camera.right_dir));
+	}
+
 	camera.refresh();
 }
