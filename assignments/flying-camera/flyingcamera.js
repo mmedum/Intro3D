@@ -6,6 +6,10 @@ var program;
 var cubes;
 var camera;
 
+var positions = [];
+var NR_OF_CUBES = 1000;
+
+
 function createCamera() {
 	return {
 		position : vec3(0.0, 0.0, -5.0),
@@ -111,7 +115,9 @@ window.onload = function init(){
 		gl.cullFace(gl.BACK);
 		
 		createGeo();
-		
+		for(var i=0; i<NR_OF_CUBES; i++){
+			positions.push(vec3(Math.random() * 100, Math.random() * 100, Math.random() * 100));
+		}		
 		camera = createCamera();
 		
 		setupListeners();
@@ -177,13 +183,13 @@ function createGeo(){
 	var cube = frontFace.concat(backFace, rightFace, leftFace, bottomFace, topFace); 
 	
 	cubes = [];
-	for(var i=0; i<100; i++){
+	for(var i=0; i<NR_OF_CUBES; i++){
 		cubes = cubes.concat(cube);
 	}
 
 	var bufferId = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
-	gl.bufferData(gl.ARRAY_BUFFER, flatten(cubes), gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, flatten(cubes), gl.DYNAMIC_DRAW);
 
 	var vPosition = gl.getAttribLocation(program, "vPosition");
 	gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, sizeof['vec4']*2, 0);
@@ -223,19 +229,20 @@ function render(){
 	update();
 	
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	
-	var projectionMatrix = perspective(75, (canvas.width/canvas.height), 0.2, 100.0);
-	var uProjectionMatrix = gl.getUniformLocation(program, "uProjectionMatrix");
-	gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(projectionMatrix));	
 
-	var modelMatrix = translate(Math.random()*100, Math.random()*100, Math.random()*100);
-	var uModelMatrix = gl.getUniformLocation(program, "uModelMatrix");
-	gl.uniformMatrix4fv(uModelMatrix, false, flatten(modelMatrix));	
+	for(var i=0; i<NR_OF_CUBES; i++){	
+		var projectionMatrix = perspective(75, (canvas.width/canvas.height), 0.2, 100.0);
+		var uProjectionMatrix = gl.getUniformLocation(program, "uProjectionMatrix");
+		gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(projectionMatrix));	
 
-	var uViewMatrix = gl.getUniformLocation(program, "uViewMatrix");
-	gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.view));	
-	
-	gl.drawArrays(gl.TRIANGLES, 0, cubes.length/2);
+		var modelMatrix = translate(positions[i]);
+		var uModelMatrix = gl.getUniformLocation(program, "uModelMatrix");
+		gl.uniformMatrix4fv(uModelMatrix, false, flatten(modelMatrix));	
 
+		var uViewMatrix = gl.getUniformLocation(program, "uViewMatrix");
+		gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.view));	
+
+		gl.drawArrays(gl.TRIANGLES, 0, cubes.length/2);
+	}
 	requestAnimFrame(render); 
 }
