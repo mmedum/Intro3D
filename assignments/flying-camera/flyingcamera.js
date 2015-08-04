@@ -23,10 +23,10 @@ function createCamera() {
 		up_dir : vec3(0, 1, 0),
 
 		refresh : function() {
-			var rotation = mult(rotateX(this.pitch), rotateY(this.yaw));
-			this.forward_dir = mult(rotation, vec4(0, 0, -1, 0)).slice(0, 3);
-			right_dir = mult(rotation, vec4(1, 0, 0, 0)).slice(0, 3);
-			up_dir = mult(rotation, vec4(0, 1, 0, 0)).slice(0, 3);
+			var rotation = mult(rotateY(this.yaw), rotateX(this.pitch));
+			this.forward_dir = multVector(rotation, vec4(0, 0, -1, 0)).slice(0, 3);
+			this.right_dir = multVector(rotation, vec4(1, 0, 0, 0)).slice(0, 3);
+			this.up_dir = multVector(rotation, vec4(0, 1, 0, 0)).slice(0, 3);
 			var translation = translate(this.position[0], this.position[1], this.position[2]);
 			this.view = inverse4(mult(translation, rotation));
 		}		
@@ -36,7 +36,7 @@ function createCamera() {
 function setupListeners() {
 	var lastMouse = null;
 
-	window.addEventListener("mousemove", function(event) {
+	canvas.addEventListener("mousemove", function(event) {
 		if(lastMouse != null){
 			var newX = event.clientX;
 			var newY = event.clientY;
@@ -45,7 +45,7 @@ function setupListeners() {
 			var deltaY = newY - lastMouse[1];
 
 			camera.yaw += deltaX * 0.2;
-			//camera.pitch += deltaY * 0.2;
+			camera.pitch += deltaY * 0.2;
 		}	
 		lastMouse = vec2(event.clientX, event.clientY);	
 	});
@@ -120,20 +120,20 @@ window.onload = function init(){
 function createGeo(){
 	
 	var frontFace = [
-		vec4(-0.5, -0.5, 0.5, 1.0),
-		vec4(-0.5, 0.5, 0.5, 1.0),
-		vec4(0.5, 0.5, 0.5, 1.0),
-		vec4(-0.5, -0.5, 0.5, 1.0),
-		vec4(0.5, -0.5, 0.5, 1.0),
-		vec4(0.5, 0.5, 0.5, 1.0)];
+		vec4(-0.5, -0.5, 0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
+		vec4(-0.5, 0.5, 0.5, 1.0), vec4(-0.5, 0.5, 42, 42),
+		vec4(0.5, 0.5, 0.5, 1.0), vec4(0.5, 0.5, 42, 42),
+		vec4(-0.5, -0.5, 0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
+		vec4(0.5, -0.5, 0.5, 1.0), vec4(0.5, -0.5, 42, 42),
+		vec4(0.5, 0.5, 0.5, 1.0), vec4(0.5, 0.5, 42, 42)];
 
 	var backFace = [
-		vec4(-0.5, -0.5, -0.5, 1.0),
-		vec4(0.5, 0.5, -0.5, 1.0),
-		vec4(-0.5, 0.5, -0.5, 1.0),
-		vec4(-0.5, -0.5, -0.5, 1.0),
-		vec4(0.5, 0.5, -0.5, 1.0),
-		vec4(0.5, -0.5, -0.5, 1.0)];
+		vec4(-0.5, -0.5, -0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
+		vec4(0.5, 0.5, -0.5, 1.0), vec4(-0.5, 0.5, 42, 42),
+		vec4(-0.5, 0.5, -0.5, 1.0), vec4(0.5, 0.5, 42, 42),
+		vec4(-0.5, -0.5, -0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
+		vec4(0.5, 0.5, -0.5, 1.0), vec4(0.5, -0.5, 42, 42),
+		vec4(0.5, -0.5, -0.5, 1.0), vec4(0.5, 0.5, 42, 42)];
 		
 	var rightFace = [
 		vec4(-0.5, -0.5, -0.5, 1.0),
@@ -189,17 +189,16 @@ function update(){
 
 	var movement = speed * dt;
 	if(camera.forward){
-		console.log(camera.forward_dir);
 		camera.position = add(camera.position, scale(movement, camera.forward_dir));
 	}
 	if(camera.backward){
-		camera.position[2] += movement;
+		camera.position = subtract(camera.position, scale(movement, camera.forward_dir));
 	}
 	if(camera.left){
-		camera.position[0] -= movement;
+		camera.position = subtract(camera.position, scale(movement, camera.right_dir));
 	}
 	if(camera.right){
-		camera.position[0] += movement;
+		camera.position = add(camera.position, scale(movement, camera.right_dir));
 	}	
 	camera.refresh();
 }
