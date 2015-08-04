@@ -5,22 +5,26 @@
 <!-- program for board -->
 <script id="vertex-shader" type="x-shader/x-vertex">
 attribute vec4 vPosition;
+attribute vec4 vOffset;
 
 uniform mat4 uProjectionMatrix;
 uniform mat4 uModelMatrix;
 uniform mat4 uViewMatrix;
 
-void main() {
+varying vec2 fOffset;
 
+void main() {
 	gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vPosition;
+	fOffset = vOffset.xy;
 }
 </script>
 <script id="fragment-shader" type="x-shader/x-fragment">
 precision mediump float;
 
+varying vec2 fOffset;
 
 void main() {
-    gl_FragColor = vec4(1.0, 0.0, gl_FragCoord.x/800.0, 1.0);
+	 gl_FragColor = vec4(1.0, 1.0 - length(fOffset), gl_FragCoord.x/800.0, 1.0);
 }
 </script>
 

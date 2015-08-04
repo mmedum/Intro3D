@@ -136,10 +136,10 @@ function createGeo(){
 		vec4(0.5, -0.5, -0.5, 1.0), vec4(0.5, 0.5, 42, 42)];
 		
 	var rightFace = [
-		vec4(-0.5, -0.5, -0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
-		vec4(-0.5, 0.5, 0.5, 1.0), vec4(-0.5, 0.5, 42, 42),
-		vec4(-0.5, 0.5, -0.5, 1.0),vec4(-0.5, 0.5, 42, 42),
-		vec4(-0.5, -0.5, -0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
+		vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.5, 0.5, 42, 42),
+		vec4(-0.5, 0.5, 0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
+		vec4(-0.5, 0.5, -0.5, 1.0),vec4(-0.5, -0.5, 42, 42),
+		vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.5, 0.5, 42, 42),
 		vec4(-0.5, 0.5, 0.5, 1.0), vec4(0.5, -0.5, 42, 42),
 		vec4(-0.5, -0.5, 0.5, 1.0), vec4(0.5, 0.5, 42, 42)];
 
@@ -176,6 +176,11 @@ function createGeo(){
 	var vPosition = gl.getAttribLocation(program, "vPosition");
 	gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, sizeof['vec4']*2, 0);
 	gl.enableVertexAttribArray(vPosition);
+
+	var vOffset = gl.getAttribLocation(program, "vOffset");
+	gl.vertexAttribPointer(vOffset, 4, gl.FLOAT, false, sizeof['vec4']*2, sizeof['vec4']);
+	gl.enableVertexAttribArray(vOffset);
+
 }
 
 var lastUpdate = new Date().getTime();
