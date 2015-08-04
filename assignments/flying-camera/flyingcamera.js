@@ -3,7 +3,7 @@ var gl;
 
 var program;
 
-var cube;
+var cubes;
 var camera;
 
 function createCamera() {
@@ -174,11 +174,16 @@ function createGeo(){
 		vec4(0.5, -0.5, 0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
 		vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.5, 0.5, 42, 42)];
 
-	cube = frontFace.concat(backFace, rightFace, leftFace, bottomFace, topFace); 
+	var cube = frontFace.concat(backFace, rightFace, leftFace, bottomFace, topFace); 
 	
+	cubes = [];
+	for(var i=0; i<100; i++){
+		cubes = cubes.concat(cube);
+	}
+
 	var bufferId = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
-	gl.bufferData(gl.ARRAY_BUFFER, flatten(cube), gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, flatten(cubes), gl.STATIC_DRAW);
 
 	var vPosition = gl.getAttribLocation(program, "vPosition");
 	gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, sizeof['vec4']*2, 0);
@@ -187,7 +192,6 @@ function createGeo(){
 	var vOffset = gl.getAttribLocation(program, "vOffset");
 	gl.vertexAttribPointer(vOffset, 4, gl.FLOAT, false, sizeof['vec4']*2, sizeof['vec4']);
 	gl.enableVertexAttribArray(vOffset);
-
 }
 
 var lastUpdate = new Date().getTime();
@@ -224,14 +228,14 @@ function render(){
 	var uProjectionMatrix = gl.getUniformLocation(program, "uProjectionMatrix");
 	gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(projectionMatrix));	
 
-	var modelMatrix = translate(0.0, 0.0, -5.0);
+	var modelMatrix = translate(Math.random()*100, Math.random()*100, Math.random()*100);
 	var uModelMatrix = gl.getUniformLocation(program, "uModelMatrix");
 	gl.uniformMatrix4fv(uModelMatrix, false, flatten(modelMatrix));	
 
 	var uViewMatrix = gl.getUniformLocation(program, "uViewMatrix");
 	gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.view));	
-
-	gl.drawArrays(gl.TRIANGLES, 0, cube.length/2);
+	
+	gl.drawArrays(gl.TRIANGLES, 0, cubes.length/2);
 
 	requestAnimFrame(render); 
 }
