@@ -86,7 +86,6 @@ function rotateAxis(theta, alpha) {
 		return mult(mult(transpose(ry), rz), ry);
 	} else {
 		var d = Math.sqrt((alpha[1] * alpha[1]) + (alpha[2] * alpha[2]));
-		console.log(d);
 
 		var rx = mat4(
 			vec4(1.0, 0.0, 0.0, 0.0),
