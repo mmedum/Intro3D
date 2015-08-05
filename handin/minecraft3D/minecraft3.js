@@ -77,6 +77,8 @@ function createWorld() {
 		}
 	}
 
+	console.log(worldBlocks[0 * CHUNKS_Y * CHUNKS_Z + 40 * CHUNKS_Z + 0]);
+
 	for (var x = 0; x < CHUNKS_X; x++) {
 		for (var y = 0; y < CHUNKS_Y; y++) {
 			for (var z = 0; z < CHUNKS_Z; z++) {
@@ -89,7 +91,7 @@ function createWorld() {
 
 function createChunk(x, y, z) {
 	var vertices = [];
-
+	//console.log(x + " " + y + " " + z + " " + worldBlocks[0 * CHUNKS_Y * CHUNKS_Z + 40 * CHUNKS_Z + 0]);
 	for (var dx = 0; dx < CHUNK_SIZE_X; dx++) {
 		for (var dy = 0; dy < CHUNK_SIZE_Y; dy++) {
 			for (var dz = 0; dz < CHUNK_SIZE_Z; dz++) {
