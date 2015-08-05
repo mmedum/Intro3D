@@ -7,7 +7,7 @@ var cubes;
 var camera;
 
 var positions = [];
-var NR_OF_CUBES = 100;
+var NR_OF_CUBES = 1000;
 
 window.onload = function init() {
 	canvas = document.getElementById("gl-canvas");
@@ -116,20 +116,20 @@ function createGeo() {
 
 function createCamera() {
 	return {
-		position: vec3(0.0, 0.0, -5.0),
-		view: vec3(),
+		position : vec3(0.0, 0.0, -5.0),
+		view : vec3(),
 
-		pitch: -30.0, // up-down around center of camera
-		yaw: 140.0, // left-right around center of camera
+		pitch : -30.0, // up-down around center of camera
+		yaw : 140.0, // left-right around center of camera
 
-		forward: false,
-		left: false,
-		right: false,
-		backward: false,
+		forward : false,
+		left : false,
+		right : false,
+		backward : false,
 
-		forward_dir: vec3(0, 0, -1),
-		right_dir: vec3(1, 0, 0),
-		up_dir: vec3(0, 1, 0),
+		forward_dir : vec3(0, 0, -1),
+		right_dir : vec3(1, 0, 0),
+		up_dir : vec3(0, 1, 0),
 
 		refresh: function() {
 			var rotation = mult(rotateY(this.yaw), rotateX(this.pitch));
