@@ -13,9 +13,9 @@ var BLOCKS_Z = 64;
 var CHUNKS_X = 4;
 var CHUNKS_Y = 4;
 var CHUNKS_Z = 4;
-var CHUNK_SIZE_X = BLOCKS_X/CHUNKS_X;
-var CHUNK_SIZE_Y = BLOCKS_Y/CHUNKS_Y;
-var CHUNK_SIZE_Z = BLOCKS_Z/CHUNKS_Z;
+var CHUNK_SIZE_X = BLOCKS_X / CHUNKS_X;
+var CHUNK_SIZE_Y = BLOCKS_Y / CHUNKS_Y;
+var CHUNK_SIZE_Z = BLOCKS_Z / CHUNKS_Z;
 
 var BlockType = {
 	OFB: [0.0, 0.0, 0.0, 1.0], // out of bounds
@@ -42,10 +42,10 @@ window.onload = function init() {
 		alert("BACON");
 	} else {
 		gl = WebGLDebugUtils.makeDebugContext(gl);
-		
+
 		cubeProgram = initShaders(gl, "vertex-shader", "fragment-shader");
 		cubeWireframeProgram = initShaders(gl, "wireframe-vertex-shader", "wireframe-fragment-shader");
-		
+
 		gl.viewport(0, 0, canvas.width, canvas.height);
 		gl.clearColor(0.0, 0.0, 0.0, 1.0);
 		gl.enable(gl.DEPTH_TEST);
@@ -63,7 +63,7 @@ window.onload = function init() {
 	}
 }
 
-function createWorld() {	
+function createWorld() {
 	for (var x = 0; x < BLOCKS_X; x++) {
 		for (var y = 0; y < BLOCKS_Y; y++) {
 			for (var z = 0; z < BLOCKS_Z; z++) {
@@ -77,12 +77,12 @@ function createWorld() {
 			}
 		}
 	}
-	
+
 	for (var x = 0; x < CHUNKS_X; x++) {
 		for (var y = 0; y < CHUNKS_Y; y++) {
 			for (var z = 0; z < CHUNKS_Z; z++) {
-				worldChunks[x * CHUNKS_Y * CHUNKS_Z + y * CHUNKS_Z + z] = 
-				createChunk(x * CHUNK_SIZE_X, y * CHUNK_SIZE_Y, z * CHUNK_SIZE_Z);
+				worldChunks[x * CHUNKS_Y * CHUNKS_Z + y * CHUNKS_Z + z] =
+					createChunk(x * CHUNK_SIZE_X, y * CHUNK_SIZE_Y, z * CHUNK_SIZE_Z);
 			}
 		}
 	}
@@ -91,7 +91,7 @@ function createWorld() {
 function createChunk(x, y, z) {
 	var blockVertices = [];
 	var lineVertices = [];
-	
+
 	for (var dx = 0; dx < CHUNK_SIZE_X; dx++) {
 		for (var dy = 0; dy < CHUNK_SIZE_Y; dy++) {
 			for (var dz = 0; dz < CHUNK_SIZE_Z; dz++) {
@@ -99,9 +99,8 @@ function createChunk(x, y, z) {
 				var wy = (y + dy);
 				var wz = (z + dz);
 				var blockType = worldBlocks[wx * BLOCKS_Y * BLOCKS_Z + wy * BLOCKS_Z + wz];
-				if (blockType != BlockType.AIR 
-					&& isVisible(wx, wy, wz)) {
-					
+				if (blockType != BlockType.AIR && isVisible(wx, wy, wz)) {
+
 					createCube(blockVertices, lineVertices, wx, wy, wz, blockType);
 				}
 			}
@@ -111,20 +110,20 @@ function createChunk(x, y, z) {
 	var blockBufferId = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, blockBufferId);
 	gl.bufferData(gl.ARRAY_BUFFER, flatten(blockVertices), gl.STATIC_DRAW);
-	
+
 	var lineBufferId = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, lineBufferId);
 	gl.bufferData(gl.ARRAY_BUFFER, flatten(lineVertices), gl.STATIC_DRAW);
 
 	return {
-		blockBufferId : blockBufferId,
-		lineBufferId : lineBufferId,
-		blockVertexCount : blockVertices.length/2,
-		lineVertexCount : lineVertices.length
+		blockBufferId: blockBufferId,
+		lineBufferId: lineBufferId,
+		blockVertexCount: blockVertices.length / 2,
+		lineVertexCount: lineVertices.length
 	};
 }
 
-function isVisible(wx, wy, wz){
+function isVisible(wx, wy, wz) {
 	var up = wy < BLOCKS_Y - 1 ? worldBlocks[(wx) * BLOCKS_Y * BLOCKS_Z + (wy + 1) * BLOCKS_Z + (wz)] : BlockType.AIR;
 	var down = wy > 0 ? worldBlocks[(wx) * BLOCKS_Y * BLOCKS_Z + (wy - 1) * BLOCKS_Z + (wz)] : BlockType.AIR;
 	var right = wx < BLOCKS_X - 1 ? worldBlocks[(wx + 1) * BLOCKS_Y * BLOCKS_Z + (wy) * BLOCKS_Z + (wz)] : BlockType.AIR;
@@ -132,7 +131,7 @@ function isVisible(wx, wy, wz){
 	var front = wz > 0 ? worldBlocks[(wx) * BLOCKS_Y * BLOCKS_Z + (wy) * BLOCKS_Z + (wz - 1)] : BlockType.AIR;
 	var back = wz < BLOCKS_Z - 1 ? worldBlocks[(wx) * BLOCKS_Y * BLOCKS_Z + (wy) * BLOCKS_Z + (wz + 1)] : BlockType.AIR;
 
-	return (up == BlockType.AIR || down == BlockType.AIR || right == BlockType.AIR || 
+	return (up == BlockType.AIR || down == BlockType.AIR || right == BlockType.AIR ||
 		left == BlockType.AIR || front == BlockType.AIR || back == BlockType.AIR);
 }
 
@@ -145,7 +144,7 @@ function createCube(blockVertices, lineVertices, x, y, z, color) {
 		vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0),
 		vec4(0.5, 0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0),
 		vec4(0.5, -0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0),
-		
+
 		// Back
 		vec4(0.5, 0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0),
 		vec4(-0.5, 0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0),
@@ -161,7 +160,7 @@ function createCube(blockVertices, lineVertices, x, y, z, color) {
 		vec4(0.5, -0.5, -0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0),
 		vec4(0.5, 0.5, 0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0),
 		vec4(0.5, -0.5, 0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0),
-		
+
 		// Left
 		vec4(-0.5, -0.5, -0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0),
 		vec4(-0.5, 0.5, 0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0),
@@ -186,41 +185,41 @@ function createCube(blockVertices, lineVertices, x, y, z, color) {
 		vec4(0.5, -0.5, 0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0),
 		vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0)
 	];
-	
+
 	// move cube to correct position in world with offset 0.5
 	var modelMatrix = translate(x + 0.5, y + 0.5, z + 0.5);
 
-	for(var i = 0; i < cube.length; i++) {
-		if(i % 2 == 0) {
+	for (var i = 0; i < cube.length; i++) {
+		if (i % 2 == 0) {
 			blockVertices.push(multVector(modelMatrix, cube[i]));
 		} else {
 			blockVertices.push(cube[i]);
 		}
 	}
-	
+
 	var cubeEdges = [
 		// Back ring
 		vec4(-0.5, -0.5, 0.5, 1.0), vec4(-0.5, 0.5, 0.5, 1.0),
 		vec4(-0.5, -0.5, 0.5, 1.0), vec4(0.5, -0.5, 0.5, 1.0),
 		vec4(0.5, -0.5, 0.5, 1.0), vec4(0.5, 0.5, 0.5, 1.0),
 		vec4(0.5, 0.5, 0.5, 1.0), vec4(-0.5, 0.5, 0.5, 1.0),
-		
+
 		// Front ring
 		vec4(-0.5, -0.5, -0.5, 1.0), vec4(-0.5, 0.5, -0.5, 1.0),
 		vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.5, -0.5, -0.5, 1.0),
 		vec4(0.5, -0.5, -0.5, 1.0), vec4(0.5, 0.5, -0.5, 1.0),
 		vec4(0.5, 0.5, -0.5, 1.0), vec4(-0.5, 0.5, -0.5, 1.0),
-		
+
 		// Left track
 		vec4(-0.5, -0.5, 0.5, 1.0), vec4(-0.5, -0.5, -0.5, 1.0),
 		vec4(-0.5, 0.5, 0.5, 1.0), vec4(-0.5, 0.5, -0.5, 1.0),
-		
+
 		// Right track
 		vec4(0.5, -0.5, 0.5, 1.0), vec4(0.5, -0.5, -0.5, 1.0),
 		vec4(0.5, 0.5, 0.5, 1.0), vec4(0.5, 0.5, -0.5, 1.0)
 	];
-	
-	for(var i = 0; i < cubeEdges.length; i++) {
+
+	for (var i = 0; i < cubeEdges.length; i++) {
 		lineVertices.push(multVector(modelMatrix, cubeEdges[i]));
 	}
 }
@@ -259,20 +258,30 @@ function createCamera() {
 
 function setupListeners() {
 	var lastMouse = null;
+	var newMouse = null;
 
-	canvas.addEventListener("mousemove", function(event) {
-		if (lastMouse != null) {
-			var newX = event.clientX;
-			var newY = event.clientY;
+	var mouseTracking = function(event) {
+			if (lastMouse != null) {
+				newMouse = vec2(event.clientX, event.clientY);
 
-			var deltaX = newX - lastMouse[0];
-			var deltaY = newY - lastMouse[1];
+				var deltaX = newMouse[0] - lastMouse[0];
+				var deltaY = newMouse[1] - lastMouse[1];
 
-			camera.yaw += deltaX * 0.2;
-			camera.pitch += deltaY * 0.2;
-		}
+				camera.yaw += deltaX * 0.2;
+				camera.pitch += deltaY * 0.2;
+			}
 
-		lastMouse = vec2(event.clientX, event.clientY);
+			lastMouse = vec2(event.clientX, event.clientY);
+	};
+
+	canvas.addEventListener("mousedown", function(event) {
+		newMouse = vec2(event.clientX, event.clientY);
+
+		canvas.addEventListener("mousemove", mouseTracking);
+	});
+
+	canvas.addEventListener("mouseup", function(event) {
+		canvas.removeEventListener("mousemove", mouseTracking);
 	});
 
 	window.addEventListener("keydown", function(event) {
@@ -340,8 +349,8 @@ function drawCubeWireframes() {
 	var projectionMatrix = perspective(75, (canvas.width / canvas.height), 0.2, 100.0);
 	gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(projectionMatrix));
 
-	gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.view));	
-	
+	gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.view));
+
 	for (var x = 0; x < CHUNKS_X; x++) {
 		for (var y = 0; y < CHUNKS_Y; y++) {
 			for (var z = 0; z < CHUNKS_Z; z++) {
@@ -357,7 +366,7 @@ function drawCubeWireframes() {
 			}
 		}
 	}
-	
+
 	gl.disable(gl.POLYGON_OFFSET_FILL);
 }
 
