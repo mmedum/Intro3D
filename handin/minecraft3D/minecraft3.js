@@ -6,27 +6,30 @@ var program;
 var cubes;
 var camera;
 
-var BLOCKS_X = 128;
-var BLOCKS_Y = 128;
-var BLOCKS_Z = 128;
-var CHUNKS_X = 2;
-var CHUNKS_Y = 2;
-var CHUNKS_Z = 2;
+var BLOCKS_X = 64;
+var BLOCKS_Y = 64;
+var BLOCKS_Z = 64;
+var CHUNKS_X = 4;
+var CHUNKS_Y = 4;
+var CHUNKS_Z = 4;
+var CHUNK_SIZE_X = BLOCKS_X/CHUNKS_X;
+var CHUNK_SIZE_Y = BLOCKS_Y/CHUNKS_Y;
+var CHUNK_SIZE_Z = BLOCKS_Z/CHUNKS_Z;
 
 var BlockType = {
-	OFB: [0.0, 0.0, 0.0], // out of bounds
-	AIR: [0.0, 0.0, 1.0],
-	STONE: [0.5, 0.5, 0.5],
-	GRASS: [0.0, 1.0, 0.0],
-	DIRT: [0.7, 0.4, 0.3],
-	WOOD: [0.8901, 0.6627, 0.4352],
-	METAL: [0.8, 0.8, 0.8],
-	WATER: [0.6, 0.8509, 0.9176],
-	FIRE: [1.0, 0.0, 0.0]
+	OFB: [0.0, 0.0, 0.0, 1.0], // out of bounds
+	AIR: [0.0, 0.0, 1.0, 1.0],
+	STONE: [0.5, 0.5, 0.5, 1.0],
+	GRASS: [0.0, 1.0, 0.0, 1.0],
+	DIRT: [0.7, 0.4, 0.3, 1.0],
+	WOOD: [0.8901, 0.6627, 0.4352, 1.0],
+	METAL: [0.8, 0.8, 0.8, 1.0],
+	WATER: [0.6, 0.8509, 0.9176, 1.0],
+	FIRE: [1.0, 0.0, 0.0, 1.0]
 };
 
-var worldBlocks = new Array(128 * 128 * 128);
-var worldChunks = new Array(8 * 8 * 8);
+var worldBlocks = new Array(BLOCKS_X * BLOCKS_Y * BLOCKS_Z);
+var worldChunks = new Array(CHUNKS_X * CHUNKS_Y * CHUNKS_Z);
 
 var positions = [];
 
@@ -77,7 +80,8 @@ function createWorld() {
 	for (var x = 0; x < CHUNKS_X; x++) {
 		for (var y = 0; y < CHUNKS_Y; y++) {
 			for (var z = 0; z < CHUNKS_Z; z++) {
-				worldChunks[x * CHUNKS_Y * CHUNKS_Z + y * CHUNKS_Z + z] = createChunk(x * 16, y * 16, z * 16);
+				worldChunks[x * CHUNKS_Y * CHUNKS_Z + y * CHUNKS_Z + z] = 
+				createChunk(x * CHUNK_SIZE_X, y * CHUNK_SIZE_Y, z * CHUNK_SIZE_Z);
 			}
 		}
 	}
@@ -86,15 +90,16 @@ function createWorld() {
 function createChunk(x, y, z) {
 	var vertices = [];
 
-	for (var dx = 0; dx < 16; dx++) {
-		for (var dy = 0; dy < 16; dy++) {
-			for (var dz = 0; dz < 16; dz++) {
+	for (var dx = 0; dx < CHUNK_SIZE_X; dx++) {
+		for (var dy = 0; dy < CHUNK_SIZE_Y; dy++) {
+			for (var dz = 0; dz < CHUNK_SIZE_Z; dz++) {
 				var wx = (x + dx);
 				var wy = (y + dy);
 				var wz = (z + dz);
-				if (worldBlocks[wx * CHUNKS_Y * CHUNKS_Z + wy * CHUNKS_Z + wz] != BlockType.AIR 
+				var blockType = worldBlocks[wx * CHUNKS_Y * CHUNKS_Z + wy * CHUNKS_Z + wz];
+				if (blockType != BlockType.AIR 
 					&& isVisible(wx, wy, wz)) {
-					vertices = vertices.concat(createCube(x + dx, y + dy, z + dz));
+					vertices = vertices.concat(createCube(wx, wy, wz, blockType));
 				}
 			}
 		}
@@ -111,62 +116,70 @@ function createChunk(x, y, z) {
 }
 
 function isVisible(wx, wy, wz){
-	
+	var up = wy < BLOCKS_Y - 1 ? worldBlocks[(wx) * CHUNKS_Y * CHUNKS_Z + (wy + 1) * CHUNKS_Z + (wz)] : BlockType.AIR;
+	var down = wy > 0 ? worldBlocks[(wx) * CHUNKS_Y * CHUNKS_Z + (wy - 1) * CHUNKS_Z + (wz)] : BlockType.AIR;
+	var right = wx < BLOCKS_X - 1 ? worldBlocks[(wx + 1) * CHUNKS_Y * CHUNKS_Z + (wy) * CHUNKS_Z + (wz)] : BlockType.AIR;
+	var left = wx > 0 ? worldBlocks[(wx - 1) * CHUNKS_Y * CHUNKS_Z + (wy) * CHUNKS_Z + (wz)] : BlockType.AIR;
+	var front = wz > 0 ? worldBlocks[(wx) * CHUNKS_Y * CHUNKS_Z + (wy) * CHUNKS_Z + (wz - 1)] : BlockType.AIR;
+	var back = wz < BLOCKS_Z - 1 ? worldBlocks[(wx) * CHUNKS_Y * CHUNKS_Z + (wy) * CHUNKS_Z + (wz + 1)] : BlockType.AIR;
+
+	return (up == BlockType.AIR || down == BlockType.AIR || right == BlockType.AIR || 
+		left == BlockType.AIR || front == BlockType.AIR || back == BlockType.AIR);
 }
 
-function createCube(x, y, z) {
+function createCube(x, y, z, color) {
 	var frontFace = [
-		vec4(-0.5, 0.5, -0.5, 1.0), vec4(-0.5, 0.5, 42, 42),
-		vec4(0.5, 0.5, -0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
-		vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.5, 0.5, 42, 42),
-		vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.5, 0.5, 42, 42),
-		vec4(0.5, 0.5, -0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
-		vec4(0.5, -0.5, -0.5, 1.0), vec4(0.5, -0.5, 42, 42)
+		vec4(-0.5, 0.5, -0.5, 1.0), color,
+		vec4(0.5, 0.5, -0.5, 1.0), color,
+		vec4(-0.5, -0.5, -0.5, 1.0), color,
+		vec4(-0.5, -0.5, -0.5, 1.0), color,
+		vec4(0.5, 0.5, -0.5, 1.0), color,
+		vec4(0.5, -0.5, -0.5, 1.0), color
 	];
 
 	var backFace = [
-		vec4(0.5, 0.5, 0.5, 1.0), vec4(0.5, 0.5, 42, 42),
-		vec4(-0.5, 0.5, 0.5, 1.0), vec4(-0.5, 0.5, 42, 42),
-		vec4(-0.5, -0.5, 0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
-		vec4(-0.5, -0.5, 0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
-		vec4(0.5, -0.5, 0.5, 1.0), vec4(0.5, -0.5, 42, 42),
-		vec4(0.5, 0.5, 0.5, 1.0), vec4(0.5, 0.5, 42, 42)
+		vec4(0.5, 0.5, 0.5, 1.0), color,
+		vec4(-0.5, 0.5, 0.5, 1.0), color,
+		vec4(-0.5, -0.5, 0.5, 1.0), color,
+		vec4(-0.5, -0.5, 0.5, 1.0), color,
+		vec4(0.5, -0.5, 0.5, 1.0), color,
+		vec4(0.5, 0.5, 0.5, 1.0), color
 	];
 
 	var rightFace = [
-		vec4(0.5, 0.5, -0.5, 1.0), vec4(-0.5, 0.5, 42, 42),
-		vec4(0.5, 0.5, 0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
-		vec4(0.5, -0.5, -0.5, 1.0), vec4(0.5, 0.5, 42, 42),
-		vec4(0.5, -0.5, -0.5, 1.0), vec4(0.5, 0.5, 42, 42),
-		vec4(0.5, 0.5, 0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
-		vec4(0.5, -0.5, 0.5, 1.0), vec4(0.5, -0.5, 42, 42)
+		vec4(0.5, 0.5, -0.5, 1.0), color,
+		vec4(0.5, 0.5, 0.5, 1.0), color,
+		vec4(0.5, -0.5, -0.5, 1.0), color,
+		vec4(0.5, -0.5, -0.5, 1.0), color,
+		vec4(0.5, 0.5, 0.5, 1.0), color,
+		vec4(0.5, -0.5, 0.5, 1.0), color
 	];
 
 	var leftFace = [
-		vec4(-0.5, -0.5, -0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
-		vec4(-0.5, 0.5, 0.5, 1.0), vec4(0.5, 0.5, 42, 42),
-		vec4(-0.5, 0.5, -0.5, 1.0), vec4(-0.5, 0.5, 42, 42),
-		vec4(-0.5, -0.5, -0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
-		vec4(-0.5, -0.5, 0.5, 1.0), vec4(0.5, -0.5, 42, 42),
-		vec4(-0.5, 0.5, 0.5, 1.0), vec4(0.5, 0.5, 42, 42)
+		vec4(-0.5, -0.5, -0.5, 1.0), color,
+		vec4(-0.5, 0.5, 0.5, 1.0), color,
+		vec4(-0.5, 0.5, -0.5, 1.0), color,
+		vec4(-0.5, -0.5, -0.5, 1.0), color,
+		vec4(-0.5, -0.5, 0.5, 1.0), color,
+		vec4(-0.5, 0.5, 0.5, 1.0), color
 	];
 
 	var topFace = [
-		vec4(-0.5, 0.5, -0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
-		vec4(-0.5, 0.5, 0.5, 1.0), vec4(-0.5, 0.5, 42, 42),
-		vec4(0.5, 0.5, 0.5, 1.0), vec4(0.5, 0.5, 42, 42),
-		vec4(-0.5, 0.5, -0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
-		vec4(0.5, 0.5, 0.5, 1.0), vec4(0.5, 0.5, 42, 42),
-		vec4(0.5, 0.5, -0.5, 1.0), vec4(0.5, -0.5, 42, 42)
+		vec4(-0.5, 0.5, -0.5, 1.0), color,
+		vec4(-0.5, 0.5, 0.5, 1.0), color,
+		vec4(0.5, 0.5, 0.5, 1.0), color,
+		vec4(-0.5, 0.5, -0.5, 1.0), color,
+		vec4(0.5, 0.5, 0.5, 1.0), color,
+		vec4(0.5, 0.5, -0.5, 1.0), color
 	];
 
 	var bottomFace = [
-		vec4(0.5, -0.5, 0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
-		vec4(-0.5, -0.5, 0.5, 1.0), vec4(-0.5, 0.5, 42, 42),
-		vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.5, 0.5, 42, 42),
-		vec4(0.5, -0.5, -0.5, 1.0), vec4(0.5, -0.5, 42, 42),
-		vec4(0.5, -0.5, 0.5, 1.0), vec4(-0.5, -0.5, 42, 42),
-		vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.5, 0.5, 42, 42)
+		vec4(0.5, -0.5, 0.5, 1.0), color,
+		vec4(-0.5, -0.5, 0.5, 1.0), color,
+		vec4(-0.5, -0.5, -0.5, 1.0), color,
+		vec4(0.5, -0.5, -0.5, 1.0), color,
+		vec4(0.5, -0.5, 0.5, 1.0), color,
+		vec4(-0.5, -0.5, -0.5, 1.0), color
 	];
 
 	var cube = frontFace.concat(backFace, rightFace, leftFace, bottomFace, topFace);

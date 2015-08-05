@@ -10,20 +10,20 @@
 			uniform mat4 uProjectionMatrix;
 			uniform mat4 uViewMatrix;
 
-			varying vec2 fOffset;
+			varying vec4 fOffset;
 
 			void main() {
 				gl_Position = uProjectionMatrix * uViewMatrix * vPosition;
-				fOffset = vOffset.xy;
+				fOffset = vOffset;
 			}
 		</script>
 		<script id="fragment-shader" type="x-shader/x-fragment">
 			precision mediump float;
 
-			varying vec2 fOffset;
+			varying vec4 fOffset;
 
 			void main() {
-				 gl_FragColor = vec4(1.0, 1.0 - length(fOffset), gl_FragCoord.x/800.0, 1.0);
+				 gl_FragColor = fOffset;
 			}
 		</script>
 
