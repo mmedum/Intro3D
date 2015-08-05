@@ -8,13 +8,12 @@
 			attribute vec4 vOffset;
 
 			uniform mat4 uProjectionMatrix;
-			uniform mat4 uModelMatrix;
 			uniform mat4 uViewMatrix;
 
 			varying vec2 fOffset;
 
 			void main() {
-				gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vPosition;
+				gl_Position = uProjectionMatrix * uViewMatrix * vPosition;
 				fOffset = vOffset.xy;
 			}
 		</script>

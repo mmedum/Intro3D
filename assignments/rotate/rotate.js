@@ -53,7 +53,7 @@ function render() {
 	gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
 
 	//var theta = 75.0; // degrees
-	var d = normalize(vec3(0.0, 0.1, 1.0)); // axis
+	var d = normalize(vec3(0.0, 0.0, 1.0)); // axis
 	var ctm = rotateAxis(theta, d);
 
 	var modelViewMatrix = gl.getUniformLocation(program, "modelViewMatrix");
@@ -72,8 +72,7 @@ function rotateAxis(theta, alpha) {
 	// rotate by theta degrees about the axis d
 	// R = R_x(-theta_x) R_y(-theta_y) R_z(theta) R_y(theta_y) R_x(theta_x)
 
-	if (Math.abs(alpha[1]) < 0.0001) {
-		console.log("if");
+	if (Math.abs(alpha[0]) < 0.0001) {
 		var ry = mat4(
 			vec4(0.0, 0.0, -alpha[0], 0.0),
 			vec4(0.0, 1.0, 0.0, 0.0),
