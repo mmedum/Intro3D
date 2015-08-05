@@ -329,6 +329,9 @@ function render() {
 }
 
 function drawCubeWireframes() {
+	gl.enable(gl.POLYGON_OFFSET_FILL);
+	gl.polygonOffset(1.0, 2.0);
+
 	gl.useProgram(cubeWireframeProgram);
 
 	var uProjectionMatrix = gl.getUniformLocation(cubeWireframeProgram, "uProjectionMatrix"); // setup perspective settings
@@ -354,6 +357,8 @@ function drawCubeWireframes() {
 			}
 		}
 	}
+	
+	gl.disable(gl.POLYGON_OFFSET_FILL);
 }
 
 function drawCubes() {
