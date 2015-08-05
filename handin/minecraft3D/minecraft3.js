@@ -127,57 +127,57 @@ function isVisible(wx, wy, wz){
 
 function createCube(x, y, z, color) {
 	var frontFace = [
-		vec4(-0.5, 0.5, -0.5, 1.0), color,
-		vec4(0.5, 0.5, -0.5, 1.0), color,
-		vec4(-0.5, -0.5, -0.5, 1.0), color,
-		vec4(-0.5, -0.5, -0.5, 1.0), color,
-		vec4(0.5, 0.5, -0.5, 1.0), color,
-		vec4(0.5, -0.5, -0.5, 1.0), color
+		vec4(-0.5, 0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0),
+		vec4(0.5, 0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0),
+		vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0),
+		vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0),
+		vec4(0.5, 0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0),
+		vec4(0.5, -0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0)
 	];
 
 	var backFace = [
-		vec4(0.5, 0.5, 0.5, 1.0), color,
-		vec4(-0.5, 0.5, 0.5, 1.0), color,
-		vec4(-0.5, -0.5, 0.5, 1.0), color,
-		vec4(-0.5, -0.5, 0.5, 1.0), color,
-		vec4(0.5, -0.5, 0.5, 1.0), color,
-		vec4(0.5, 0.5, 0.5, 1.0), color
+		vec4(0.5, 0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0),
+		vec4(-0.5, 0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0),
+		vec4(-0.5, -0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0),
+		vec4(-0.5, -0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0),
+		vec4(0.5, -0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0),
+		vec4(0.5, 0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0)
 	];
 
 	var rightFace = [
-		vec4(0.5, 0.5, -0.5, 1.0), color,
-		vec4(0.5, 0.5, 0.5, 1.0), color,
-		vec4(0.5, -0.5, -0.5, 1.0), color,
-		vec4(0.5, -0.5, -0.5, 1.0), color,
-		vec4(0.5, 0.5, 0.5, 1.0), color,
-		vec4(0.5, -0.5, 0.5, 1.0), color
+		vec4(0.5, 0.5, -0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0),
+		vec4(0.5, 0.5, 0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0),
+		vec4(0.5, -0.5, -0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0),
+		vec4(0.5, -0.5, -0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0),
+		vec4(0.5, 0.5, 0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0),
+		vec4(0.5, -0.5, 0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0)
 	];
 
 	var leftFace = [
-		vec4(-0.5, -0.5, -0.5, 1.0), color,
-		vec4(-0.5, 0.5, 0.5, 1.0), color,
-		vec4(-0.5, 0.5, -0.5, 1.0), color,
-		vec4(-0.5, -0.5, -0.5, 1.0), color,
-		vec4(-0.5, -0.5, 0.5, 1.0), color,
-		vec4(-0.5, 0.5, 0.5, 1.0), color
+		vec4(-0.5, -0.5, -0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0),
+		vec4(-0.5, 0.5, 0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0),
+		vec4(-0.5, 0.5, -0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0),
+		vec4(-0.5, -0.5, -0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0),
+		vec4(-0.5, -0.5, 0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0),
+		vec4(-0.5, 0.5, 0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0)
 	];
 
 	var topFace = [
-		vec4(-0.5, 0.5, -0.5, 1.0), color,
-		vec4(-0.5, 0.5, 0.5, 1.0), color,
-		vec4(0.5, 0.5, 0.5, 1.0), color,
-		vec4(-0.5, 0.5, -0.5, 1.0), color,
-		vec4(0.5, 0.5, 0.5, 1.0), color,
-		vec4(0.5, 0.5, -0.5, 1.0), color
+		vec4(-0.5, 0.5, -0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0),
+		vec4(-0.5, 0.5, 0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0),
+		vec4(0.5, 0.5, 0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0),
+		vec4(-0.5, 0.5, -0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0),
+		vec4(0.5, 0.5, 0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0),
+		vec4(0.5, 0.5, -0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0)
 	];
 
 	var bottomFace = [
-		vec4(0.5, -0.5, 0.5, 1.0), color,
-		vec4(-0.5, -0.5, 0.5, 1.0), color,
-		vec4(-0.5, -0.5, -0.5, 1.0), color,
-		vec4(0.5, -0.5, -0.5, 1.0), color,
-		vec4(0.5, -0.5, 0.5, 1.0), color,
-		vec4(-0.5, -0.5, -0.5, 1.0), color
+		vec4(0.5, -0.5, 0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0),
+		vec4(-0.5, -0.5, 0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0),
+		vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0),
+		vec4(0.5, -0.5, -0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0),
+		vec4(0.5, -0.5, 0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0),
+		vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0)
 	];
 
 	var cube = frontFace.concat(backFace, rightFace, leftFace, bottomFace, topFace);
@@ -308,9 +308,9 @@ function render() {
 				gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, sizeof['vec4'] * 2, 0);
 				gl.enableVertexAttribArray(vPosition);
 
-				var vOffset = gl.getAttribLocation(program, "vOffset");
-				gl.vertexAttribPointer(vOffset, 4, gl.FLOAT, false, sizeof['vec4'] * 2, sizeof['vec4']);
-				gl.enableVertexAttribArray(vOffset);
+				var vNormal = gl.getAttribLocation(program, "vNormal");
+				gl.vertexAttribPointer(vNormal, 4, gl.FLOAT, false, sizeof['vec4'] * 2, sizeof['vec4']);
+				gl.enableVertexAttribArray(vNormal);
 
 				gl.drawArrays(gl.TRIANGLES, 0, chunk.size);
 			}
