@@ -1,7 +1,8 @@
 var canvas;
 var gl;
 
-var program;
+var cubeProgram;
+var cubeWireframeProgram;
 
 var cubes;
 var camera;
@@ -40,9 +41,11 @@ window.onload = function init() {
 	if (!gl) {
 		alert("BACON");
 	} else {
-		program = initShaders(gl, "vertex-shader", "fragment-shader");
-		gl.useProgram(program);
 		gl = WebGLDebugUtils.makeDebugContext(gl);
+		
+		cubeProgram = initShaders(gl, "vertex-shader", "fragment-shader");
+		cubeWireframeProgram = initShaders(gl, "wireframe-vertex-shader", "wireframe-fragment-shader");
+		
 		gl.viewport(0, 0, canvas.width, canvas.height);
 		gl.clearColor(0.0, 0.0, 0.0, 1.0);
 		gl.enable(gl.DEPTH_TEST);
@@ -192,7 +195,33 @@ function createCube(blockVertices, lineVertices, x, y, z, color) {
 			blockVertices.push(multVector(modelMatrix, cube[i]));
 		} else {
 			blockVertices.push(cube[i]);
-		}		
+		}
+	}
+	
+	var cubeEdges = [
+		// Back ring
+		vec4(-0.5, -0.5, 0.5, 1.0), vec4(-0.5, 0.5, 0.5, 1.0),
+		vec4(-0.5, -0.5, 0.5, 1.0), vec4(0.5, -0.5, 0.5, 1.0),
+		vec4(0.5, -0.5, 0.5, 1.0), vec4(0.5, 0.5, 0.5, 1.0),
+		vec4(0.5, 0.5, 0.5, 1.0), vec4(-0.5, 0.5, 0.5, 1.0),
+		
+		// Front ring
+		vec4(-0.5, -0.5, -0.5, 1.0), vec4(-0.5, 0.5, -0.5, 1.0),
+		vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.5, -0.5, -0.5, 1.0),
+		vec4(0.5, -0.5, -0.5, 1.0), vec4(0.5, 0.5, -0.5, 1.0),
+		vec4(0.5, 0.5, -0.5, 1.0), vec4(-0.5, 0.5, -0.5, 1.0),
+		
+		// Left track
+		vec4(-0.5, -0.5, 0.5, 1.0), vec4(-0.5, -0.5, -0.5, 1.0),
+		vec4(-0.5, 0.5, 0.5, 1.0), vec4(-0.5, 0.5, -0.5, 1.0),
+		
+		// Right track
+		vec4(0.5, -0.5, 0.5, 1.0), vec4(0.5, -0.5, -0.5, 1.0),
+		vec4(0.5, 0.5, 0.5, 1.0), vec4(0.5, 0.5, -0.5, 1.0)
+	];
+	
+	for(var i = 0; i < cubeEdges.length; i++) {
+		lineVertices.push(multVector(modelMatrix, cubeEdges[i]));
 	}
 }
 
@@ -293,8 +322,45 @@ function render() {
 
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-	var uProjectionMatrix = gl.getUniformLocation(program, "uProjectionMatrix"); // setup perspective settings
-	var uViewMatrix = gl.getUniformLocation(program, "uViewMatrix"); // move camera
+	drawCubes();
+	drawCubeWireframes();
+
+	requestAnimFrame(render);
+}
+
+function drawCubeWireframes() {
+	gl.useProgram(cubeWireframeProgram);
+
+	var uProjectionMatrix = gl.getUniformLocation(cubeWireframeProgram, "uProjectionMatrix"); // setup perspective settings
+	var uViewMatrix = gl.getUniformLocation(cubeWireframeProgram, "uViewMatrix"); // move camera
+
+	var projectionMatrix = perspective(75, (canvas.width / canvas.height), 0.2, 100.0);
+	gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(projectionMatrix));
+
+	gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.view));	
+	
+	for (var x = 0; x < CHUNKS_X; x++) {
+		for (var y = 0; y < CHUNKS_Y; y++) {
+			for (var z = 0; z < CHUNKS_Z; z++) {
+				var chunk = worldChunks[x * CHUNKS_Y * CHUNKS_Z + y * CHUNKS_Z + z];
+
+				gl.bindBuffer(gl.ARRAY_BUFFER, chunk.lineBufferId);
+
+				var vPosition = gl.getAttribLocation(cubeProgram, "vPosition");
+				gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
+				gl.enableVertexAttribArray(vPosition);
+
+				gl.drawArrays(gl.LINES, 0, chunk.lineVertexCount);
+			}
+		}
+	}
+}
+
+function drawCubes() {
+	gl.useProgram(cubeProgram);
+
+	var uProjectionMatrix = gl.getUniformLocation(cubeProgram, "uProjectionMatrix"); // setup perspective settings
+	var uViewMatrix = gl.getUniformLocation(cubeProgram, "uViewMatrix"); // move camera
 
 	var projectionMatrix = perspective(75, (canvas.width / canvas.height), 0.2, 100.0);
 	gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(projectionMatrix));
@@ -308,11 +374,11 @@ function render() {
 
 				gl.bindBuffer(gl.ARRAY_BUFFER, chunk.blockBufferId);
 
-				var vPosition = gl.getAttribLocation(program, "vPosition");
+				var vPosition = gl.getAttribLocation(cubeProgram, "vPosition");
 				gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, sizeof['vec4'] * 2, 0);
 				gl.enableVertexAttribArray(vPosition);
 
-				var vNormal = gl.getAttribLocation(program, "vNormal");
+				var vNormal = gl.getAttribLocation(cubeProgram, "vNormal");
 				gl.vertexAttribPointer(vNormal, 4, gl.FLOAT, false, sizeof['vec4'] * 2, sizeof['vec4']);
 				gl.enableVertexAttribArray(vNormal);
 
@@ -320,8 +386,6 @@ function render() {
 			}
 		}
 	}
-
-	requestAnimFrame(render);
 }
 
 var lastUpdate = new Date().getTime();
