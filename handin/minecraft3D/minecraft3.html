@@ -1,29 +1,48 @@
 <!doctype html>
 <html>
 	<head>
-
-		<!-- program for cubes -->
-		<script id="vertex-shader" type="x-shader/x-vertex">
+	
+		<!-- program for cube wireframes-->
+		<script id="wireframe-vertex-shader" type="x-shader/x-vertex">
 			attribute vec4 vPosition;
-			attribute vec4 vOffset;
 
 			uniform mat4 uProjectionMatrix;
 			uniform mat4 uViewMatrix;
 
-			varying vec4 fOffset;
+			void main() {
+				gl_Position = uProjectionMatrix * uViewMatrix * vPosition;
+			}
+		</script>
+		<script id="wireframe-fragment-shader" type="x-shader/x-fragment">
+			precision mediump float;
+
+			void main() {
+				 gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+			}
+		</script>
+
+		<!-- program for cubes -->
+		<script id="vertex-shader" type="x-shader/x-vertex">
+			attribute vec4 vPosition;
+			attribute vec4 vNormal;
+
+			uniform mat4 uProjectionMatrix;
+			uniform mat4 uViewMatrix;
+
+			varying vec3 fNormal;
 
 			void main() {
 				gl_Position = uProjectionMatrix * uViewMatrix * vPosition;
-				fOffset = vOffset;
+				fNormal = vNormal.xyz;
 			}
 		</script>
 		<script id="fragment-shader" type="x-shader/x-fragment">
 			precision mediump float;
 
-			varying vec4 fOffset;
+			varying vec3 fNormal;
 
 			void main() {
-				 gl_FragColor = fOffset;
+				 gl_FragColor = vec4(fNormal * 0.5 + 0.5, 1.0);
 			}
 		</script>
 
