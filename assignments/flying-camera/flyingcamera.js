@@ -7,7 +7,7 @@ var cubes;
 var camera;
 
 var positions = [];
-var NR_OF_CUBES = 1000;
+var NR_OF_CUBES = 10000;
 
 window.onload = function init() {
 	canvas = document.getElementById("gl-canvas");
@@ -96,14 +96,9 @@ function createGeo() {
 
 	var cube = frontFace.concat(backFace, rightFace, leftFace, bottomFace, topFace);
 
-	cubes = [];
-	for (var i = 0; i < NR_OF_CUBES; i++) {
-		cubes = cubes.concat(cube);
-	}
-
 	var bufferId = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
-	gl.bufferData(gl.ARRAY_BUFFER, flatten(cubes), gl.DYNAMIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, flatten(cube), gl.DYNAMIC_DRAW);
 
 	var vPosition = gl.getAttribLocation(program, "vPosition");
 	gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, sizeof['vec4'] * 2, 0);
@@ -225,7 +220,7 @@ function render() {
 
 		gl.uniformMatrix4fv(uModelMatrix, false, flatten(modelMatrix));
 
-		gl.drawArrays(gl.TRIANGLES, 0, cubes.length / 2);
+		gl.drawArrays(gl.TRIANGLES, 0, 12 * 3);
 	}
 
 	requestAnimFrame(render);
