@@ -349,7 +349,7 @@ function drawCubeWireframes() {
 
 				gl.bindBuffer(gl.ARRAY_BUFFER, chunk.lineBufferId);
 
-				var vPosition = gl.getAttribLocation(cubeProgram, "vPosition");
+				var vPosition = gl.getAttribLocation(cubeWireframeProgram, "vPosition");
 				gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
 				gl.enableVertexAttribArray(vPosition);
 
