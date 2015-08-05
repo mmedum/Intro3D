@@ -60,25 +60,21 @@ window.onload = function init() {
 	}
 }
 
-function createWorld() {
-	// data[128][128][128]
-
+function createWorld() {	
 	for (var x = 0; x < BLOCKS_X; x++) {
 		for (var y = 0; y < BLOCKS_Y; y++) {
 			for (var z = 0; z < BLOCKS_Z; z++) {
 				if (y > 30) {
 					worldBlocks[x * BLOCKS_Y * BLOCKS_Z + y * BLOCKS_Z + z] = BlockType.AIR;
 				} else if (y == 30) {
-					worldBlocks[x * BLOCKS_Y * BLOCKS_Z + y * BLOCKS_Z + z]= BlockType.GRASS;
+					worldBlocks[x * BLOCKS_Y * BLOCKS_Z + y * BLOCKS_Z + z] = BlockType.GRASS;
 				} else {
 					worldBlocks[x * BLOCKS_Y * BLOCKS_Z + y * BLOCKS_Z + z] = BlockType.DIRT;
 				}
 			}
 		}
 	}
-
-	console.log(worldBlocks[0 * CHUNKS_Y * CHUNKS_Z + 40 * CHUNKS_Z + 0]);
-
+	
 	for (var x = 0; x < CHUNKS_X; x++) {
 		for (var y = 0; y < CHUNKS_Y; y++) {
 			for (var z = 0; z < CHUNKS_Z; z++) {
@@ -91,14 +87,14 @@ function createWorld() {
 
 function createChunk(x, y, z) {
 	var vertices = [];
-	//console.log(x + " " + y + " " + z + " " + worldBlocks[0 * CHUNKS_Y * CHUNKS_Z + 40 * CHUNKS_Z + 0]);
+	
 	for (var dx = 0; dx < CHUNK_SIZE_X; dx++) {
 		for (var dy = 0; dy < CHUNK_SIZE_Y; dy++) {
 			for (var dz = 0; dz < CHUNK_SIZE_Z; dz++) {
 				var wx = (x + dx);
 				var wy = (y + dy);
 				var wz = (z + dz);
-				var blockType = worldBlocks[wx * CHUNKS_Y * CHUNKS_Z + wy * CHUNKS_Z + wz];
+				var blockType = worldBlocks[wx * BLOCKS_Y * BLOCKS_Z + wy * BLOCKS_Z + wz];
 				if (blockType != BlockType.AIR 
 					&& isVisible(wx, wy, wz)) {
 					vertices = vertices.concat(createCube(wx, wy, wz, blockType));
@@ -118,12 +114,12 @@ function createChunk(x, y, z) {
 }
 
 function isVisible(wx, wy, wz){
-	var up = wy < BLOCKS_Y - 1 ? worldBlocks[(wx) * CHUNKS_Y * CHUNKS_Z + (wy + 1) * CHUNKS_Z + (wz)] : BlockType.AIR;
-	var down = wy > 0 ? worldBlocks[(wx) * CHUNKS_Y * CHUNKS_Z + (wy - 1) * CHUNKS_Z + (wz)] : BlockType.AIR;
-	var right = wx < BLOCKS_X - 1 ? worldBlocks[(wx + 1) * CHUNKS_Y * CHUNKS_Z + (wy) * CHUNKS_Z + (wz)] : BlockType.AIR;
-	var left = wx > 0 ? worldBlocks[(wx - 1) * CHUNKS_Y * CHUNKS_Z + (wy) * CHUNKS_Z + (wz)] : BlockType.AIR;
-	var front = wz > 0 ? worldBlocks[(wx) * CHUNKS_Y * CHUNKS_Z + (wy) * CHUNKS_Z + (wz - 1)] : BlockType.AIR;
-	var back = wz < BLOCKS_Z - 1 ? worldBlocks[(wx) * CHUNKS_Y * CHUNKS_Z + (wy) * CHUNKS_Z + (wz + 1)] : BlockType.AIR;
+	var up = wy < BLOCKS_Y - 1 ? worldBlocks[(wx) * BLOCKS_Y * BLOCKS_Z + (wy + 1) * BLOCKS_Z + (wz)] : BlockType.AIR;
+	var down = wy > 0 ? worldBlocks[(wx) * BLOCKS_Y * BLOCKS_Z + (wy - 1) * BLOCKS_Z + (wz)] : BlockType.AIR;
+	var right = wx < BLOCKS_X - 1 ? worldBlocks[(wx + 1) * BLOCKS_Y * BLOCKS_Z + (wy) * BLOCKS_Z + (wz)] : BlockType.AIR;
+	var left = wx > 0 ? worldBlocks[(wx - 1) * BLOCKS_Y * BLOCKS_Z + (wy) * BLOCKS_Z + (wz)] : BlockType.AIR;
+	var front = wz > 0 ? worldBlocks[(wx) * BLOCKS_Y * BLOCKS_Z + (wy) * BLOCKS_Z + (wz - 1)] : BlockType.AIR;
+	var back = wz < BLOCKS_Z - 1 ? worldBlocks[(wx) * BLOCKS_Y * BLOCKS_Z + (wy) * BLOCKS_Z + (wz + 1)] : BlockType.AIR;
 
 	return (up == BlockType.AIR || down == BlockType.AIR || right == BlockType.AIR || 
 		left == BlockType.AIR || front == BlockType.AIR || back == BlockType.AIR);
