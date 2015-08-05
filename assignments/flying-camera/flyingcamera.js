@@ -114,6 +114,14 @@ window.onload = function init(){
 		gl.enable(gl.CULL_FACE);
 		gl.cullFace(gl.BACK);
 		
+		var objStr = document.getElementById('my_whale.obj').innerHTML;
+		var mesh = new OBJ.Mesh(objStr);
+
+		// use the included helper function to initialize the VBOs
+		// if you don't want to use this function, have a look at its
+		// source to see how to use the Mesh instance.
+		OBJ.initMeshBuffers(gl, mesh);
+		
 		createGeo();
 		for(var i=0; i<NR_OF_CUBES; i++){
 			positions.push(vec3(Math.random() * 100, Math.random() * 100, Math.random() * 100));
