@@ -278,6 +278,8 @@ function setupListeners() {
 	});
 
 	canvas.addEventListener("mouseup", function(event) {
+		lastMouse = null;
+		
 		canvas.removeEventListener("mousemove", mouseTracking);
 	});
 
