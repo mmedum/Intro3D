@@ -261,17 +261,17 @@ function setupListeners() {
 	var newMouse = null;
 
 	var mouseTracking = function(event) {
-			if (lastMouse != null) {
-				newMouse = vec2(event.clientX, event.clientY);
+		if (lastMouse != null) {
+			newMouse = vec2(event.clientX, event.clientY);
 
-				var deltaX = newMouse[0] - lastMouse[0];
-				var deltaY = newMouse[1] - lastMouse[1];
+			var deltaX = newMouse[0] - lastMouse[0];
+			var deltaY = newMouse[1] - lastMouse[1];
 
-				camera.yaw += deltaX * 0.2;
-				camera.pitch += deltaY * 0.2;
-			}
+			camera.yaw += deltaX * 0.2;
+			camera.pitch += deltaY * 0.2;
+		}
 
-			lastMouse = vec2(event.clientX, event.clientY);
+		lastMouse = vec2(event.clientX, event.clientY);
 	};
 
 	canvas.addEventListener("mousedown", function(event) {
@@ -301,7 +301,6 @@ function setupListeners() {
 			case 'd':
 				camera.right = true;
 				break;
-
 		}
 	});
 
