@@ -4,6 +4,11 @@ var gl;
 var cubeProgram;
 var cubeWireframeProgram;
 
+var spinningBlockBufferId;
+var spinningBlockBufferIndex = 0;
+
+var numberOfVerticesPerSpinningBlock = 6 * 6;
+
 var camera;
 
 var BLOCKS_X = 64;
@@ -30,6 +35,7 @@ var BlockType = {
 
 var worldBlocks = new Array(BLOCKS_X * BLOCKS_Y * BLOCKS_Z);
 var worldChunks = new Array(CHUNKS_X * CHUNKS_Y * CHUNKS_Z);
+var spinningBlocks = [];
 
 window.onload = function init() {
 	canvas = document.getElementById("gl-canvas");
@@ -55,6 +61,8 @@ window.onload = function init() {
 		camera = createCamera();
 
 		setupListeners();
+
+		spinningBlockBufferId = initSpinningBlockBuffer();
 
 		render();
 	}
@@ -97,7 +105,6 @@ function createChunk(x, y, z) {
 				var wz = (z + dz);
 				var blockType = worldBlocks[wx * BLOCKS_Y * BLOCKS_Z + wy * BLOCKS_Z + wz];
 				if (blockType != BlockType.AIR && isVisible(wx, wy, wz)) {
-
 					createCube(blockVertices, lineVertices, wx, wy, wz);
 				}
 			}
@@ -279,8 +286,19 @@ function setupListeners() {
 
 	canvas.addEventListener("mouseup", function(event) {
 		lastMouse = null;
-		
+
 		canvas.removeEventListener("mousemove", mouseTracking);
+	});
+
+	canvas.addEventListener("click", function(event) {
+		/*console.log("event: (x="+event.clientX+", y="+event.clientY+")");*/
+
+		var tileX = Math.floor((event.clientX - canvas.offsetLeft) / BLOCKS_X);
+		var tileY = BLOCKS_Y - Math.floor((event.clientY - canvas.offsetTop) / BLOCKS_Y) - 1;
+		console.log("tile: (x=" + tileX + ", y=" + tileY + ")");
+
+		spinningBlocks.push(createSpinningBlock(tileX, tileY, 0));
+		console.log(spinningBlocks);
 	});
 
 	window.addEventListener("keydown", function(event) {
@@ -331,6 +349,8 @@ function render() {
 
 	drawCubes();
 	drawCubeWireframes();
+	drawSpinningCubes();
+	//drawSpinningCubeWireframes();
 
 	requestAnimFrame(render);
 }
@@ -400,6 +420,35 @@ function drawCubes() {
 	}
 }
 
+function drawSpinningCubes() {
+	gl.useProgram(cubeProgram);
+
+	var uProjectionMatrix = gl.getUniformLocation(cubeProgram, "uProjectionMatrix"); // setup perspective settings
+	var uViewMatrix = gl.getUniformLocation(cubeProgram, "uViewMatrix"); // move camera
+
+	var projectionMatrix = perspective(75, (canvas.width / canvas.height), 0.2, 100.0);
+	gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(projectionMatrix));
+
+	gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.view));
+	gl.bindBuffer(gl.ARRAY_BUFFER, spinningBlockBufferId);
+
+	bufferIndex = 0;
+
+	for (var i = 0; i < spinningBlocks.length; i++) {
+		var vPosition = gl.getAttribLocation(cubeProgram, "vPosition");
+		gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, sizeof['vec4'] * 2, 0);
+		gl.enableVertexAttribArray(vPosition);
+
+		var vNormal = gl.getAttribLocation(cubeProgram, "vNormal");
+		gl.vertexAttribPointer(vNormal, 4, gl.FLOAT, false, sizeof['vec4'] * 2, sizeof['vec4']);
+		gl.enableVertexAttribArray(vNormal);
+
+		gl.drawArrays(gl.TRIANGLES, numberOfVerticesPerSpinningBlock * bufferIndex, spinningBlocks[i].spinningBlockVertexCount);
+
+		bufferIndex++;
+	}
+}
+
 var lastUpdate = new Date().getTime();
 
 function update() {
@@ -428,4 +477,60 @@ function update() {
 	}
 
 	camera.refresh();
+}
+
+function initSpinningBlockBuffer() {
+	var numberOfSpinningBlocks = BLOCKS_X * BLOCKS_Y * BLOCKS_Z;
+
+	var bufferSize = (numberOfVerticesPerSpinningBlock * (sizeof['vec4'] + sizeof['vec4'])) * numberOfSpinningBlocks;
+
+	var bufferId = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
+	gl.bufferData(gl.ARRAY_BUFFER, bufferSize, gl.DYNAMIC_DRAW); // init buffer
+
+	return bufferId;
+}
+
+function createSpinningBlock(wx, wy, wz) {
+	var blockVertices = [];
+	var lineVertices = [];
+
+	createCube(blockVertices, lineVertices, wx, wy, wz);
+
+	//scale, rotate
+	var theta = 45.0;
+	var axis = normalize(vec3(1.0, 0.0, 1.0));
+
+	var modelMatrix = mat4();
+	modelMatrix = mult(modelMatrix, translate(vec3(wx, wy, wz)));
+	modelMatrix = mult(modelMatrix, rotate(theta, axis));
+	modelMatrix = mult(modelMatrix, scalem(vec3(0.5, 0.5, 0.5)));
+	modelMatrix = mult(modelMatrix, translate(vec3(-wx, -wy, -wz)));
+
+	//console.log(modelMatrix);
+
+	// scale and rotate block to start position
+	for (var i = 0; i < blockVertices.length; i++) {
+		console.log(blockVertices[i]);
+		if (i % 2 == 0) {
+			blockVertices[i] = multVector(modelMatrix, blockVertices[i]);
+		}
+	}
+
+	var bufferSize = (numberOfVerticesPerSpinningBlock * (sizeof['vec4'] + sizeof['vec4'])) * spinningBlockBufferIndex;
+
+	// cube buffer
+	gl.bindBuffer(gl.ARRAY_BUFFER, spinningBlockBufferId);
+	gl.bufferSubData(gl.ARRAY_BUFFER, bufferSize, flatten(blockVertices));
+
+	// wireframe buffer
+	//gl.bindBuffer(gl.ARRAY_BUFFER, spinningBlockBufferId);
+	//gl.bufferSubData(gl.ARRAY_BUFFER, bufferSize, flatten(blockVertices));
+
+	spinningBlockBufferIndex++;
+
+	return {
+		spinningBlockVertexCount: blockVertices.length / 2,
+		spinningLineVertexCount: lineVertices.length
+	};
 }
