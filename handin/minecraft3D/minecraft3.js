@@ -4,7 +4,6 @@ var gl;
 var cubeProgram;
 var cubeWireframeProgram;
 
-var cubes;
 var camera;
 
 var BLOCKS_X = 64;
@@ -31,8 +30,6 @@ var BlockType = {
 
 var worldBlocks = new Array(BLOCKS_X * BLOCKS_Y * BLOCKS_Z);
 var worldChunks = new Array(CHUNKS_X * CHUNKS_Y * CHUNKS_Z);
-
-var positions = [];
 
 window.onload = function init() {
 	canvas = document.getElementById("gl-canvas");
@@ -61,7 +58,7 @@ window.onload = function init() {
 
 		render();
 	}
-}
+};
 
 function createWorld() {
 	for (var x = 0; x < BLOCKS_X; x++) {
@@ -101,7 +98,7 @@ function createChunk(x, y, z) {
 				var blockType = worldBlocks[wx * BLOCKS_Y * BLOCKS_Z + wy * BLOCKS_Z + wz];
 				if (blockType != BlockType.AIR && isVisible(wx, wy, wz)) {
 
-					createCube(blockVertices, lineVertices, wx, wy, wz, blockType);
+					createCube(blockVertices, lineVertices, wx, wy, wz);
 				}
 			}
 		}
@@ -135,7 +132,7 @@ function isVisible(wx, wy, wz) {
 		left == BlockType.AIR || front == BlockType.AIR || back == BlockType.AIR);
 }
 
-function createCube(blockVertices, lineVertices, x, y, z, color) {
+function createCube(blockVertices, lineVertices, x, y, z) {
 	var cube = [
 		// Front
 		vec4(-0.5, 0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0),
