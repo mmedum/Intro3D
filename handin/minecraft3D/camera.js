@@ -12,6 +12,11 @@ function Camera(position, pitch, yaw) {
 	this.forwardDir = vec3(0, 0, -1);
 	this.rightDir = vec3(0, 0, -1);
 	this.upDir = vec3(0, 0, -1);
+
+    this.perspectiveProjection =  perspective(75, (canvas.width / canvas.height), 0.2, 100.0);
+    this.orthoProjection = ortho(0.0, 64.0, 0.0, 64.0, 0.0, 64.0);
+
+    this.mapMode = false;
 }
 
 Camera.prototype.refresh = function() {
@@ -29,7 +34,25 @@ Camera.prototype.refresh = function() {
 	this.forwardDir = multVector(rotation, vec4(0, 0, -1, 0)).slice(0, 3);
 	this.rightDir = multVector(rotation, vec4(1, 0, 0, 0)).slice(0, 3);
 	this.upDir = multVector(rotation, vec4(0, 1, 0, 0)).slice(0, 3);
-}
+};
+
+Camera.prototype.getView = function(){
+    if(this.mapMode){
+        var translation = translate(0, 64, 0);
+        var rotation = mult(rotateY(90), rotateX(90));
+        return inverse4(mult(translation, rotation));
+    }else {
+        return this.view;
+    }
+};
+
+Camera.prototype.getProjection = function(){
+    if(this.mapMode) {
+        return this.orthoProjection
+    }else {
+        return this.perspectiveProjection;
+    }
+};
 
 Camera.prototype.update = function(dt) {
 	var speed = 10.0;
@@ -52,4 +75,4 @@ Camera.prototype.update = function(dt) {
 	}
 
 	this.refresh();
-}
+};

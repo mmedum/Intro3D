@@ -318,6 +318,9 @@ function setupListeners() {
 			case 'd':
 				camera.moveRight = false;
 				break;
+            case 'm':
+                camera.mapMode = !camera.mapMode;
+                break;
 		}
 	});
 }
@@ -348,10 +351,9 @@ function drawCubeWireframes() {
     var modelMatrix = mat4();
     gl.uniformMatrix4fv(uModelMatrix, false, flatten(modelMatrix));
 
-	var projectionMatrix = perspective(75, (canvas.width / canvas.height), 0.2, 100.0);
-	gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(projectionMatrix));
+	gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(camera.getProjection()));
 
-	gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.view));
+	gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.getView()));
 
 	for (var x = 0; x < CHUNKS_X; x++) {
 		for (var y = 0; y < CHUNKS_Y; y++) {
@@ -382,10 +384,9 @@ function drawCubes() {
     var modelMatrix = mat4();
     gl.uniformMatrix4fv(uModelMatrix, false, flatten(modelMatrix));
 
-    var projectionMatrix = perspective(75, (canvas.width / canvas.height), 0.2, 100.0);
-	gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(projectionMatrix));
+    gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(camera.getProjection()));
 
-	gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.view));
+    gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.getView()));
 
 	for (var x = 0; x < CHUNKS_X; x++) {
 		for (var y = 0; y < CHUNKS_Y; y++) {
@@ -415,10 +416,9 @@ function drawSpinningCubes() {
 	var uViewMatrix = gl.getUniformLocation(cubeProgram, "uViewMatrix"); // move camera
     var uModelMatrix = gl.getUniformLocation(cubeProgram, "uModelMatrix"); //placement
 
-	var projectionMatrix = perspective(75, (canvas.width / canvas.height), 0.2, 100.0);
-	gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(projectionMatrix));
+    gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(camera.getProjection()));
 
-	gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.view));
+    gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.getView()));
 
     gl.bindBuffer(gl.ARRAY_BUFFER, spinningCube.spinningCubeBufferId);
 
@@ -449,10 +449,9 @@ function drawSpinningCubeWireframes() {
     var uViewMatrix = gl.getUniformLocation(cubeWireframeProgram, "uViewMatrix"); // move camera
     var uModelMatrix = gl.getUniformLocation(cubeWireframeProgram, "uModelMatrix"); //placement
 
-    var projectionMatrix = perspective(75, (canvas.width / canvas.height), 0.2, 100.0);
-    gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(projectionMatrix));
+    gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(camera.getProjection()));
 
-    gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.view));
+    gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.getView()));
 
     gl.bindBuffer(gl.ARRAY_BUFFER, spinningCube.spinningCubeWireBufferId);
 
