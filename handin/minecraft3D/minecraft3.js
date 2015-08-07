@@ -68,7 +68,6 @@ window.onload = function init() {
 	}
 };
 
-<<<<<<< HEAD
 function createWorld() {	
 /*
 	for (var x = 0; x < BLOCKS_X; x++) {
@@ -85,6 +84,21 @@ function createWorld() {
 		}
 	}
 */
+	var xzScale = 0.18;
+
+	for (var x = 0; x < BLOCKS_X; x++) {
+		for (var y = 0; y < BLOCKS_Y; y++) {
+			for (var z = 0; z < BLOCKS_Z; z++) {
+				var height = ((Math.sin(x * xzScale) + Math.sin(z * xzScale) + 2)) * 0.25 * BLOCKS_Y * 0.5;
+				
+				if (y > height) {
+					worldBlocks[x * BLOCKS_Y * BLOCKS_Z + y * BLOCKS_Z + z] = BlockType.AIR;
+				} else {
+					worldBlocks[x * BLOCKS_Y * BLOCKS_Z + y * BLOCKS_Z + z] = BlockType.DIRT;
+				}
+			}
+		}
+	}
 
 	for (var x = 0; x < CHUNKS_X; x++) {
 		for (var y = 0; y < CHUNKS_Y; y++) {
