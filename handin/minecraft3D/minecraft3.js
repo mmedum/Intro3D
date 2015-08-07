@@ -48,7 +48,7 @@ window.onload = function init() {
 		cubeWireframeProgram = initShaders(gl, "wireframe-vertex-shader", "wireframe-fragment-shader");
 
 		gl.viewport(0, 0, canvas.width, canvas.height);
-		gl.clearColor(0.0, 0.0, 0.0, 1.0);
+		gl.clearColor(0.0, 0.7490, 1.0, 1.0);
 		gl.enable(gl.DEPTH_TEST);
 
 		// don't show vertices on back faces of cubes when not vissible with the camera
@@ -465,7 +465,7 @@ function update() {
 
     camera.update(dt);
 
-    spinningCubeTheta += 500.0 * dt;
+    spinningCubeTheta += 200.0 * dt;
 }
 
 function createSpinningCube() {
@@ -476,7 +476,7 @@ function createSpinningCube() {
 
 	//scale, rotate
 	var thetaX = 45.0;
-    var thetaZ = -60.0;
+    var thetaZ = 35.0;
 
 	var modelMatrix = mat4();
     modelMatrix =  mult(modelMatrix, rotate(thetaZ, vec3(0.0, 0.0, 1.0)));
