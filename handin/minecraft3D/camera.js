@@ -17,6 +17,11 @@ function Camera(position, pitch, yaw) {
     this.orthoProjection = ortho(0.0, 64.0, 0.0, 64.0, 0.0, 64.0);
 
     this.mapMode = false;
+
+    this.viewport = vec4(0.0, 0.0, canvas.width, canvas.height);
+
+    var mapSize = (canvas.height * 3.0) / 4.0;
+    this.mapViewport = vec4(canvas.width/2 - mapSize/2, canvas.height/2 - mapSize/2, mapSize, mapSize);
 }
 
 Camera.prototype.refresh = function() {
@@ -54,7 +59,19 @@ Camera.prototype.getProjection = function(){
     }
 };
 
+Camera.prototype.getViewport = function(){
+    if(this.mapMode){
+        return this.mapViewport;
+    }else {
+        return this.viewport;
+    }
+}
+
 Camera.prototype.update = function(dt) {
+    if(this.mapMode){
+        return
+    }
+    
 	var speed = 10.0;
 	var movement = speed * dt;
 

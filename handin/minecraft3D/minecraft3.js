@@ -47,7 +47,6 @@ window.onload = function init() {
 		cubeProgram = initShaders(gl, "vertex-shader", "fragment-shader");
 		cubeWireframeProgram = initShaders(gl, "wireframe-vertex-shader", "wireframe-fragment-shader");
 
-		gl.viewport(0, 0, canvas.width, canvas.height);
 		gl.clearColor(0.0, 0.7490, 1.0, 1.0);
 		gl.enable(gl.DEPTH_TEST);
 
@@ -329,6 +328,9 @@ function render() {
 	update();
 
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    var viewport = camera.getViewport();
+    gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 
 	drawCubes();
 	drawCubeWireframes();
