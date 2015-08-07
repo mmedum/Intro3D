@@ -8,9 +8,10 @@
 
 			uniform mat4 uProjectionMatrix;
 			uniform mat4 uViewMatrix;
+			uniform mat4 uModelMatrix;
 
 			void main() {
-				gl_Position = uProjectionMatrix * uViewMatrix * vPosition;
+				gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vPosition;
 			}
 		</script>
 		<script id="wireframe-fragment-shader" type="x-shader/x-fragment">
@@ -28,11 +29,12 @@
 
 			uniform mat4 uProjectionMatrix;
 			uniform mat4 uViewMatrix;
+			uniform mat4 uModelMatrix;
 
 			varying vec3 fNormal;
 
 			void main() {
-				gl_Position = uProjectionMatrix * uViewMatrix * vPosition;
+				gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vPosition;
 				fNormal = vNormal.xyz;
 			}
 		</script>
@@ -48,13 +50,14 @@
 
 		<script type="text/javascript" src="common/webgl-utils.js"></script>
 		<script type="text/javascript" src="common/initShaders.js"></script>
+        <script type="text/javascript" src="camera.js"></script>
 		<script type="text/javascript" src="minecraft3.js"></script>
 		<script type="text/javascript" src="common/webgl-debug.js"></script>
 		<script type="text/javascript" src="common/MV.js"></script>
 	</head>
 
 	<body>
-		<canvas id="gl-canvas" width="800" height="600">
+		<canvas id="gl-canvas" width="1200" height="900">
 			oops ... your browser doesn't support the html5 canvas element
 		</canvas>
 	</body>

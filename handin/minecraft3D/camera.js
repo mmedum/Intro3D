@@ -31,7 +31,7 @@ Camera.prototype.refresh = function() {
 	this.upDir = multVector(rotation, vec4(0, 1, 0, 0)).slice(0, 3);
 }
 
-Camera.prototype.update(dt) = function() {
+Camera.prototype.update = function(dt) {
 	var speed = 10.0;
 	var movement = speed * dt;
 

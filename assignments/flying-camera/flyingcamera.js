@@ -176,7 +176,6 @@ function setupListeners() {
 			case 'd':
 				camera.right = true;
 				break;
-
 		}
 	});
 
