@@ -424,7 +424,7 @@ function drawSpinningCubes() {
 
 function drawSpinningCubeWireframes() {
     gl.enable(gl.POLYGON_OFFSET_FILL);
-    gl.polygonOffset(1.0, 2.0);
+    gl.polygonOffset(0.1, 2.0);
 
     gl.useProgram(cubeWireframeProgram);
 
