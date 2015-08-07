@@ -64,7 +64,7 @@ window.onload = function init() {
 }
 
 function createWorld() {	
-	for (var x = 0; x < BLOCKS_X; x++) {
+/*	for (var x = 0; x < BLOCKS_X; x++) {
 		for (var y = 0; y < BLOCKS_Y; y++) {
 			for (var z = 0; z < BLOCKS_Z; z++) {
 				if (y > 30) {
@@ -77,7 +77,20 @@ function createWorld() {
 			}
 		}
 	}
+*/
+	for (var x = 0; x < BLOCKS_X; x++) {
+		for (var y = 0; y < BLOCKS_Y; y++) {
+			for (var z = 0; z < BLOCKS_Z; z++) {
+				if(((Math.sin(x) + Math.sin(y)) * 0.5 + 0.5) > y * BLOCKS_Y / 2.0) {
+					worldBlocks[x * BLOCKS_Y * BLOCKS_Z + y * BLOCKS_Z + z] = BlockType.DIRT;
+				} else {
+					worldBlocks[x * BLOCKS_Y * BLOCKS_Z + y * BLOCKS_Z + z] = BlockType.AIR;
+				}
+			}
+		}
+	}
 	
+	// Create initial chunks from the world.
 	for (var x = 0; x < CHUNKS_X; x++) {
 		for (var y = 0; y < CHUNKS_Y; y++) {
 			for (var z = 0; z < CHUNKS_Z; z++) {
