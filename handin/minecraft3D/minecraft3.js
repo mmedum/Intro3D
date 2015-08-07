@@ -67,22 +67,7 @@ window.onload = function init() {
 	}
 };
 
-function createWorld() {	
-/*
-	for (var x = 0; x < BLOCKS_X; x++) {
-		for (var y = 0; y < BLOCKS_Y; y++) {
-			for (var z = 0; z < BLOCKS_Z; z++) {
-				if (y > 30) {
-					worldBlocks[x * BLOCKS_Y * BLOCKS_Z + y * BLOCKS_Z + z] = BlockType.AIR;
-				} else if (y == 30) {
-					worldBlocks[x * BLOCKS_Y * BLOCKS_Z + y * BLOCKS_Z + z] = BlockType.GRASS;
-				} else {
-					worldBlocks[x * BLOCKS_Y * BLOCKS_Z + y * BLOCKS_Z + z] = BlockType.DIRT;
-				}
-			}
-		}
-	}
-*/
+function createWorld() {
 	var xzScale = 0.18;
 
 	for (var x = 0; x < BLOCKS_X; x++) {

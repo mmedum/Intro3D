@@ -71,7 +71,7 @@ Camera.prototype.update = function(dt) {
     if(this.mapMode){
         return
     }
-    
+
 	var speed = 10.0;
 	var movement = speed * dt;
 
