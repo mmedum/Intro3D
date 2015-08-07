@@ -13,15 +13,15 @@ function Camera(position, pitch, yaw) {
     this.rightDir = vec3(0, 0, -1);
     this.upDir = vec3(0, 0, -1);
 
-    this.perspectiveProjection =  perspective(75, (canvas.width / canvas.height), 0.2, 100.0);
+    this.perspectiveProjection =  perspective(75, (canvas.clientWidth / canvas.clientHeight), 0.2, 100.0);
     this.orthoProjection = ortho(0.0, 64.0, 0.0, 64.0, 0.0, 64.0);
 
     this.mapMode = false;
 
-    this.viewport = vec4(0.0, 0.0, canvas.width, canvas.height);
+    this.viewport = vec4(0.0, 0.0, canvas.clientWidth, canvas.clientHeight);
 
-    var mapSize = (canvas.height * 3.0) / 4.0;
-    this.mapViewport = vec4(canvas.width/2 - mapSize/2, canvas.height/2 - mapSize/2, mapSize, mapSize);
+    var mapSize = (canvas.clientHeight * 3.0) / 4.0;
+    this.mapViewport = vec4(canvas.clientWidth/2 - mapSize/2, canvas.clientHeight/2 - mapSize/2, mapSize, mapSize);
 }
 
 Camera.prototype.refresh = function() {
