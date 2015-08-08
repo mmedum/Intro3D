@@ -33,6 +33,7 @@ var spinningCube;
 var spinningCubePositions;
 var spinningCubeTheta;
 
+var whaleMesh;
 
 window.onload = function init() {
     canvas = document.getElementById("gl-canvas");
@@ -45,7 +46,8 @@ window.onload = function init() {
 
         cubeProgram = initShaders(gl, "vertex-shader", "fragment-shader");
         cubeWireframeProgram = initShaders(gl, "wireframe-vertex-shader", "wireframe-fragment-shader");
-
+		whaleProgram = initShaders(gl, "whale-vertex-shader", "whale-fragment-shader");
+		
         gl.clearColor(0.0, 0.7490, 1.0, 1.0);
         gl.enable(gl.DEPTH_TEST);
 
@@ -55,6 +57,8 @@ window.onload = function init() {
 
         createWorld();
         camera = new Camera(vec3(0.0, 0.0, -5.0), -30.0, 140.0);
+		
+		whaleMesh = createWhale();
 
         setupListeners();
 
@@ -316,6 +320,7 @@ function render() {
     var viewport = camera.getViewport();
     gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 
+	drawWhales();
     drawCubes();
     drawCubeWireframes();
     drawSpinningCubes();
