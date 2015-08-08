@@ -74,24 +74,30 @@ Camera.prototype.update = function(dt) {
 
     var speed = 10.0;
     var movement = speed * dt;
+	
+	while(movement > 0) {
+		// Move in increments of 0.8:
+		var movementFraction = Math.min(movement, 0.8);
+		movement -= movementFraction;
 
-    if (this.moveForward) {
-        this.position = add(this.position, scale(movement, this.forwardDir));
-    }
+		if (this.moveForward) {
+			this.position = add(this.position, scale(movementFraction, this.forwardDir));
+		}
 
-    if (this.moveBackward) {
-        this.position = subtract(this.position, scale(movement, this.forwardDir));
-    }
+		if (this.moveBackward) {
+			this.position = subtract(this.position, scale(movementFraction, this.forwardDir));
+		}
 
-    if (this.moveRight) {
-        this.position = add(this.position, scale(movement, this.rightDir));
-    }
+		if (this.moveRight) {
+			this.position = add(this.position, scale(movementFraction, this.rightDir));
+		}
 
-    if (this.moveLeft) {
-        this.position = subtract(this.position, scale(movement, this.rightDir));
-    }
+		if (this.moveLeft) {
+			this.position = subtract(this.position, scale(movementFraction, this.rightDir));
+		}
 
-    this.collisionDetection();
+		this.collisionDetection();
+	}
 
     this.refresh();
 };
@@ -104,36 +110,46 @@ Camera.prototype.collisionDetection = function() {
     var currentBlock = getBlock(wx, wy, wz);
 
     if (currentBlock != BlockType.AIR) {
-        var up = getBlock(wx, wy+1, wz);
-        var down = getBlock(wx, wy-1, wz);
-        var right = getBlock(wx+1, wy, wz);
-        var left = getBlock(wx-1, wy, wz);
-        var front = getBlock(wx, wy, wz-1);
-        var back = getBlock(wx, wy, wz+1);
+	
+		var freePositions = [];
+	
+		// Loop through all surrounding blocks:
+		for(var offsetX = -1; offsetX <= 1; offsetX++) {
+			for(var offsetY = -1; offsetY <= 1; offsetY++) {
+				for(var offsetZ = -1; offsetZ <= 1; offsetZ++) {
+					if(offsetX == 0 && offsetY == 0 && offsetZ == 0) {
+						continue;
+					}
+					var surroundingBlock = getBlock(wx + offsetX, wy + offsetY, wz + offsetZ);
+					
+					if (this.isFluid(surroundingBlock)) {
+						function projector(floored, actual, offset) {
+							if(offset == -1) {
+								return floored;
+							} else if(offset == 0) {
+								return actual;
+							} else {
+								return floored + 1;
+							}
+						}
 
-        var fluidBlock = [];
-        if (this.isFluid(up)) {
-            fluidBlock.push(vec3(wx, (wy + 1), wz));
-        }
-        if (this.isFluid(down)) {
-            fluidBlock.push(vec3(wx, (wy - 1), wz));
-        }
-        if (this.isFluid(right)) {
-            fluidBlock.push(vec3((wx + 1), wy, wz));
-        }
-        if (this.isFluid(left)) {
-            fluidBlock.push(vec3((wx - 1), wy, wz));
-        }
-        if (this.isFluid(front)) {
-            fluidBlock.push(vec3(wx, wy, (wz - 1)));
-        }
-        if (this.isFluid(back)) {
-            fluidBlock.push(vec3(wx, wy, (wz + 1)));
-        }
-
-        if (fluidBlock.length > 0) {
+						// Position in the free block closest to our current position:
+						var projectedPosition = vec3(
+							projector(wx, this.position[0], offsetX),
+							projector(wy, this.position[1], offsetY),
+							projector(wz, this.position[2], offsetZ)
+						);
+						
+						freePositions.push(projectedPosition);
+					}
+				}
+			}
+		}
+	
+        if (freePositions.length > 0) {
+			// Choose the free position that is closest to our current position:
             this.position =
-                fluidBlock.reduce(function (prevValue, currentValue) {
+                freePositions.reduce(function (prevValue, currentValue) {
                     if (prevValue == null) {
                         return currentValue;
                     } else {
@@ -154,4 +170,3 @@ Camera.prototype.distanceFromCamera = function(point){
 Camera.prototype.isFluid = function(block){
     return block == BlockType.AIR || block == BlockType.WATER || block == BlockType.FIRE;
 };
-
