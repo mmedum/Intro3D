@@ -33,6 +33,30 @@ var spinningCube;
 var spinningCubePositions;
 var spinningCubeTheta;
 
+var lightInfo = [
+    //Torch
+    {
+        ambient : [0.0, 0.0, 0.0, 0.0],
+        diffuse : [0.0, 1.0, 0.0, 1.0],
+        specular : [0.0, 0.0, 0.0, 0.0],
+        shininess : 10.5
+    },
+    //Sun
+    {
+        ambient : [0.2, 0.2, 0.2, 1.0],
+        diffuse : [1.0, 0.0, 0.0, 1.0],
+        specular : [0.8, 0.3, 0.8, 1.0],
+        shininess : 100
+    },
+    //Moon
+    {
+        ambient : [0.0, 0.0, 0.0, 1.0],
+        diffuse : [1.0, 1.0, 1.0, 1.0],
+        specular : [0.0, 0.0, 0.0, 0.0],
+        shininess : 30
+    }
+];
+
 var whaleMesh;
 
 window.onload = function init() {
@@ -371,7 +395,6 @@ function drawCubes() {
     var uProjectionMatrix = gl.getUniformLocation(cubeProgram, "uProjectionMatrix"); // setup perspective settings
     var uViewMatrix = gl.getUniformLocation(cubeProgram, "uViewMatrix"); // move camera
     var uModelMatrix = gl.getUniformLocation(cubeProgram, "uModelMatrix"); //placement
-    var uLightPosition = gl.getUniformLocation(cubeProgram, "uLightPosition"); //position of sun
 
     var modelMatrix = mat4();
     gl.uniformMatrix4fv(uModelMatrix, false, flatten(modelMatrix));
@@ -380,25 +403,29 @@ function drawCubes() {
 
     gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.getView()));
 
-    var lightPosition = vec4(0.0, 100.5, 0.0, 1.0);
-    gl.uniform4fv(uLightPosition, flatten(multVector(camera.getView(), lightPosition)));
+    var uTorchPosition = gl.getUniformLocation(cubeProgram, "uTorchPosition");
+    var torchPosition = vec4(0.0, 100.0, 0.0, 1.0); //torch
+    gl.uniform4fv(uTorchPosition, flatten(multVector(camera.getView(), torchPosition)));
 
-    var uAmbientProduct = gl.getUniformLocation(cubeProgram, "uAmbientProduct");
-    var uDiffuseProduct = gl.getUniformLocation(cubeProgram, "uDiffuseProduct");
-    var uSpecularProduct = gl.getUniformLocation(cubeProgram, "uSpecularProduct");
-    var uShininess = gl.getUniformLocation(cubeProgram, "uShininess");
+    var uLightDirectionSun = gl.getUniformLocation(cubeProgram, "uLightDirectionSun");
+    var lightDirectionSun = normalize(vec4(10.0, 100.0, 30.0, 0.0)); //sun
+    gl.uniform4fv(uLightDirectionSun, flatten(multVector(camera.getView(), lightDirectionSun)));
 
-    var ambient = vec4(0.2, 0.2, 0.2, 1.0);
-    gl.uniform4fv(uAmbientProduct, flatten(ambient));
+    var uLightDirectionMoon = gl.getUniformLocation(cubeProgram, "uLightDirectionMoon");
+    var lightDirectionMoon = normalize(vec4(90.0, 70.0, 10.0, 0.0)); //moon
+    gl.uniform4fv(uLightDirectionMoon, flatten(multVector(camera.getView(), lightDirectionMoon)));
 
-    var diffuse = vec4(0.0, 1.0, 0.0, 1.0);
-    gl.uniform4fv(uDiffuseProduct, flatten(diffuse));
+    for(var i=0; i<lightInfo.length; i++){
+        var uAmbientProduct = gl.getUniformLocation(cubeProgram, "Lights[" + i + "].uAmbientProduct");
+        var uDiffuseProduct = gl.getUniformLocation(cubeProgram, "Lights[" + i + "].uDiffuseProduct");
+        var uSpecularProduct = gl.getUniformLocation(cubeProgram, "Lights[" + i + "].uSpecularProduct");
+        var uShininess = gl.getUniformLocation(cubeProgram, "Lights[" + i + "].uShininess");
 
-    var specular = vec4(0.2, 0.5, 0.6, 1.0);
-    gl.uniform4fv(uSpecularProduct, flatten(specular));
-
-    var shininess = 0.2;
-    gl.uniform1f(uShininess, shininess);
+        gl.uniform4fv(uAmbientProduct, flatten(lightInfo[i].ambient));
+        gl.uniform4fv(uDiffuseProduct, flatten(lightInfo[i].diffuse));
+        gl.uniform4fv(uSpecularProduct, flatten(lightInfo[i].specular));
+        gl.uniform1f(uShininess, lightInfo[i].shininess);
+    }
 
     for (var x = 0; x < CHUNKS_X; x++) {
         for (var y = 0; y < CHUNKS_Y; y++) {

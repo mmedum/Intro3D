@@ -1,9 +1,9 @@
 <!doctype html>
 <html>
-	<head>
-	
-		<!-- program for cube wireframes-->
-		<script id="wireframe-vertex-shader" type="x-shader/x-vertex">
+<head>
+
+    <!-- program for cube wireframes-->
+    <script id="wireframe-vertex-shader" type="x-shader/x-vertex">
 			attribute vec4 vPosition;
 
 			uniform mat4 uProjectionMatrix;
@@ -14,7 +14,7 @@
 				gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vPosition;
 			}
 		</script>
-		<script id="wireframe-fragment-shader" type="x-shader/x-fragment">
+    <script id="wireframe-fragment-shader" type="x-shader/x-fragment">
 			precision mediump float;
 
 			void main() {
@@ -22,47 +22,50 @@
 			}
 		</script>
 
-		<!--&lt;!&ndash; program for cubes &ndash;&gt;-->
-		<!--<script id="vertex-shader" type="x-shader/x-vertex">-->
-			<!--attribute vec4 vPosition;-->
-			<!--attribute vec4 vNormal;-->
+    <!--&lt;!&ndash; program for cubes &ndash;&gt;-->
+    <!--<script id="vertex-shader" type="x-shader/x-vertex">-->
+    <!--attribute vec4 vPosition;-->
+    <!--attribute vec4 vNormal;-->
 
-			<!--uniform mat4 uProjectionMatrix;-->
-			<!--uniform mat4 uViewMatrix;-->
-			<!--uniform mat4 uModelMatrix;-->
+    <!--uniform mat4 uProjectionMatrix;-->
+    <!--uniform mat4 uViewMatrix;-->
+    <!--uniform mat4 uModelMatrix;-->
 
-			<!--varying vec3 fNormal;-->
+    <!--varying vec3 fNormal;-->
 
-			<!--void main() {-->
-				<!--gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vPosition;-->
-				<!--fNormal = vNormal.xyz;-->
-			<!--}-->
-		<!--</script>-->
-		<!--<script id="fragment-shader" type="x-shader/x-fragment">-->
-			<!--precision mediump float;-->
+    <!--void main() {-->
+    <!--gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vPosition;-->
+    <!--fNormal = vNormal.xyz;-->
+    <!--}-->
+    <!--</script>-->
+    <!--<script id="fragment-shader" type="x-shader/x-fragment">-->
+    <!--precision mediump float;-->
 
-			<!--varying vec3 fNormal;-->
+    <!--varying vec3 fNormal;-->
 
-			<!--void main() {-->
-				 <!--gl_FragColor = vec4(fNormal * 0.5 + 0.5, 1.0);-->
-			<!--}-->
-		<!--</script>-->
+    <!--void main() {-->
+    <!--gl_FragColor = vec4(fNormal * 0.5 + 0.5, 1.0);-->
+    <!--}-->
+    <!--</script>-->
 
-		<script id="vertex-lighting-shader" type="x-shader/x-vertex">
+    <script id="vertex-lighting-shader" type="x-shader/x-vertex">
             attribute vec4 vPosition;
             attribute vec4 vNormal;
 
             uniform mat4 uProjectionMatrix;
 			uniform mat4 uViewMatrix;
 			uniform mat4 uModelMatrix;
-			uniform vec4 uLightPosition;
+			uniform vec4 uTorchPosition; //torch
+			uniform vec4 uLightDirectionSun;
+			uniform vec4 uLightDirectionMoon;
 
-            varying vec3 N, L, E;
+            varying vec3 N, LTorch, LSun, LMoon, E;
 
             void main() {
                 vec3 pos = (uViewMatrix * uModelMatrix * vPosition).xyz;
-                vec3 light = uLightPosition.xyz;
-                L = normalize(light - pos);
+                LTorch = normalize(uTorchPosition.xyz - pos);
+                LSun = uLightDirectionSun.xyz;
+                LMoon = uLightDirectionMoon.xyz;
                 E = -pos;
                 N = normalize((uViewMatrix * uModelMatrix * vNormal).xyz);
 
@@ -70,41 +73,47 @@
 			}
 		</script>
 
-        <script id="fragment-lighting-shader" type="x-shader/x-fragment">
+    <script id="fragment-lighting-shader" type="x-shader/x-fragment">
             precision mediump float;
 
-            uniform vec4 uAmbientProduct;
-            uniform vec4 uDiffuseProduct;
-            uniform vec4 uSpecularProduct;
-            uniform float uShininess;
+            struct LightInfo {
+                vec4 uAmbientProduct;
+                vec4 uDiffuseProduct;
+                vec4 uSpecularProduct;
+                float uShininess;
+            };
+            uniform LightInfo Lights[3];
 
-            varying vec3 N, L, E;
+            varying vec3 N, LTorch, LSun, LMoon, E;
 
-            void main(){
-                vec4 fColor;
+            vec4 computeLight(vec3 l, LightInfo info){
+                vec4 lightColor;
 
-                vec3 H = normalize(L + E);
-                vec4 ambient = uAmbientProduct;
+                vec3 H = normalize(l + E);
+                vec4 ambient = info.uAmbientProduct;
 
-                float kd = max(dot(L, N), 0.0);
-                vec4 diffuse = kd * uDiffuseProduct;
+                float kd = max(dot(l, N), 0.0);
+                vec4 diffuse = kd * info.uDiffuseProduct;
 
-                float ks = pow(max(dot(N, H), 0.0), uShininess);
-                vec4 specular = ks * uSpecularProduct;
+                float ks = pow(max(dot(N, H), 0.0), info.uShininess);
+                vec4 specular = ks * info.uSpecularProduct;
 
-                if(dot(L, N) < 0.0){
+                if(dot(l, N) < 0.0){
                     specular = vec4(0.0, 0.0, 0.0, 1.0);
                 }
 
-                fColor = ambient + diffuse + specular;
-                fColor.a = 1.0;
+                lightColor = ambient + diffuse + specular;
+                lightColor.a = 1.0;
+                return lightColor;
+            }
 
-                gl_FragColor = fColor;
+            void main(){
+                gl_FragColor = computeLight(LTorch, Lights[0]) + computeLight(LSun, Lights[1]) + computeLight(LMoon, Lights[2]);
             }
 		</script>
-		
-		<!-- program for whales -->
-		<script id="whale-vertex-shader" type="x-shader/x-vertex">
+
+    <!-- program for whales -->
+    <script id="whale-vertex-shader" type="x-shader/x-vertex">
 			attribute vec4 vPosition;
 			attribute vec4 vNormal;
 
@@ -119,7 +128,7 @@
 				fNormal = vNormal.xyz;
 			}
 		</script>
-		<script id="whale-fragment-shader" type="x-shader/x-fragment">
+    <script id="whale-fragment-shader" type="x-shader/x-fragment">
 			precision mediump float;
 
 			varying vec3 fNormal;
@@ -128,8 +137,8 @@
 				 gl_FragColor = vec4(fNormal * 0.5 + 0.5, 1.0);
 			}
 		</script>
-		
-		<script id="whale.obj" type="text/plain">
+
+    <script id="whale.obj" type="text/plain">
 			# Blender v2.70 (sub 0) OBJ File: 'whale_0.blend'
 			# www.blender.org
 			o whale_Cube
@@ -1069,19 +1078,19 @@
 			f 271/108/213 209/118/250 108/93/114
 		</script>
 
-		<script type="text/javascript" src="common/webgl-obj-loader.js"></script>
-		<script type="text/javascript" src="common/webgl-utils.js"></script>
-		<script type="text/javascript" src="common/initShaders.js"></script>
-        <script type="text/javascript" src="camera.js"></script>
-		<script type="text/javascript" src="whale.js"></script>
-		<script type="text/javascript" src="minecraft3d.js"></script>
-		<script type="text/javascript" src="common/webgl-debug.js"></script>
-		<script type="text/javascript" src="common/MV.js"></script>
-	</head>
+    <script type="text/javascript" src="common/webgl-obj-loader.js"></script>
+    <script type="text/javascript" src="common/webgl-utils.js"></script>
+    <script type="text/javascript" src="common/initShaders.js"></script>
+    <script type="text/javascript" src="camera.js"></script>
+    <script type="text/javascript" src="whale.js"></script>
+    <script type="text/javascript" src="minecraft3d.js"></script>
+    <script type="text/javascript" src="common/webgl-debug.js"></script>
+    <script type="text/javascript" src="common/MV.js"></script>
+</head>
 
-	<body>
-		<canvas id="gl-canvas" width="800" height="600">
-			oops ... your browser doesn't support the html5 canvas element
-		</canvas>
-	</body>
+<body>
+<canvas id="gl-canvas" width="800" height="600">
+    oops ... your browser doesn't support the html5 canvas element
+</canvas>
+</body>
 </html>
