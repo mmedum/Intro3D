@@ -44,7 +44,7 @@ window.onload = function init() {
     } else {
         gl = WebGLDebugUtils.makeDebugContext(gl);
 
-        cubeProgram = initShaders(gl, "vertex-shader", "fragment-shader");
+        cubeProgram = initShaders(gl, "vertex-lighting-shader", "fragment-lighting-shader");
         cubeWireframeProgram = initShaders(gl, "wireframe-vertex-shader", "wireframe-fragment-shader");
 		whaleProgram = initShaders(gl, "whale-vertex-shader", "whale-fragment-shader");
 		
@@ -371,6 +371,7 @@ function drawCubes() {
     var uProjectionMatrix = gl.getUniformLocation(cubeProgram, "uProjectionMatrix"); // setup perspective settings
     var uViewMatrix = gl.getUniformLocation(cubeProgram, "uViewMatrix"); // move camera
     var uModelMatrix = gl.getUniformLocation(cubeProgram, "uModelMatrix"); //placement
+    var uLightPosition = gl.getUniformLocation(cubeProgram, "uLightPosition"); //position of sun
 
     var modelMatrix = mat4();
     gl.uniformMatrix4fv(uModelMatrix, false, flatten(modelMatrix));
@@ -378,6 +379,26 @@ function drawCubes() {
     gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(camera.getProjection()));
 
     gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.getView()));
+
+    var lightPosition = vec4(0.0, 100.5, 0.0, 1.0);
+    gl.uniform4fv(uLightPosition, flatten(multVector(camera.getView(), lightPosition)));
+
+    var uAmbientProduct = gl.getUniformLocation(cubeProgram, "uAmbientProduct");
+    var uDiffuseProduct = gl.getUniformLocation(cubeProgram, "uDiffuseProduct");
+    var uSpecularProduct = gl.getUniformLocation(cubeProgram, "uSpecularProduct");
+    var uShininess = gl.getUniformLocation(cubeProgram, "uShininess");
+
+    var ambient = vec4(0.2, 0.2, 0.2, 1.0);
+    gl.uniform4fv(uAmbientProduct, flatten(ambient));
+
+    var diffuse = vec4(0.0, 1.0, 0.0, 1.0);
+    gl.uniform4fv(uDiffuseProduct, flatten(diffuse));
+
+    var specular = vec4(0.2, 0.5, 0.6, 1.0);
+    gl.uniform4fv(uSpecularProduct, flatten(specular));
+
+    var shininess = 0.2;
+    gl.uniform1f(uShininess, shininess);
 
     for (var x = 0; x < CHUNKS_X; x++) {
         for (var y = 0; y < CHUNKS_Y; y++) {

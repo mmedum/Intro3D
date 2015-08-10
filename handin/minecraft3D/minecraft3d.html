@@ -22,30 +22,85 @@
 			}
 		</script>
 
-		<!-- program for cubes -->
-		<script id="vertex-shader" type="x-shader/x-vertex">
-			attribute vec4 vPosition;
-			attribute vec4 vNormal;
+		<!--&lt;!&ndash; program for cubes &ndash;&gt;-->
+		<!--<script id="vertex-shader" type="x-shader/x-vertex">-->
+			<!--attribute vec4 vPosition;-->
+			<!--attribute vec4 vNormal;-->
 
-			uniform mat4 uProjectionMatrix;
+			<!--uniform mat4 uProjectionMatrix;-->
+			<!--uniform mat4 uViewMatrix;-->
+			<!--uniform mat4 uModelMatrix;-->
+
+			<!--varying vec3 fNormal;-->
+
+			<!--void main() {-->
+				<!--gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vPosition;-->
+				<!--fNormal = vNormal.xyz;-->
+			<!--}-->
+		<!--</script>-->
+		<!--<script id="fragment-shader" type="x-shader/x-fragment">-->
+			<!--precision mediump float;-->
+
+			<!--varying vec3 fNormal;-->
+
+			<!--void main() {-->
+				 <!--gl_FragColor = vec4(fNormal * 0.5 + 0.5, 1.0);-->
+			<!--}-->
+		<!--</script>-->
+
+		<script id="vertex-lighting-shader" type="x-shader/x-vertex">
+            attribute vec4 vPosition;
+            attribute vec4 vNormal;
+
+            uniform mat4 uProjectionMatrix;
 			uniform mat4 uViewMatrix;
 			uniform mat4 uModelMatrix;
+			uniform vec4 uLightPosition;
 
-			varying vec3 fNormal;
+            varying vec3 N, L, E;
 
-			void main() {
+            void main() {
+                vec3 pos = (uViewMatrix * uModelMatrix * vPosition).xyz;
+                vec3 light = uLightPosition.xyz;
+                L = normalize(light - pos);
+                E = -pos;
+                N = normalize((uViewMatrix * uModelMatrix * vNormal).xyz);
+
 				gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vPosition;
-				fNormal = vNormal.xyz;
 			}
 		</script>
-		<script id="fragment-shader" type="x-shader/x-fragment">
-			precision mediump float;
 
-			varying vec3 fNormal;
+        <script id="fragment-lighting-shader" type="x-shader/x-fragment">
+            precision mediump float;
 
-			void main() {
-				 gl_FragColor = vec4(fNormal * 0.5 + 0.5, 1.0);
-			}
+            uniform vec4 uAmbientProduct;
+            uniform vec4 uDiffuseProduct;
+            uniform vec4 uSpecularProduct;
+            uniform float uShininess;
+
+            varying vec3 N, L, E;
+
+            void main(){
+                vec4 fColor;
+
+                vec3 H = normalize(L + E);
+                vec4 ambient = uAmbientProduct;
+
+                float kd = max(dot(L, N), 0.0);
+                vec4 diffuse = kd * uDiffuseProduct;
+
+                float ks = pow(max(dot(N, H), 0.0), uShininess);
+                vec4 specular = ks * uSpecularProduct;
+
+                if(dot(L, N) < 0.0){
+                    specular = vec4(0.0, 0.0, 0.0, 1.0);
+                }
+
+                fColor = ambient + diffuse + specular;
+                fColor.a = 1.0;
+
+                gl_FragColor = fColor;
+            }
 		</script>
 		
 		<!-- program for whales -->
