@@ -458,13 +458,13 @@ function drawCubes() {
                 gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, sizeof['vec4'] * 3, 0);
                 gl.enableVertexAttribArray(vPosition);
 
-                //var vNormal = gl.getAttribLocation(cubeProgram, "vNormal");
-                //gl.vertexAttribPointer(vNormal, 4, gl.FLOAT, false, sizeof['vec4'] * 3, sizeof['vec4']);
-                //gl.enableVertexAttribArray(vNormal);
+                var vNormal = gl.getAttribLocation(cubeProgram, "vNormal");
+                gl.vertexAttribPointer(vNormal, 4, gl.FLOAT, false, sizeof['vec4'] * 3, sizeof['vec4']);
+                gl.enableVertexAttribArray(vNormal);
 
-                //var vTexCoord = gl.getAttribLocation(cubeProgram, "vTexCoord");
-                //gl.vertexAttribPointer(vTexCoord, 2, gl.FLOAT, false, sizeof['vec4'] * 3, sizeof['vec4'] * 2);
-                //gl.enableVertexAttribArray(vTexCoord);
+                var vTexCoord = gl.getAttribLocation(cubeProgram, "vTexCoord");
+                gl.vertexAttribPointer(vTexCoord, 2, gl.FLOAT, false, sizeof['vec4'] * 3, sizeof['vec4'] * 2);
+                gl.enableVertexAttribArray(vTexCoord);
 
                 gl.drawArrays(gl.TRIANGLES, 0, chunk.blockVertexCount);
             }
@@ -492,13 +492,13 @@ function drawSpinningCubes() {
     gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, sizeof['vec4'] * 3, 0);
     gl.enableVertexAttribArray(vPosition);
 
-    //var vNormal = gl.getAttribLocation(cubeProgram, "vNormal");
-    //gl.vertexAttribPointer(vNormal, 4, gl.FLOAT, false, sizeof['vec4'] * 3, sizeof['vec4']);
-    //gl.enableVertexAttribArray(vNormal);
+    var vNormal = gl.getAttribLocation(cubeProgram, "vNormal");
+    gl.vertexAttribPointer(vNormal, 4, gl.FLOAT, false, sizeof['vec4'] * 3, sizeof['vec4']);
+    gl.enableVertexAttribArray(vNormal);
 
-    //var vTexCoord = gl.getAttribLocation(cubeProgram, "vTexCoord");
-    //gl.vertexAttribPointer(vTexCoord, 2, gl.FLOAT, false, sizeof['vec4'] * 3, sizeof['vec4'] * 2);
-    //gl.enableVertexAttribArray(vTexCoord);
+    var vTexCoord = gl.getAttribLocation(cubeProgram, "vTexCoord");
+    gl.vertexAttribPointer(vTexCoord, 2, gl.FLOAT, false, sizeof['vec4'] * 3, sizeof['vec4'] * 2);
+    gl.enableVertexAttribArray(vTexCoord);
 
     for(var i=0; i<spinningCubePositions.length; i++) {
         var modelMatrix = translate(spinningCubePositions[i]);
@@ -507,6 +507,7 @@ function drawSpinningCubes() {
 
         gl.drawArrays(gl.TRIANGLES, 0, spinningCube.spinningBlockVertexCount);
     }
+	
 }
 
 function drawSpinningCubeWireframes() {
