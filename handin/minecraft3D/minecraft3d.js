@@ -79,6 +79,8 @@ window.onload = function init() {
         gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.BACK);
 
+        createTexture();
+
         createWorld();
         camera = new Camera(vec3(0.0, 0.0, -5.0), -30.0, 140.0);
 		
@@ -89,8 +91,6 @@ window.onload = function init() {
         spinningCube = createSpinningCube();
         spinningCubePositions = [];
         spinningCubeTheta = 0;
-
-        createTexture();
 
         render();
     }
