@@ -1,6 +1,6 @@
 <!doctype html>
 <html>
-<head>
+<img>
 
     <!-- program for cube wireframes-->
     <script id="wireframe-vertex-shader" type="x-shader/x-vertex">
@@ -51,6 +51,7 @@
     <script id="vertex-lighting-shader" type="x-shader/x-vertex">
             attribute vec4 vPosition;
             attribute vec4 vNormal;
+            attribute vec2 vTexCoord;
 
             uniform mat4 uProjectionMatrix;
 			uniform mat4 uViewMatrix;
@@ -60,6 +61,7 @@
 			uniform vec4 uLightDirectionMoon;
 
             varying vec3 N, LTorch, LSun, LMoon, E;
+            varying vec2 fTexCoord;
 
             void main() {
                 vec3 pos = (uViewMatrix * uModelMatrix * vPosition).xyz;
@@ -70,6 +72,7 @@
                 N = normalize((uViewMatrix * uModelMatrix * vNormal).xyz);
 
 				gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vPosition;
+				fTexCoord = vTexCoord;
 			}
 		</script>
 
@@ -84,7 +87,11 @@
             };
             uniform LightInfo Lights[3];
 
+            uniform sampler2D uTexMap;
+
             varying vec3 N, LTorch, LSun, LMoon, E;
+
+            varying vec2 fTexCoord;
 
             vec4 computeLight(vec3 l, LightInfo info){
                 vec4 lightColor;
@@ -108,7 +115,8 @@
             }
 
             void main(){
-                gl_FragColor = computeLight(LTorch, Lights[0]) + computeLight(LSun, Lights[1]) + computeLight(LMoon, Lights[2]);
+//                gl_FragColor = computeLight(LTorch, Lights[0]) + computeLight(LSun, Lights[1]) + computeLight(LMoon, Lights[2]);
+                gl_FragColor = texture2D(uTexMap, fTexCoord);
             }
 		</script>
 
@@ -1086,6 +1094,9 @@
     <script type="text/javascript" src="minecraft3d.js"></script>
     <script type="text/javascript" src="common/webgl-debug.js"></script>
     <script type="text/javascript" src="common/MV.js"></script>
+
+    <img id="textures" src="texture/texture.png" style="display: none"></img>
+
 </head>
 
 <body>

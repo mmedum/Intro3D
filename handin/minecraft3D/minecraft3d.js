@@ -90,6 +90,8 @@ window.onload = function init() {
         spinningCubePositions = [];
         spinningCubeTheta = 0;
 
+        createTexture();
+
         render();
     }
 };
@@ -150,7 +152,7 @@ function createChunk(x, y, z) {
     return {
         blockBufferId: blockBufferId,
         lineBufferId: lineBufferId,
-        blockVertexCount: blockVertices.length / 2,
+        blockVertexCount: blockVertices.length / 3,
         lineVertexCount: lineVertices.length
     };
 }
@@ -170,59 +172,59 @@ function isVisible(wx, wy, wz) {
 function createCube(blockVertices, lineVertices, x, y, z) {
     var cube = [
         // Front
-        vec4(-0.5, 0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0),
-        vec4(0.5, 0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0),
-        vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0),
-        vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0),
-        vec4(0.5, 0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0),
-        vec4(0.5, -0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0),
+        vec4(-0.5, 0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0), vec4(0.0, 1.0, 42.0, 42.0),
+        vec4(0.5, 0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0), vec4(1.0, 1.0, 42.0, 42.0),
+        vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0), vec4(0.0, 0.0, 42.0, 42.0),
+        vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0), vec4(0.0, 0.0, 42.0, 42.0),
+        vec4(0.5, 0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0), vec4(1.0, 1.0, 42.0, 42.0),
+        vec4(0.5, -0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0), vec4(1.0, 0.0, 42.0, 42.0),
 
         // Back
-        vec4(0.5, 0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0),
-        vec4(-0.5, 0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0),
-        vec4(-0.5, -0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0),
-        vec4(-0.5, -0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0),
-        vec4(0.5, -0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0),
-        vec4(0.5, 0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0),
+        vec4(0.5, 0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0), vec4(1.0, 1.0, 42.0, 42.0),
+        vec4(-0.5, 0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0), vec4(0.0, 1.0, 42.0, 42.0),
+        vec4(-0.5, -0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0), vec4(0.0, 0.0, 42.0, 42.0),
+        vec4(-0.5, -0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0), vec4(0.0, 0.0, 42.0, 42.0),
+        vec4(0.5, -0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0), vec4(1.0, 0.0, 42.0, 42.0),
+        vec4(0.5, 0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0), vec4(1.0, 1.0, 42.0, 42.0),
 
         // Right
-        vec4(0.5, 0.5, -0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0),
-        vec4(0.5, 0.5, 0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0),
-        vec4(0.5, -0.5, -0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0),
-        vec4(0.5, -0.5, -0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0),
-        vec4(0.5, 0.5, 0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0),
-        vec4(0.5, -0.5, 0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0),
+        vec4(0.5, 0.5, -0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0), vec4(1.0, 0.0, 42.0, 42.0),
+        vec4(0.5, 0.5, 0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0), vec4(1.0, 1.0, 42.0, 42.0),
+        vec4(0.5, -0.5, -0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0), vec4(0.0, 0.0, 42.0, 42.0),
+        vec4(0.5, -0.5, -0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0), vec4(0.0, 0.0, 42.0, 42.0),
+        vec4(0.5, 0.5, 0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0), vec4(1.0, 1.0, 42.0, 42.0),
+        vec4(0.5, -0.5, 0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0), vec4(0.0, 1.0, 42.0, 42.0),
 
         // Left
-        vec4(-0.5, -0.5, -0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0),
-        vec4(-0.5, 0.5, 0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0),
-        vec4(-0.5, 0.5, -0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0),
-        vec4(-0.5, -0.5, -0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0),
-        vec4(-0.5, -0.5, 0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0),
-        vec4(-0.5, 0.5, 0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0),
+        vec4(-0.5, -0.5, -0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0), vec4(0.0, 0.0, 42.0, 42.0),
+        vec4(-0.5, 0.5, 0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0), vec4(1.0, 1.0, 42.0, 42.0),
+        vec4(-0.5, 0.5, -0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0), vec4(1.0, 0.0, 42.0, 42.0),
+        vec4(-0.5, -0.5, -0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0), vec4(0.0, 0.0, 42.0, 42.0),
+        vec4(-0.5, -0.5, 0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0), vec4(0.0, 1.0, 42.0, 42.0),
+        vec4(-0.5, 0.5, 0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0), vec4(1.0, 1.0, 42.0, 42.0),
 
         // Top
-        vec4(-0.5, 0.5, -0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0),
-        vec4(-0.5, 0.5, 0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0),
-        vec4(0.5, 0.5, 0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0),
-        vec4(-0.5, 0.5, -0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0),
-        vec4(0.5, 0.5, 0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0),
-        vec4(0.5, 0.5, -0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0),
+        vec4(-0.5, 0.5, -0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(0.0, 0.0, 42.0, 42.0),
+        vec4(-0.5, 0.5, 0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(0.0, 1.0, 42.0, 42.0),
+        vec4(0.5, 0.5, 0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(1.0, 1.0, 42.0, 42.0),
+        vec4(-0.5, 0.5, -0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(0.0, 0.0, 42.0, 42.0),
+        vec4(0.5, 0.5, 0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(1.0, 1.0, 42.0, 42.0),
+        vec4(0.5, 0.5, -0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(1.0, 0.0, 42.0, 42.0),
 
         // Bottom
-        vec4(0.5, -0.5, 0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0),
-        vec4(-0.5, -0.5, 0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0),
-        vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0),
-        vec4(0.5, -0.5, -0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0),
-        vec4(0.5, -0.5, 0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0),
-        vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0)
+        vec4(0.5, -0.5, 0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0), vec4(1.0, 1.0, 42.0, 42.0),
+        vec4(-0.5, -0.5, 0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0), vec4(0.0, 1.0, 42.0, 42.0),
+        vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0), vec4(0.0, 0.0, 42.0, 42.0),
+        vec4(0.5, -0.5, -0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0), vec4(1.0, 0.0, 42.0, 42.0),
+        vec4(0.5, -0.5, 0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0), vec4(1.0, 1.0, 42.0, 42.0),
+        vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0), vec4(0.0, 0.0, 42.0, 42.0)
     ];
 
     // move cube to correct position in world with offset 0.5
     var modelMatrix = translate(x + 0.5, y + 0.5, z + 0.5);
 
     for (var i = 0; i < cube.length; i++) {
-        if (i % 2 == 0) {
+        if (i % 3 == 0) {
             blockVertices.push(multVector(modelMatrix, cube[i]));
         } else {
             blockVertices.push(cube[i]);
@@ -254,6 +256,21 @@ function createCube(blockVertices, lineVertices, x, y, z) {
     for (var i = 0; i < cubeEdges.length; i++) {
         lineVertices.push(multVector(modelMatrix, cubeEdges[i]));
     }
+}
+
+function createTexture(){
+    gl.activeTexture(gl.TEXTURE0);
+
+    var texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+
+    var image = document.getElementById("texture");
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+
 }
 
 function setupListeners() {
@@ -392,6 +409,9 @@ function drawCubeWireframes() {
 function drawCubes() {
     gl.useProgram(cubeProgram);
 
+    var uTexMap = gl.getUniformLocation(cubeProgram, "uTexMap");
+    gl.uniform1i(uTexMap, 0);
+
     var uProjectionMatrix = gl.getUniformLocation(cubeProgram, "uProjectionMatrix"); // setup perspective settings
     var uViewMatrix = gl.getUniformLocation(cubeProgram, "uViewMatrix"); // move camera
     var uModelMatrix = gl.getUniformLocation(cubeProgram, "uModelMatrix"); //placement
@@ -435,12 +455,16 @@ function drawCubes() {
                 gl.bindBuffer(gl.ARRAY_BUFFER, chunk.blockBufferId);
 
                 var vPosition = gl.getAttribLocation(cubeProgram, "vPosition");
-                gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, sizeof['vec4'] * 2, 0);
+                gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, sizeof['vec4'] * 3, 0);
                 gl.enableVertexAttribArray(vPosition);
 
-                var vNormal = gl.getAttribLocation(cubeProgram, "vNormal");
-                gl.vertexAttribPointer(vNormal, 4, gl.FLOAT, false, sizeof['vec4'] * 2, sizeof['vec4']);
-                gl.enableVertexAttribArray(vNormal);
+                //var vNormal = gl.getAttribLocation(cubeProgram, "vNormal");
+                //gl.vertexAttribPointer(vNormal, 4, gl.FLOAT, false, sizeof['vec4'] * 3, sizeof['vec4']);
+                //gl.enableVertexAttribArray(vNormal);
+
+                //var vTexCoord = gl.getAttribLocation(cubeProgram, "vTexCoord");
+                //gl.vertexAttribPointer(vTexCoord, 2, gl.FLOAT, false, sizeof['vec4'] * 3, sizeof['vec4'] * 2);
+                //gl.enableVertexAttribArray(vTexCoord);
 
                 gl.drawArrays(gl.TRIANGLES, 0, chunk.blockVertexCount);
             }
@@ -450,6 +474,9 @@ function drawCubes() {
 
 function drawSpinningCubes() {
     gl.useProgram(cubeProgram);
+
+    var uTexMap = gl.getUniformLocation(cubeProgram, "uTexMap");
+    gl.uniform1i(uTexMap, 0);
 
     var uProjectionMatrix = gl.getUniformLocation(cubeProgram, "uProjectionMatrix"); // setup perspective settings
     var uViewMatrix = gl.getUniformLocation(cubeProgram, "uViewMatrix"); // move camera
@@ -462,12 +489,16 @@ function drawSpinningCubes() {
     gl.bindBuffer(gl.ARRAY_BUFFER, spinningCube.spinningCubeBufferId);
 
     var vPosition = gl.getAttribLocation(cubeProgram, "vPosition");
-    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, sizeof['vec4'] * 2, 0);
+    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, sizeof['vec4'] * 3, 0);
     gl.enableVertexAttribArray(vPosition);
 
-    var vNormal = gl.getAttribLocation(cubeProgram, "vNormal");
-    gl.vertexAttribPointer(vNormal, 4, gl.FLOAT, false, sizeof['vec4'] * 2, sizeof['vec4']);
-    gl.enableVertexAttribArray(vNormal);
+    //var vNormal = gl.getAttribLocation(cubeProgram, "vNormal");
+    //gl.vertexAttribPointer(vNormal, 4, gl.FLOAT, false, sizeof['vec4'] * 3, sizeof['vec4']);
+    //gl.enableVertexAttribArray(vNormal);
+
+    //var vTexCoord = gl.getAttribLocation(cubeProgram, "vTexCoord");
+    //gl.vertexAttribPointer(vTexCoord, 2, gl.FLOAT, false, sizeof['vec4'] * 3, sizeof['vec4'] * 2);
+    //gl.enableVertexAttribArray(vTexCoord);
 
     for(var i=0; i<spinningCubePositions.length; i++) {
         var modelMatrix = translate(spinningCubePositions[i]);
@@ -560,7 +591,7 @@ function createSpinningCube() {
     return {
         spinningCubeBufferId : spinningCubeBufferId,
         spinningCubeWireBufferId : spinningCubeWireBufferId,
-        spinningBlockVertexCount : blockVertices.length / 2,
+        spinningBlockVertexCount : blockVertices.length / 3,
         spinningLineVertexCount : lineVertices.length
     };
 }
