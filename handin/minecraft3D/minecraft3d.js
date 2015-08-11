@@ -154,7 +154,7 @@ function createWorld() {
     }
 }
 
-function createChunk(x, y, z) {
+function fillChunk(chunk, x, y, z) {
     var blockVertices = [];
     var lineVertices = [];
 
@@ -172,20 +172,28 @@ function createChunk(x, y, z) {
         }
     }
 
+    gl.bindBuffer(gl.ARRAY_BUFFER, chunk.blockBufferId);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(blockVertices), gl.DYNAMIC_DRAW);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, chunk.lineBufferId);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(lineVertices), gl.DYNAMIC_DRAW);
+
+	chunk.blockVertexCount = blockVertices.length / 3;
+    chunk.lineVertexCount = lineVertices.length;
+} 
+
+function createChunk(x, y, z) {
     var blockBufferId = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, blockBufferId);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(blockVertices), gl.STATIC_DRAW);
-
-    var lineBufferId = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, lineBufferId);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(lineVertices), gl.STATIC_DRAW);
-
-    return {
+	var lineBufferId = gl.createBuffer();
+	
+    var result = {
         blockBufferId: blockBufferId,
-        lineBufferId: lineBufferId,
-        blockVertexCount: blockVertices.length / 3,
-        lineVertexCount: lineVertices.length
+        lineBufferId: lineBufferId
     };
+	
+	fillChunk(result, x, y, z);
+	
+	return result;
 }
 
 function isVisible(wx, wy, wz) {
@@ -892,10 +900,7 @@ function refreshChunk(xPos, yPos, zPos){
     var chunkY = Math.floor(yPos / CHUNK_SIZE_Y);
     var chunkZ = Math.floor(zPos / CHUNK_SIZE_Z);
 
-    var currentChunk = worldChunks[chunkX * CHUNKS_Y * CHUNKS_Z + chunkY * CHUNKS_Z + chunkZ];
+    var chunk = worldChunks[chunkX * CHUNKS_Y * CHUNKS_Z + chunkY * CHUNKS_Z + chunkZ];
 
-    gl.deleteBuffer(currentChunk.blockBufferId);
-    gl.deleteBuffer(currentChunk.lineBufferId);
-
-    worldChunks[chunkX * CHUNKS_Y * CHUNKS_Z + chunkY * CHUNKS_Z + chunkZ] = createChunk(chunkX * CHUNK_SIZE_X, chunkY * CHUNK_SIZE_Y, chunkZ * CHUNK_SIZE_Z);
+	fillChunk(chunk, chunkX * CHUNK_SIZE_X, chunkY * CHUNK_SIZE_Y, chunkZ * CHUNK_SIZE_Z);
 }
