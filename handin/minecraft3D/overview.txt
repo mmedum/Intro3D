@@ -78,7 +78,6 @@ whaleProgram
 
 -- optimal --
 
--Blocks that are completely covered by other blocks are not drawn.
+- Blocks that are completely covered by other blocks are not drawn.
 - the world is divided into chunks -> we only update part of the world when blocks are inserted/removed
-- 
 
