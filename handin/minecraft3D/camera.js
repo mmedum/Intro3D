@@ -23,6 +23,8 @@ function Camera(position, pitch, yaw) {
     var mapSize = (canvas.clientHeight * 3.0) / 4.0;
     this.mapViewport = vec4(canvas.clientWidth/2 - mapSize/2, canvas.clientHeight/2 - mapSize/2, mapSize, mapSize);
 
+    this.flyingMode = false;
+
 	this.refresh();
 }
 
@@ -76,7 +78,7 @@ Camera.prototype.update = function(dt) {
 
     var speed = 10.0;
     var movement = speed * dt;
-	
+
 	while(movement > 0) {
 		// Move in increments of 0.8:
 		var movementFraction = Math.min(movement, 0.8);
@@ -101,8 +103,22 @@ Camera.prototype.update = function(dt) {
 		this.collisionDetection();
 	}
 
+    if(!this.flyingMode){
+        this.position[1] = this.topblock(Math.floor(this.position[0]), Math.floor(this.position[2]));
+
+    }
+
     this.refresh();
 };
+
+Camera.prototype.topblock = function(xPos, zPos){
+    for(var i=BLOCKS_Y-1; i>=0; i--){
+        if(getBlock(xPos, i, zPos) != BlockType.AIR){
+            return i + 2.0;
+        }
+    }
+    return 0;
+}
 
 Camera.prototype.collisionDetection = function() {
     var wx = Math.floor(this.position[0]);
