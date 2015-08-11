@@ -40,11 +40,13 @@ var mouse3DPosition;
 var mouse2DPosition;
 var mouseWireframePosition;
 
+var selectedBlockType;
+
 var lightInfo = [
     //Torch
     {
         ambient : [0.0, 0.0, 0.0, 0.0],
-        diffuse : [0.0, 1.0, 0.0, 1.0],
+        diffuse : [1.0, 1.0, 1.0, 1.0],
         specular : [0.0, 0.0, 0.0, 0.0],
         shininess : 10.5
     },
@@ -104,6 +106,7 @@ window.onload = function init() {
         spinningCubePositions = [];
         spinningCubeTheta = 0;
         sunAngle = 0;
+        selectedBlockType = BlockType.METAL;
 
         mouseWireFrame = createMouseWireframe();
 
@@ -339,6 +342,15 @@ function setupListeners() {
     canvas.addEventListener("mousemove", function(event) {
         mouse2DPosition[0] = event.clientX - canvas.offsetLeft;
         mouse2DPosition[1] = canvas.height - (event.clientY - canvas.offsetTop);
+        get3DCursorPosition();
+
+        var edgeNormal = getEdgeNormal();
+
+        var xPos = Math.floor(mouse3DPosition[0] - edgeNormal[0] * 0.5) + edgeNormal[0];
+        var yPos = Math.floor(mouse3DPosition[1] - edgeNormal[1] * 0.5) + edgeNormal[1];
+        var zPos = Math.floor(mouse3DPosition[2] - edgeNormal[2] * 0.5) + edgeNormal[2];
+
+        mouseWireframePosition = vec3(xPos, yPos, zPos);
     });
 
     window.addEventListener("keydown", function(event) {
@@ -484,7 +496,6 @@ function drawPickingCubes() {
 }
 
 function render() {
-    get3DCursorPosition();
     update();
 
     gl.clearColor(0.0, 0.7490, 1.0, 1.0);
@@ -780,10 +791,32 @@ function getBlock(x, y, z){
 }
 
 function removeBlock(){
+    var edgeNormal = getEdgeNormal();
 
+    var xPos = Math.floor(mouse3DPosition[0] - edgeNormal[0] * 0.5);
+    var yPos = Math.floor(mouse3DPosition[1] - edgeNormal[1] * 0.5);
+    var zPos = Math.floor(mouse3DPosition[2] - edgeNormal[2] * 0.5);
+
+    if((xPos >= 0 && xPos < BLOCKS_X) && (yPos >= 0 && yPos < BLOCKS_Y) && (zPos >= 0 && zPos < BLOCKS_Z)) {
+        worldBlocks[xPos * BLOCKS_Y * BLOCKS_Z + yPos * BLOCKS_Z + zPos] = BlockType.AIR;
+        refreshChunk(xPos, yPos, zPos);
+    }
 }
 
 function insertBlock(){
+    var edgeNormal = getEdgeNormal();
+
+    var xPos = Math.floor(mouse3DPosition[0] - edgeNormal[0] * 0.5) + edgeNormal[0];
+    var yPos = Math.floor(mouse3DPosition[1] - edgeNormal[1] * 0.5) + edgeNormal[1];
+    var zPos = Math.floor(mouse3DPosition[2] - edgeNormal[2] * 0.5) + edgeNormal[2];
+
+    if((xPos >= 0 && xPos < BLOCKS_X) && (yPos >= 0 && yPos < BLOCKS_Y) && (zPos >= 0 && zPos < BLOCKS_Z)) {
+        worldBlocks[xPos * BLOCKS_Y * BLOCKS_Z + yPos * BLOCKS_Z + zPos] = selectedBlockType;
+        refreshChunk(xPos, yPos, zPos);
+    }
+}
+
+function getEdgeNormal(){
     var edgeNormal = vec3();
 
     var edge = Math.round(mouse3DPosition[3]);
@@ -812,9 +845,18 @@ function insertBlock(){
             console.log(edge);
             break;
     }
-    var xPos = Math.floor(mouse3DPosition[0] - edgeNormal[0] * 0.5) + edgeNormal[0];
-    var yPos = Math.floor(mouse3DPosition[1] - edgeNormal[1] * 0.5) + edgeNormal[1];
-    var zPos = Math.floor(mouse3DPosition[2] - edgeNormal[2] * 0.5) + edgeNormal[2];
+    return edgeNormal;
+}
 
-    mouseWireframePosition = vec3(xPos, yPos, zPos);
+function refreshChunk(xPos, yPos, zPos){
+    var chunkX = Math.floor(xPos / CHUNK_SIZE_X);
+    var chunkY = Math.floor(yPos / CHUNK_SIZE_Y);
+    var chunkZ = Math.floor(zPos / CHUNK_SIZE_Z);
+
+    var currentChunk = worldChunks[chunkX * CHUNKS_Y * CHUNKS_Z + chunkY * CHUNKS_Z + chunkZ];
+
+    gl.deleteBuffer(currentChunk.blockBufferId);
+    gl.deleteBuffer(currentChunk.lineBufferId);
+
+    worldChunks[chunkX * CHUNKS_Y * CHUNKS_Z + chunkY * CHUNKS_Z + chunkZ] = createChunk(chunkX * CHUNK_SIZE_X, chunkY * CHUNK_SIZE_Y, chunkZ * CHUNK_SIZE_Z);
 }
