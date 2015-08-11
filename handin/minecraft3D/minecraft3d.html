@@ -2,6 +2,41 @@
 <html>
 <img>
 
+    <!-- program for picking -->
+    <script id="picking-vertex-shader" type="x-shader/x-vertex">
+			attribute vec4 vPosition;
+			attribute vec4 vNormal;
+
+			uniform mat4 uProjectionMatrix;
+			uniform mat4 uViewMatrix;
+			uniform mat4 uModelMatrix;
+			
+			varying float fEdge;
+			varying vec3 fPosition;
+
+			void main() {
+				gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vPosition;
+			
+				float edge = 
+					(1.0 - abs(vNormal.y)) * (1.0 - abs(vNormal.z)) * (0.0 + vNormal.x * 0.5 + 0.5) + 
+					(1.0 - abs(vNormal.x)) * (1.0 - abs(vNormal.z)) * (2.0 + vNormal.y * 0.5 + 0.5) + 
+					(1.0 - abs(vNormal.x)) * (1.0 - abs(vNormal.y)) * (4.0 + vNormal.z * 0.5 + 0.5);
+					
+				fEdge = edge * 0.1;	
+				fPosition = vPosition.xyz;
+			}
+		</script>
+    <script id="picking-fragment-shader" type="x-shader/x-fragment">
+			precision mediump float;
+			
+			varying float fEdge;
+			varying vec3 fPosition;			
+
+			void main() {
+				 gl_FragColor = vec4(fPosition / 64.0, fEdge);
+			}
+		</script>
+
     <!-- program for cube wireframes-->
     <script id="wireframe-vertex-shader" type="x-shader/x-vertex">
 			attribute vec4 vPosition;

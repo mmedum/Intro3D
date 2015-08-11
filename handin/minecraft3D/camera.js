@@ -22,6 +22,8 @@ function Camera(position, pitch, yaw) {
 
     var mapSize = (canvas.clientHeight * 3.0) / 4.0;
     this.mapViewport = vec4(canvas.clientWidth/2 - mapSize/2, canvas.clientHeight/2 - mapSize/2, mapSize, mapSize);
+
+	this.refresh();
 }
 
 Camera.prototype.refresh = function() {

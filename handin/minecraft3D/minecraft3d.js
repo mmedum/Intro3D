@@ -61,6 +61,9 @@ var lightInfo = [
 
 var whaleMesh;
 
+var pickingFramebuffer;
+var pickingTexture;
+
 window.onload = function init() {
     canvas = document.getElementById("gl-canvas");
     gl = WebGLUtils.setupWebGL(canvas);
@@ -74,12 +77,13 @@ window.onload = function init() {
         cubeWireframeProgram = initShaders(gl, "wireframe-vertex-shader", "wireframe-fragment-shader");
 		whaleProgram = initShaders(gl, "whale-vertex-shader", "whale-fragment-shader");
 		
-        gl.clearColor(0.0, 0.7490, 1.0, 1.0);
         gl.enable(gl.DEPTH_TEST);
 
         // don't show vertices on back faces of cubes when not vissible with the camera
         gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.BACK);
+		
+		createPickingObjects();
 
         createTexture();
 
@@ -374,9 +378,90 @@ function setupListeners() {
     });
 }
 
+function createPickingObjects() {
+	pickingFramebuffer = gl.createFramebuffer();	// framebuffer object
+	pickingTexture = gl.createTexture();
+	
+	gl.activeTexture(gl.TEXTURE0);
+	gl.bindTexture(gl.TEXTURE_2D, pickingTexture); 
+	
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, canvas.width, canvas.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+
+	//gl.generateMipmap(gl.TEXTURE_2D);
+	
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+	
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	
+	pickingProgram = initShaders(gl, "picking-vertex-shader", "picking-fragment-shader");
+}
+
+function get3DCursorPosition() {
+	var x = canvas.width / 2;
+	var y = canvas.height / 2;
+
+	gl.bindFramebuffer(gl.FRAMEBUFFER, pickingFramebuffer);
+	pickingFramebuffer.width = canvas.width;
+	pickingFramebuffer.height = canvas.height;
+	
+	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, pickingTexture, 0);
+	
+	var status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+	if(status != gl.FRAMEBUFFER_COMPLETE) {
+		alert('Frame Buffer Not Complete');
+	}
+	
+	gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	
+	drawPickingCubes();
+	
+	var color = new Uint8Array(4);
+	gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
+	console.log(color[0] * (1.0 / 255) * 64 + " " + color[1] * (1.0 / 255) * 64 + " " + color[2] * (1.0 / 255) * 64 + " edge: " + color[3]* (1.0 / 255) * 10);
+	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+}
+
+function drawPickingCubes() {
+	gl.useProgram(pickingProgram);
+	
+    var uProjectionMatrix = gl.getUniformLocation(pickingProgram, "uProjectionMatrix"); // setup perspective settings
+    var uViewMatrix = gl.getUniformLocation(pickingProgram, "uViewMatrix"); // move camera
+    var uModelMatrix = gl.getUniformLocation(pickingProgram, "uModelMatrix"); //placement
+	
+    gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(camera.getProjection()));
+	gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.getView()));
+	gl.uniformMatrix4fv(uModelMatrix, false, flatten(mat4()));
+
+    for (var x = 0; x < CHUNKS_X; x++) {
+        for (var y = 0; y < CHUNKS_Y; y++) {
+            for (var z = 0; z < CHUNKS_Z; z++) {
+                var chunk = worldChunks[x * CHUNKS_Y * CHUNKS_Z + y * CHUNKS_Z + z];
+
+                gl.bindBuffer(gl.ARRAY_BUFFER, chunk.blockBufferId);
+
+                var vPosition = gl.getAttribLocation(pickingProgram, "vPosition");
+                gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, sizeof['vec4'] * 3, 0);
+                gl.enableVertexAttribArray(vPosition);
+
+                var vNormal = gl.getAttribLocation(pickingProgram, "vNormal");
+                gl.vertexAttribPointer(vNormal, 4, gl.FLOAT, false, sizeof['vec4'] * 3, sizeof['vec4']);
+                gl.enableVertexAttribArray(vNormal);
+
+                gl.drawArrays(gl.TRIANGLES, 0, chunk.blockVertexCount);
+            }
+        }
+    }	
+}
+
 function render() {
+	get3DCursorPosition();
     update();
 
+	gl.clearColor(0.0, 0.7490, 1.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     var viewport = camera.getViewport();
@@ -400,7 +485,7 @@ function drawCubeWireframes() {
     var uProjectionMatrix = gl.getUniformLocation(cubeWireframeProgram, "uProjectionMatrix"); // setup perspective settings
     var uViewMatrix = gl.getUniformLocation(cubeWireframeProgram, "uViewMatrix"); // move camera
     var uModelMatrix = gl.getUniformLocation(cubeWireframeProgram, "uModelMatrix"); //placement
-
+	
     var modelMatrix = mat4();
     gl.uniformMatrix4fv(uModelMatrix, false, flatten(modelMatrix));
 
