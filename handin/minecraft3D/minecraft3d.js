@@ -445,7 +445,7 @@ function drawCubes() {
     gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.getView()));
 
     var uTorchPosition = gl.getUniformLocation(cubeProgram, "uTorchPosition");
-    var torchPosition = vec4(1.0, 30.0, 1.0, 1.0); //torch
+    var torchPosition = vec4(camera.position[0], camera.position[1], camera.position[2], 1.0); //torch
     gl.uniform4fv(uTorchPosition, flatten(multVector(camera.getView(), torchPosition)));
 
     var uLightDirectionSun = gl.getUniformLocation(cubeProgram, "uLightDirectionSun");
