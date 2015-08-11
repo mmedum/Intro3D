@@ -46,9 +46,9 @@ var lightInfo = [
     //Torch
     {
         ambient : [0.0, 0.0, 0.0, 0.0],
-        diffuse : [1.0, 1.0, 1.0, 1.0],
+        diffuse : [0.3, 0.3, 0.3, 1.0],
         specular : [0.0, 0.0, 0.0, 0.0],
-        shininess : 10.5
+        shininess : 0.5
     },
     //Sun
     {
@@ -78,7 +78,7 @@ window.onload = function init() {
     if (!gl) {
         alert("BACON");
     } else {
-        gl = WebGLDebugUtils.makeDebugContext(gl);
+        //gl = WebGLDebugUtils.makeDebugContext(gl);
 
         cubeProgram = initShaders(gl, "vertex-lighting-shader", "fragment-lighting-shader");
         cubeWireframeProgram = initShaders(gl, "wireframe-vertex-shader", "wireframe-fragment-shader");
@@ -106,7 +106,7 @@ window.onload = function init() {
         spinningCubePositions = [];
         spinningCubeTheta = 0;
         sunAngle = 0;
-        selectedBlockType = BlockType.METAL;
+        selectedBlockType = BlockType.DIRT;
 
         mouseWireFrame = createMouseWireframe();
 
@@ -398,6 +398,30 @@ function setupListeners() {
                 break;
             case 'e':
                 insertBlock();
+                break;
+            case 'f':
+                camera.flyingMode = !camera.flyingMode;
+                break;
+            case '1':
+                selectedBlockType = BlockType.DIRT;
+                break;
+            case '2':
+                selectedBlockType = BlockType.GRASS;
+                break;
+            case '3':
+                selectedBlockType = BlockType.WOOD;
+                break;
+            case '4':
+                selectedBlockType = BlockType.WATER;
+                break;
+            case '5':
+                selectedBlockType = BlockType.FIRE;
+                break;
+            case '6':
+                selectedBlockType = BlockType.STONE;
+                break;
+            case '7':
+                selectedBlockType = BlockType.METAL;
                 break;
         }
     });
@@ -698,13 +722,19 @@ function update() {
 
     spinningCubeTheta += 200.0 * dt;
     sunAngle += 15.0 * dt;
+    for(var i=0; i<spinningCubePositions.length; i++){
+        if(length(subtract(camera.position, spinningCubePositions[i])) < 1.0){
+            spinningCubePositions.splice(i, 1);
+            break;
+        }
+    }
 }
 
 function createSpinningCube() {
     var blockVertices = [];
     var lineVertices = [];
 
-    createCube(blockVertices, lineVertices, -0.5, -0.5, -0.5, BlockType.GRASS);
+    createCube(blockVertices, lineVertices, -0.5, -0.5, -0.5, BlockType.METAL);
 
     //scale, rotate
     var thetaX = 45.0;
@@ -717,7 +747,9 @@ function createSpinningCube() {
 
     // scale and rotate block to start position
     for (var i = 0; i < blockVertices.length; i++) {
-        blockVertices[i] = multVector(modelMatrix, blockVertices[i]);
+        if(i % 3 != 2) {
+            blockVertices[i] = multVector(modelMatrix, blockVertices[i]);
+        }
     }
 
     for (var i = 0; i < lineVertices.length; i++) {
@@ -791,6 +823,9 @@ function getBlock(x, y, z){
 }
 
 function removeBlock(){
+    if(Math.round(mouse3DPosition[3]) == 10){
+        return;
+    }
     var edgeNormal = getEdgeNormal();
 
     var xPos = Math.floor(mouse3DPosition[0] - edgeNormal[0] * 0.5);
@@ -800,10 +835,14 @@ function removeBlock(){
     if((xPos >= 0 && xPos < BLOCKS_X) && (yPos >= 0 && yPos < BLOCKS_Y) && (zPos >= 0 && zPos < BLOCKS_Z)) {
         worldBlocks[xPos * BLOCKS_Y * BLOCKS_Z + yPos * BLOCKS_Z + zPos] = BlockType.AIR;
         refreshChunk(xPos, yPos, zPos);
+        spinningCubePositions.push(vec3(xPos + 0.5, yPos + 0.5, zPos + 0.5));
     }
 }
 
 function insertBlock(){
+    if(Math.round(mouse3DPosition[3]) == 10){
+        return;
+    }
     var edgeNormal = getEdgeNormal();
 
     var xPos = Math.floor(mouse3DPosition[0] - edgeNormal[0] * 0.5) + edgeNormal[0];
