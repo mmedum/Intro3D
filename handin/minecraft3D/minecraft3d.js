@@ -33,6 +33,8 @@ var spinningCube;
 var spinningCubePositions;
 var spinningCubeTheta;
 
+var sunAngle;
+
 var lightInfo = [
     //Torch
     {
@@ -43,15 +45,15 @@ var lightInfo = [
     },
     //Sun
     {
-        ambient : [0.6, 0.6, 0.6],
-        diffuse : [1.0, 0.0, 0.0, 1.0],
-        specular : [0.8, 0.3, 0.8, 1.0],
-        shininess : 100
+        ambient : [0.3, 0.3, 0.3, 1.0],
+        diffuse : [0.8, 0.8, 0.8, 1.0],
+        specular : [1.0, 1.0, 1.0, 1.0],
+        shininess : 60.0
     },
     //Moon
     {
         ambient : [0.0, 0.0, 0.0, 1.0],
-        diffuse : [1.0, 1.0, 1.0, 1.0],
+        diffuse : [0.0, 0.0, 0.5, 1.0],
         specular : [0.0, 0.0, 0.0, 0.0],
         shininess : 30
     }
@@ -91,6 +93,7 @@ window.onload = function init() {
         spinningCube = createSpinningCube();
         spinningCubePositions = [];
         spinningCubeTheta = 0;
+        sunAngle = 0;
 
         render();
     }
@@ -442,15 +445,15 @@ function drawCubes() {
     gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.getView()));
 
     var uTorchPosition = gl.getUniformLocation(cubeProgram, "uTorchPosition");
-    var torchPosition = vec4(0.0, 100.0, 0.0, 1.0); //torch
+    var torchPosition = vec4(32.0, 64.0, 32.0, 1.0); //torch
     gl.uniform4fv(uTorchPosition, flatten(multVector(camera.getView(), torchPosition)));
 
     var uLightDirectionSun = gl.getUniformLocation(cubeProgram, "uLightDirectionSun");
-    var lightDirectionSun = normalize(vec4(10.0, 100.0, 30.0, 0.0)); //sun
+    var lightDirectionSun = normalize(vec4(Math.cos(radians(sunAngle)), Math.sin(radians(sunAngle)), 0.01, 0.0)); //sun
     gl.uniform4fv(uLightDirectionSun, flatten(multVector(camera.getView(), lightDirectionSun)));
 
     var uLightDirectionMoon = gl.getUniformLocation(cubeProgram, "uLightDirectionMoon");
-    var lightDirectionMoon = normalize(vec4(90.0, 70.0, 10.0, 0.0)); //moon
+    var lightDirectionMoon = normalize(vec4(Math.cos(radians(sunAngle + 180)), Math.sin(radians(sunAngle + 180)), 0.01, 0.0)); //moon
     gl.uniform4fv(uLightDirectionMoon, flatten(multVector(camera.getView(), lightDirectionMoon)));
 
     for(var i=0; i<lightInfo.length; i++){
@@ -571,6 +574,7 @@ function update() {
     camera.update(dt);
 
     spinningCubeTheta += 200.0 * dt;
+    sunAngle += 15.0 * dt;
 }
 
 function createSpinningCube() {

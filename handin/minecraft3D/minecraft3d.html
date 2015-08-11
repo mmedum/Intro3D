@@ -56,12 +56,13 @@
             uniform mat4 uProjectionMatrix;
 			uniform mat4 uViewMatrix;
 			uniform mat4 uModelMatrix;
-			uniform vec4 uTorchPosition; //torch
+			uniform vec4 uTorchPosition;
 			uniform vec4 uLightDirectionSun;
 			uniform vec4 uLightDirectionMoon;
 
             varying vec3 N, LTorch, LSun, LMoon, E;
             varying vec2 fTexCoord;
+            varying float fTorchDistance;
 
             void main() {
                 vec3 pos = (uViewMatrix * uModelMatrix * vPosition).xyz;
@@ -73,6 +74,7 @@
 
 				gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vPosition;
 				fTexCoord = vTexCoord;
+				fTorchDistance = 0.0;
 			}
 		</script>
 
@@ -92,8 +94,9 @@
             varying vec3 N, LTorch, LSun, LMoon, E;
 
             varying vec2 fTexCoord;
+			varying float fTorchDistance;
 
-            vec4 computeLight(vec3 l, LightInfo info){
+            vec4 computeLight(vec3 l, LightInfo info, float attenuationFactor){
                 vec4 lightColor;
 
                 vec3 H = normalize(l + E);
@@ -109,20 +112,27 @@
                     specular = vec4(0.0, 0.0, 0.0, 1.0);
                 }
 
-                lightColor = ambient + diffuse + specular;
+                lightColor = ambient + (diffuse * attenuationFactor) + specular;
                 lightColor.a = 1.0;
                 return lightColor;
             }
 
+            float getTorchAttenuation(){
+            	float attenuationConstant = 0.2;
+            	float attenuationLinear = 0.2;
+            	float attenuationQuadratic = 0.2;
+            	return 1.0/(attenuationConstant + (attenuationLinear * fTorchDistance) + (attenuationQuadratic * fTorchDistance * fTorchDistance));
+            }
+
             void main(){
-                //gl_FragColor = texture2D(uTexMap, fTexCoord) * (computeLight(LTorch, Lights[0]) + computeLight(LSun, Lights[1]) + computeLight(LMoon, Lights[2]));
-                gl_FragColor = texture2D(uTexMap, fTexCoord);
+                //gl_FragColor = texture2D(uTexMap, fTexCoord) * (computeLight(LSun, Lights[1]) + computeLight(LMoon, Lights[2]));
+                gl_FragColor = texture2D(uTexMap, fTexCoord) * (computeLight(LTorch, Lights[0], getTorchAttenuation()));
             }
 		</script>
 
     <!-- program for whales -->
     <script id="whale-vertex-shader" type="x-shader/x-vertex">
-			attribute vec4 vPosition;
+			attribute vec4 vPosition;t
 			attribute vec4 vNormal;
 
 			uniform mat4 uProjectionMatrix;
