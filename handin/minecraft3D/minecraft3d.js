@@ -35,6 +35,11 @@ var spinningCubeTheta;
 
 var sunAngle;
 
+var mouseWireFrame;
+var mouse3DPosition;
+var mouse2DPosition;
+var mouseWireframePosition;
+
 var lightInfo = [
     //Torch
     {
@@ -75,22 +80,23 @@ window.onload = function init() {
 
         cubeProgram = initShaders(gl, "vertex-lighting-shader", "fragment-lighting-shader");
         cubeWireframeProgram = initShaders(gl, "wireframe-vertex-shader", "wireframe-fragment-shader");
-		whaleProgram = initShaders(gl, "whale-vertex-shader", "whale-fragment-shader");
-		
+        whaleProgram = initShaders(gl, "whale-vertex-shader", "whale-fragment-shader");
+
         gl.enable(gl.DEPTH_TEST);
 
         // don't show vertices on back faces of cubes when not vissible with the camera
         gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.BACK);
-		
-		createPickingObjects();
+
+        createPickingObjects();
 
         createTexture();
 
         createWorld();
         camera = new Camera(vec3(0.0, 0.0, -5.0), -30.0, 140.0);
-		
-		whaleMesh = createWhale();
+        mouse2DPosition = vec2();
+
+        whaleMesh = createWhale();
 
         setupListeners();
 
@@ -98,6 +104,8 @@ window.onload = function init() {
         spinningCubePositions = [];
         spinningCubeTheta = 0;
         sunAngle = 0;
+
+        mouseWireFrame = createMouseWireframe();
 
         render();
     }
@@ -328,10 +336,9 @@ function setupListeners() {
         canvas.removeEventListener("mousemove", mouseTracking);
     });
 
-    canvas.addEventListener("click", function(event) {
-        var tileX = Math.floor((event.clientX - canvas.offsetLeft) / BLOCKS_X);
-        var tileY = BLOCKS_Y - Math.floor((event.clientY - canvas.offsetTop) / BLOCKS_Y) - 1;
-        spinningCubePositions.push(vec3(tileX, tileY, 0));
+    canvas.addEventListener("mousemove", function(event) {
+        mouse2DPosition[0] = event.clientX - canvas.offsetLeft;
+        mouse2DPosition[1] = canvas.height - (event.clientY - canvas.offsetTop);
     });
 
     window.addEventListener("keydown", function(event) {
@@ -374,82 +381,86 @@ function setupListeners() {
             case 'm':
                 camera.mapMode = !camera.mapMode;
                 break;
+            case 'q':
+                removeBlock();
+                break;
+            case 'e':
+                insertBlock();
+                break;
         }
     });
 }
 
 function createPickingObjects() {
-	// Create Framebuffer object
-	pickingFramebuffer = gl.createFramebuffer();	// framebuffer object
-	pickingFramebuffer.width = canvas.width;
-	pickingFramebuffer.height = canvas.height;
-	
-	gl.bindFramebuffer(gl.FRAMEBUFFER, pickingFramebuffer);
-	
-	// Create texture for rendering...
-	
-	pickingTexture = gl.createTexture();
-	
-	gl.activeTexture(gl.TEXTURE0);
-	gl.bindTexture(gl.TEXTURE_2D, pickingTexture); 
-	
-	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, canvas.width, canvas.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-	
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-	
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-	
-	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, pickingTexture, 0);
-	
-	// Create depth buffer for hidden surface removal...
-	
-	var depthRenderBuffer = gl.createRenderbuffer();
-	gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderBuffer);
-	gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, canvas.width, canvas.height);
-	
-	gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthRenderBuffer);
+    // Create Framebuffer object
+    pickingFramebuffer = gl.createFramebuffer();	// framebuffer object
+    pickingFramebuffer.width = canvas.width;
+    pickingFramebuffer.height = canvas.height;
 
-	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-	
-	// Create our picking shader program.
-	pickingProgram = initShaders(gl, "picking-vertex-shader", "picking-fragment-shader");
+    gl.bindFramebuffer(gl.FRAMEBUFFER, pickingFramebuffer);
+
+    // Create texture for rendering...
+
+    pickingTexture = gl.createTexture();
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, pickingTexture);
+
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, canvas.width, canvas.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, pickingTexture, 0);
+
+    // Create depth buffer for hidden surface removal...
+
+    var depthRenderBuffer = gl.createRenderbuffer();
+    gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderBuffer);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, canvas.width, canvas.height);
+
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthRenderBuffer);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    // Create our picking shader program.
+    pickingProgram = initShaders(gl, "picking-vertex-shader", "picking-fragment-shader");
 }
 
 function get3DCursorPosition() {
-	var x = canvas.width / 2;
-	var y = canvas.height / 2;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, pickingFramebuffer);
 
-	gl.bindFramebuffer(gl.FRAMEBUFFER, pickingFramebuffer);
+    var status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    if(status != gl.FRAMEBUFFER_COMPLETE) {
+        alert('Frame Buffer Not Complete');
+    }
 
-	var status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
-	if(status != gl.FRAMEBUFFER_COMPLETE) {
-		alert('Frame Buffer Not Complete');
-	}
-	
-	gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	
-	drawPickingCubes();
-	
-	var color = new Uint8Array(4);
-	gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
-	console.log(color[0] * (1.0 / 255) * 64 + " " + color[1] * (1.0 / 255) * 64 + " " + color[2] * (1.0 / 255) * 64 + " edge: " + color[3]* (1.0 / 255) * 10);
-	
-	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    drawPickingCubes();
+
+    var color = new Uint8Array(4);
+    gl.readPixels(mouse2DPosition[0], mouse2DPosition[1], 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
+
+    mouse3DPosition = vec4(color[0] * (1.0 / 255) * 64, color[1] * (1.0 / 255) * 64, color[2] * (1.0 / 255) * 64, color[3] * (1.0 / 255) * 10);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
 
 function drawPickingCubes() {
-	gl.useProgram(pickingProgram);
-	
+    gl.useProgram(pickingProgram);
+
     var uProjectionMatrix = gl.getUniformLocation(pickingProgram, "uProjectionMatrix"); // setup perspective settings
     var uViewMatrix = gl.getUniformLocation(pickingProgram, "uViewMatrix"); // move camera
     var uModelMatrix = gl.getUniformLocation(pickingProgram, "uModelMatrix"); //placement
-	
+
     gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(camera.getProjection()));
-	gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.getView()));
-	gl.uniformMatrix4fv(uModelMatrix, false, flatten(mat4()));
+    gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.getView()));
+    gl.uniformMatrix4fv(uModelMatrix, false, flatten(mat4()));
 
     for (var x = 0; x < CHUNKS_X; x++) {
         for (var y = 0; y < CHUNKS_Y; y++) {
@@ -469,24 +480,25 @@ function drawPickingCubes() {
                 gl.drawArrays(gl.TRIANGLES, 0, chunk.blockVertexCount);
             }
         }
-    }	
+    }
 }
 
 function render() {
-	get3DCursorPosition();
+    get3DCursorPosition();
     update();
 
-	gl.clearColor(0.0, 0.7490, 1.0, 1.0);
+    gl.clearColor(0.0, 0.7490, 1.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     var viewport = camera.getViewport();
     gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 
-	drawWhales();
+    drawWhales();
     drawCubes();
     drawCubeWireframes();
     drawSpinningCubes();
     drawSpinningCubeWireframes();
+    drawMouseWireFrame();
 
     requestAnimFrame(render);
 }
@@ -500,7 +512,7 @@ function drawCubeWireframes() {
     var uProjectionMatrix = gl.getUniformLocation(cubeWireframeProgram, "uProjectionMatrix"); // setup perspective settings
     var uViewMatrix = gl.getUniformLocation(cubeWireframeProgram, "uViewMatrix"); // move camera
     var uModelMatrix = gl.getUniformLocation(cubeWireframeProgram, "uModelMatrix"); //placement
-	
+
     var modelMatrix = mat4();
     gl.uniformMatrix4fv(uModelMatrix, false, flatten(modelMatrix));
 
@@ -628,7 +640,7 @@ function drawSpinningCubes() {
 
         gl.drawArrays(gl.TRIANGLES, 0, spinningCube.spinningBlockVertexCount);
     }
-	
+
 }
 
 function drawSpinningCubeWireframes() {
@@ -719,10 +731,90 @@ function createSpinningCube() {
     };
 }
 
+function createMouseWireframe() {
+    var blockVertices = [];
+    var lineVertices = [];
+
+    createCube(blockVertices, lineVertices, 0, 0, 0, BlockType.GRASS);
+
+    // wireframe buffer
+    var mouseWireframeId = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, mouseWireframeId);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(lineVertices), gl.STATIC_DRAW);
+
+    return {
+        mouseWireframeId : mouseWireframeId,
+        mouseWireframeVertexCount : lineVertices.length
+    };
+}
+
+function drawMouseWireFrame() {
+    gl.useProgram(cubeWireframeProgram);
+
+    var uProjectionMatrix = gl.getUniformLocation(cubeWireframeProgram, "uProjectionMatrix"); // setup perspective settings
+    var uViewMatrix = gl.getUniformLocation(cubeWireframeProgram, "uViewMatrix"); // move camera
+    var uModelMatrix = gl.getUniformLocation(cubeWireframeProgram, "uModelMatrix"); //placement
+
+    gl.uniformMatrix4fv(uProjectionMatrix, false, flatten(camera.getProjection()));
+
+    gl.uniformMatrix4fv(uViewMatrix, false, flatten(camera.getView()));
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, mouseWireFrame.mouseWireframeId);
+
+    var vPosition = gl.getAttribLocation(cubeWireframeProgram, "vPosition");
+    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vPosition);
+
+    var modelMatrix = translate(mouseWireframePosition);
+    gl.uniformMatrix4fv(uModelMatrix, false, flatten(modelMatrix));
+
+    gl.drawArrays(gl.LINES, 0, mouseWireFrame.mouseWireframeVertexCount);
+}
+
 function getBlock(x, y, z){
     if((x >= 0 && x < BLOCKS_X) && (y >= 0 && y < BLOCKS_Y) && (z >= 0 && z < BLOCKS_Z)){
         return worldBlocks[x * BLOCKS_Y * BLOCKS_Z + y * BLOCKS_Z + z];
     }else {
         return BlockType.AIR;
     }
+}
+
+function removeBlock(){
+
+}
+
+function insertBlock(){
+    var edgeNormal = vec3();
+
+    var edge = Math.round(mouse3DPosition[3]);
+    switch(edge){
+        case 0:
+            edgeNormal[0] = -1;
+            break;
+        case 1:
+            edgeNormal[0] = 1;
+            break;
+        case 2:
+            edgeNormal[1] = -1;
+            break;
+        case 3:
+            edgeNormal[1] = 1;
+            break;
+        case 4:
+            edgeNormal[2] = -1;
+            break;
+        case 5:
+            edgeNormal[2] = 1;
+            break;
+        case 10:
+            break;
+        default:
+            console.log(edge);
+            break;
+    }
+    var xPos = Math.floor(mouse3DPosition[0] - edgeNormal[0] * 0.5) + edgeNormal[0];
+    var yPos = Math.floor(mouse3DPosition[1] - edgeNormal[1] * 0.5) + edgeNormal[1];
+    var zPos = Math.floor(mouse3DPosition[2] - edgeNormal[2] * 0.5) + edgeNormal[2];
+
+    mouseWireframePosition = vec3(xPos, yPos, zPos);
 }
