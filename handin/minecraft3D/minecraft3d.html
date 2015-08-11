@@ -103,7 +103,7 @@
                 vec4 ambient = info.uAmbientProduct;
 
                 float kd = max(dot(l, N), 0.0);
-                vec4 diffuse = kd * info.uDiffuseProduct;
+                vec4 diffuse = kd * info.uDiffuseProduct * attenuationFactor;
 
                 float ks = pow(max(dot(N, H), 0.0), info.uShininess);
                 vec4 specular = ks * info.uSpecularProduct;
@@ -112,21 +112,20 @@
                     specular = vec4(0.0, 0.0, 0.0, 1.0);
                 }
 
-                lightColor = ambient + (diffuse * attenuationFactor) + specular;
+                lightColor = ambient + diffuse + specular;
                 lightColor.a = 1.0;
                 return lightColor;
             }
 
             float getTorchAttenuation(){
-            	float attenuationConstant = 0.2;
-            	float attenuationLinear = 0.2;
-            	float attenuationQuadratic = 0.2;
+            	float attenuationConstant = 0.02;
+            	float attenuationLinear = 0.02;
+            	float attenuationQuadratic = 0.02;
             	return 1.0/(attenuationConstant + (attenuationLinear * fTorchDistance) + (attenuationQuadratic * fTorchDistance * fTorchDistance));
             }
 
             void main(){
-                //gl_FragColor = texture2D(uTexMap, fTexCoord) * (computeLight(LSun, Lights[1]) + computeLight(LMoon, Lights[2]));
-                gl_FragColor = texture2D(uTexMap, fTexCoord) * (computeLight(LTorch, Lights[0], getTorchAttenuation()));
+                gl_FragColor = texture2D(uTexMap, fTexCoord) * (computeLight(LTorch, Lights[0], getTorchAttenuation()) + computeLight(LSun, Lights[1], 1.0) + computeLight(LMoon, Lights[2], 1.0));
             }
 		</script>
 
