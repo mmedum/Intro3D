@@ -1,0 +1,84 @@
+-- overview --
+
+camera.js
+- set projection: perspective (1st person) or orthogonal (map)
+- block collision (camera is a point)
+
+whale.js
+- create, draw whale from OBJ file
+
+
+-- buffers --
+
+- block: blockBufferId
+- block wireframes: lineBufferId
+- spinning cubes: spinningCubeBufferId
+- spinning cube wireframes: spinningCubeWireBufferId
+- mouse wireframe: mouseWireframeId
+
+
+-- drawcalls --
+
+- drawCubes: blocks/cubes (vertices, normal vectors, texture coordinates)
+- drawCubeWireframes: block wireframes (vertices)
+- drawSpinningCubes: spinning cubes (vertices, normal vectors, texture coordinates)
+- drawSpinningCubeWireframes: spinning cube wireframes (vertices)
+- drawMouseWireFrame: mouse wireframe (vertices) 
+- drawPickingCubes: inserted blocks (vertices, normal vectors)
+
+
+-- shaders --
+
+- pickingProgram: inserted blocks
+- cubeWireframeProgram: block wireframes, spinning cube wireframes, mouse wireframe
+- cubeProgram: lights (sun, moon, torch), blocks/cubes, spinning cubes
+- whaleProgram
+
+
+-- parameters transfered between js, vertex and fragment shaders --
+
+pickingProgram
+
+- vertex shader:
+-- attributes: vertex positions and normal vectors
+-- uniforms: projection and model-view matrices
+-- varying (sent to fragment shader): vertex positions and faces for cube pointed at with the mouse (for picking)
+
+
+cubeWireframeProgram
+
+- vertex shader:
+-- attributes: vertex positions
+-- uniforms: projection and model-view matrices
+
+
+cubeProgram
+- vertex shader:
+-- attributes: vertex positions
+-- uniforms: projection and model-view matrices
+
+
+light shader (in js is cubeProgram = lighting shader )
+- vertex shader:
+-- attributes: vertex positions, texture coordinates and normal vectors
+-- uniforms: projection, model-view matrices, sun, moon and torch positions
+-- varying: phong model constant, texture coordinates, distance between torch and surface
+
+- fragment shader: 
+-- attributes: 
+-- uniforms: light info (material and reflection), texture map
+
+
+whaleProgram
+- vertex shader:
+-- attributes: vertex positions and normal vectors
+-- uniforms: projection and model-view matrices
+-- varying: normal vectors
+
+
+-- optimal --
+
+-Blocks that are completely covered by other blocks are not drawn.
+- the world is divided into chunks -> we only update part of the world when blocks are inserted/removed
+- 
+
