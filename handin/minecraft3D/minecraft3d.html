@@ -74,7 +74,7 @@
 
 				gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vPosition;
 				fTexCoord = vTexCoord;
-				fTorchDistance = 0.0;
+				fTorchDistance = distance(pos, uTorchPosition.xyz);
 			}
 		</script>
 
@@ -132,7 +132,7 @@
 
     <!-- program for whales -->
     <script id="whale-vertex-shader" type="x-shader/x-vertex">
-			attribute vec4 vPosition;t
+			attribute vec4 vPosition;
 			attribute vec4 vNormal;
 
 			uniform mat4 uProjectionMatrix;
