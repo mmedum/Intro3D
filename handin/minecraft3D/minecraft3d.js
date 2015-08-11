@@ -17,14 +17,14 @@ var CHUNK_SIZE_Y = BLOCKS_Y / CHUNKS_Y;
 var CHUNK_SIZE_Z = BLOCKS_Z / CHUNKS_Z;
 
 var BlockType = {
-    AIR: [0.0, 0.0, 1.0, 1.0],
-    STONE: [0.5, 0.5, 0.5, 1.0],
-    GRASS: [0.0, 1.0, 0.0, 1.0],
-    DIRT: [0.7, 0.4, 0.3, 1.0],
-    WOOD: [0.8901, 0.6627, 0.4352, 1.0],
-    METAL: [0.8, 0.8, 0.8, 1.0],
-    WATER: [0.6, 0.8509, 0.9176, 1.0],
-    FIRE: [1.0, 0.0, 0.0, 1.0]
+    AIR: [],
+    STONE: [6, 1],
+    GRASS: [2, 1],
+    DIRT: [2, 0],
+    WOOD: [3, 4],
+    METAL: [5, 1],
+    WATER: [15, 12],
+    FIRE: [15, 14]
 };
 
 var worldBlocks = new Array(BLOCKS_X * BLOCKS_Y * BLOCKS_Z);
@@ -43,7 +43,7 @@ var lightInfo = [
     },
     //Sun
     {
-        ambient : [0.2, 0.2, 0.2, 1.0],
+        ambient : [0.6, 0.6, 0.6],
         diffuse : [1.0, 0.0, 0.0, 1.0],
         specular : [0.8, 0.3, 0.8, 1.0],
         shininess : 100
@@ -113,6 +113,19 @@ function createWorld() {
         }
     }
 
+
+    for (var x = 0; x < BLOCKS_X; x++) {
+        for (var y = 0; y < BLOCKS_Y-1; y++) {
+            for (var z = 0; z < BLOCKS_Z; z++) {
+
+                if (worldBlocks[x * BLOCKS_Y * BLOCKS_Z + (y+1) * BLOCKS_Z + z] == BlockType.AIR &&
+                    worldBlocks[x * BLOCKS_Y * BLOCKS_Z + y * BLOCKS_Z + z] == BlockType.DIRT) {
+                    worldBlocks[x * BLOCKS_Y * BLOCKS_Z + y * BLOCKS_Z + z] = BlockType.GRASS;
+                }
+            }
+        }
+    }
+
     for (var x = 0; x < CHUNKS_X; x++) {
         for (var y = 0; y < CHUNKS_Y; y++) {
             for (var z = 0; z < CHUNKS_Z; z++) {
@@ -135,7 +148,7 @@ function createChunk(x, y, z) {
                 var wz = (z + dz);
                 var blockType = worldBlocks[wx * BLOCKS_Y * BLOCKS_Z + wy * BLOCKS_Z + wz];
                 if (blockType != BlockType.AIR && isVisible(wx, wy, wz)) {
-                    createCube(blockVertices, lineVertices, wx, wy, wz);
+                    createCube(blockVertices, lineVertices, wx, wy, wz, blockType);
                 }
             }
         }
@@ -169,55 +182,60 @@ function isVisible(wx, wy, wz) {
     left == BlockType.AIR || front == BlockType.AIR || back == BlockType.AIR);
 }
 
-function createCube(blockVertices, lineVertices, x, y, z) {
+function createCube(blockVertices, lineVertices, x, y, z, blockType) {
+    var xStart = blockType[0] * (1.0/16.0);
+    var yStart = blockType[1] * (1.0/16.0);
+    var xEnd = blockType[0] * (1.0/16.0) + (1.0/16.0);
+    var yEnd = blockType[1] * (1.0/16.0) + (1.0/16.0);
+
     var cube = [
         // Front
-        vec4(-0.5, 0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0), vec4(0.0, 1.0, 42.0, 42.0),
-        vec4(0.5, 0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0), vec4(1.0, 1.0, 42.0, 42.0),
-        vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0), vec4(0.0, 0.0, 42.0, 42.0),
-        vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0), vec4(0.0, 0.0, 42.0, 42.0),
-        vec4(0.5, 0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0), vec4(1.0, 1.0, 42.0, 42.0),
-        vec4(0.5, -0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0), vec4(1.0, 0.0, 42.0, 42.0),
+        vec4(-0.5, 0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0), vec4(xStart, yEnd, 42.0, 42.0),
+        vec4(0.5, 0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0), vec4(xEnd, yEnd, 42.0, 42.0),
+        vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0), vec4(xStart, yStart, 42.0, 42.0),
+        vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0), vec4(xStart, yStart, 42.0, 42.0),
+        vec4(0.5, 0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0), vec4(xEnd, yEnd, 42.0, 42.0),
+        vec4(0.5, -0.5, -0.5, 1.0), vec4(0.0, 0.0, -1.0, 0.0), vec4(xEnd, yStart, 42.0, 42.0),
 
         // Back
-        vec4(0.5, 0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0), vec4(1.0, 1.0, 42.0, 42.0),
-        vec4(-0.5, 0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0), vec4(0.0, 1.0, 42.0, 42.0),
-        vec4(-0.5, -0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0), vec4(0.0, 0.0, 42.0, 42.0),
-        vec4(-0.5, -0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0), vec4(0.0, 0.0, 42.0, 42.0),
-        vec4(0.5, -0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0), vec4(1.0, 0.0, 42.0, 42.0),
-        vec4(0.5, 0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0), vec4(1.0, 1.0, 42.0, 42.0),
+        vec4(0.5, 0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0), vec4(xEnd, yEnd, 42.0, 42.0),
+        vec4(-0.5, 0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0), vec4(xStart, yEnd, 42.0, 42.0),
+        vec4(-0.5, -0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0), vec4(xStart, yStart, 42.0, 42.0),
+        vec4(-0.5, -0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0), vec4(xStart, yStart, 42.0, 42.0),
+        vec4(0.5, -0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0), vec4(xEnd, yStart, 42.0, 42.0),
+        vec4(0.5, 0.5, 0.5, 1.0), vec4(0.0, 0.0, 1.0, 0.0), vec4(xEnd, yEnd, 42.0, 42.0),
 
         // Right
-        vec4(0.5, 0.5, -0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0), vec4(1.0, 0.0, 42.0, 42.0),
-        vec4(0.5, 0.5, 0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0), vec4(1.0, 1.0, 42.0, 42.0),
-        vec4(0.5, -0.5, -0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0), vec4(0.0, 0.0, 42.0, 42.0),
-        vec4(0.5, -0.5, -0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0), vec4(0.0, 0.0, 42.0, 42.0),
-        vec4(0.5, 0.5, 0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0), vec4(1.0, 1.0, 42.0, 42.0),
-        vec4(0.5, -0.5, 0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0), vec4(0.0, 1.0, 42.0, 42.0),
+        vec4(0.5, 0.5, -0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0), vec4(xEnd, yStart, 42.0, 42.0),
+        vec4(0.5, 0.5, 0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0), vec4(xEnd, yEnd, 42.0, 42.0),
+        vec4(0.5, -0.5, -0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0), vec4(xStart, yStart, 42.0, 42.0),
+        vec4(0.5, -0.5, -0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0), vec4(xStart, yStart, 42.0, 42.0),
+        vec4(0.5, 0.5, 0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0), vec4(xEnd, yEnd, 42.0, 42.0),
+        vec4(0.5, -0.5, 0.5, 1.0), vec4(1.0, 0.0, 0.0, 0.0), vec4(xStart, yEnd, 42.0, 42.0),
 
         // Left
-        vec4(-0.5, -0.5, -0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0), vec4(0.0, 0.0, 42.0, 42.0),
-        vec4(-0.5, 0.5, 0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0), vec4(1.0, 1.0, 42.0, 42.0),
-        vec4(-0.5, 0.5, -0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0), vec4(1.0, 0.0, 42.0, 42.0),
-        vec4(-0.5, -0.5, -0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0), vec4(0.0, 0.0, 42.0, 42.0),
-        vec4(-0.5, -0.5, 0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0), vec4(0.0, 1.0, 42.0, 42.0),
-        vec4(-0.5, 0.5, 0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0), vec4(1.0, 1.0, 42.0, 42.0),
+        vec4(-0.5, -0.5, -0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0), vec4(xStart, yStart, 42.0, 42.0),
+        vec4(-0.5, 0.5, 0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0), vec4(xEnd, yEnd, 42.0, 42.0),
+        vec4(-0.5, 0.5, -0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0), vec4(xEnd, yStart, 42.0, 42.0),
+        vec4(-0.5, -0.5, -0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0), vec4(xStart, yStart, 42.0, 42.0),
+        vec4(-0.5, -0.5, 0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0), vec4(xStart, yEnd, 42.0, 42.0),
+        vec4(-0.5, 0.5, 0.5, 1.0), vec4(-1.0, 0.0, 0.0, 0.0), vec4(xEnd, yEnd, 42.0, 42.0),
 
         // Top
-        vec4(-0.5, 0.5, -0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(0.0, 0.0, 42.0, 42.0),
-        vec4(-0.5, 0.5, 0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(0.0, 1.0, 42.0, 42.0),
-        vec4(0.5, 0.5, 0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(1.0, 1.0, 42.0, 42.0),
-        vec4(-0.5, 0.5, -0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(0.0, 0.0, 42.0, 42.0),
-        vec4(0.5, 0.5, 0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(1.0, 1.0, 42.0, 42.0),
-        vec4(0.5, 0.5, -0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(1.0, 0.0, 42.0, 42.0),
+        vec4(-0.5, 0.5, -0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(xStart, yStart, 42.0, 42.0),
+        vec4(-0.5, 0.5, 0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(xStart, yEnd, 42.0, 42.0),
+        vec4(0.5, 0.5, 0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(xEnd, yEnd, 42.0, 42.0),
+        vec4(-0.5, 0.5, -0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(xStart, yStart, 42.0, 42.0),
+        vec4(0.5, 0.5, 0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(xEnd, yEnd, 42.0, 42.0),
+        vec4(0.5, 0.5, -0.5, 1.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(xEnd, yStart, 42.0, 42.0),
 
         // Bottom
-        vec4(0.5, -0.5, 0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0), vec4(1.0, 1.0, 42.0, 42.0),
-        vec4(-0.5, -0.5, 0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0), vec4(0.0, 1.0, 42.0, 42.0),
-        vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0), vec4(0.0, 0.0, 42.0, 42.0),
-        vec4(0.5, -0.5, -0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0), vec4(1.0, 0.0, 42.0, 42.0),
-        vec4(0.5, -0.5, 0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0), vec4(1.0, 1.0, 42.0, 42.0),
-        vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0), vec4(0.0, 0.0, 42.0, 42.0)
+        vec4(0.5, -0.5, 0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0), vec4(xEnd, yEnd, 42.0, 42.0),
+        vec4(-0.5, -0.5, 0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0), vec4(xStart, yEnd, 42.0, 42.0),
+        vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0), vec4(xStart, yStart, 42.0, 42.0),
+        vec4(0.5, -0.5, -0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0), vec4(xEnd, yStart, 42.0, 42.0),
+        vec4(0.5, -0.5, 0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0), vec4(xEnd, yEnd, 42.0, 42.0),
+        vec4(-0.5, -0.5, -0.5, 1.0), vec4(0.0, -1.0, 0.0, 0.0), vec4(xStart, yStart, 42.0, 42.0)
     ];
 
     // move cube to correct position in world with offset 0.5
@@ -265,7 +283,7 @@ function createTexture(){
     gl.bindTexture(gl.TEXTURE_2D, texture);
 
     var image = document.getElementById("texture");
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+//    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
 
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
@@ -559,7 +577,7 @@ function createSpinningCube() {
     var blockVertices = [];
     var lineVertices = [];
 
-    createCube(blockVertices, lineVertices, -0.5, -0.5, -0.5);
+    createCube(blockVertices, lineVertices, -0.5, -0.5, -0.5, BlockType.GRASS);
 
     //scale, rotate
     var thetaX = 45.0;
