@@ -400,6 +400,12 @@ function setupListeners() {
                 break;
             case 'm':
                 camera.mapMode = !camera.mapMode;
+
+                if (camera.mapMode) {
+                    document.getElementById("mapMode").innerHTML = "On";
+                } else {
+                    document.getElementById("mapMode").innerHTML = "Off";
+                }
                 break;
             case 'q':
                 removeBlock();
@@ -409,27 +415,40 @@ function setupListeners() {
                 break;
             case 'f':
                 camera.flyingMode = !camera.flyingMode;
+                
+                if (camera.flyingMode) {
+                    document.getElementById("flyingMode").innerHTML = "On";
+                } else {
+                    document.getElementById("flyingMode").innerHTML = "Off";
+                }     
                 break;
             case '1':
                 selectedBlockType = BlockType.DIRT;
+                document.getElementById("selectedBlock").innerHTML = "Dirt";
                 break;
             case '2':
                 selectedBlockType = BlockType.GRASS;
+                document.getElementById("selectedBlock").innerHTML = "Grass";
                 break;
             case '3':
                 selectedBlockType = BlockType.WOOD;
+                document.getElementById("selectedBlock").innerHTML = "Wood";
                 break;
             case '4':
                 selectedBlockType = BlockType.WATER;
+                document.getElementById("selectedBlock").innerHTML = "Water";
                 break;
             case '5':
                 selectedBlockType = BlockType.FIRE;
+                document.getElementById("selectedBlock").innerHTML = "Fire";
                 break;
             case '6':
                 selectedBlockType = BlockType.STONE;
+                document.getElementById("selectedBlock").innerHTML = "Stone";
                 break;
             case '7':
                 selectedBlockType = BlockType.METAL;
+                document.getElementById("selectedBlock").innerHTML = "Metal";
                 break;
         }
     });
