@@ -46,9 +46,9 @@ var lightInfo = [
     //Torch
     {
         ambient : [0.0, 0.0, 0.0, 0.0],
-        diffuse : [1.0, 1.0, 1.0, 1.0],
+        diffuse : [0.3, 0.3, 0.3, 1.0],
         specular : [0.0, 0.0, 0.0, 0.0],
-        shininess : 10.5
+        shininess : 0.5
     },
     //Sun
     {
@@ -398,6 +398,27 @@ function setupListeners() {
                 break;
             case 'e':
                 insertBlock();
+                break;
+            case '1':
+                selectedBlockType = BlockType.DIRT;
+                break;
+            case '2':
+                selectedBlockType = BlockType.GRASS;
+                break;
+            case '3':
+                selectedBlockType = BlockType.WOOD;
+                break;
+            case '4':
+                selectedBlockType = BlockType.WATER;
+                break;
+            case '5':
+                selectedBlockType = BlockType.FIRE;
+                break;
+            case '6':
+                selectedBlockType = BlockType.STONE;
+                break;
+            case '7':
+                selectedBlockType = BlockType.METAL;
                 break;
         }
     });
@@ -791,6 +812,9 @@ function getBlock(x, y, z){
 }
 
 function removeBlock(){
+    if(Math.round(mouse3DPosition[3]) == 10){
+        return;
+    }
     var edgeNormal = getEdgeNormal();
 
     var xPos = Math.floor(mouse3DPosition[0] - edgeNormal[0] * 0.5);
@@ -804,6 +828,9 @@ function removeBlock(){
 }
 
 function insertBlock(){
+    if(Math.round(mouse3DPosition[3]) == 10){
+        return;
+    }
     var edgeNormal = getEdgeNormal();
 
     var xPos = Math.floor(mouse3DPosition[0] - edgeNormal[0] * 0.5) + edgeNormal[0];
