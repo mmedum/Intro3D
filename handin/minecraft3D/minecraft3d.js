@@ -379,15 +379,21 @@ function setupListeners() {
 }
 
 function createPickingObjects() {
+	// Create Framebuffer object
 	pickingFramebuffer = gl.createFramebuffer();	// framebuffer object
+	pickingFramebuffer.width = canvas.width;
+	pickingFramebuffer.height = canvas.height;
+	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, pickingFramebuffer);
+	
+	// Create texture for rendering...
+	
 	pickingTexture = gl.createTexture();
 	
 	gl.activeTexture(gl.TEXTURE0);
 	gl.bindTexture(gl.TEXTURE_2D, pickingTexture); 
 	
 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, canvas.width, canvas.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-
-	//gl.generateMipmap(gl.TEXTURE_2D);
 	
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
@@ -395,6 +401,19 @@ function createPickingObjects() {
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 	
+	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, pickingTexture, 0);
+	
+	// Create depth buffer for hidden surface removal...
+	
+	var depthRenderBuffer = gl.createRenderbuffer();
+	gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderBuffer);
+	gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, canvas.width, canvas.height);
+	
+	gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthRenderBuffer);
+
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	
+	// Create our picking shader program.
 	pickingProgram = initShaders(gl, "picking-vertex-shader", "picking-fragment-shader");
 }
 
@@ -403,11 +422,7 @@ function get3DCursorPosition() {
 	var y = canvas.height / 2;
 
 	gl.bindFramebuffer(gl.FRAMEBUFFER, pickingFramebuffer);
-	pickingFramebuffer.width = canvas.width;
-	pickingFramebuffer.height = canvas.height;
-	
-	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, pickingTexture, 0);
-	
+
 	var status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
 	if(status != gl.FRAMEBUFFER_COMPLETE) {
 		alert('Frame Buffer Not Complete');
