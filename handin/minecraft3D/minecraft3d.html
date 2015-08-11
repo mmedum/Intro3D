@@ -115,8 +115,8 @@
             }
 
             void main(){
-//                gl_FragColor = computeLight(LTorch, Lights[0]) + computeLight(LSun, Lights[1]) + computeLight(LMoon, Lights[2]);
-                gl_FragColor = texture2D(uTexMap, fTexCoord);
+                gl_FragColor = texture2D(uTexMap, fTexCoord) * (computeLight(LTorch, Lights[0]) + computeLight(LSun, Lights[1]) + computeLight(LMoon, Lights[2]));
+                //gl_FragColor = texture2D(uTexMap, fTexCoord);
             }
 		</script>
 
