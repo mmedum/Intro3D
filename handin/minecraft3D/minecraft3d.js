@@ -154,10 +154,11 @@ function createWorld() {
     }
 }
 
-function fillChunk(chunk, x, y, z) {
-    var blockVertices = [];
-    var lineVertices = [];
+var blockVertices = new Float32Array(36 * 3 * 4 * CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z);
+var lineVertices = new Float32Array(24 * 4 * CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z);
 
+function fillChunk(chunk, x, y, z) {
+	var cubeIndex = 0;	
     for (var dx = 0; dx < CHUNK_SIZE_X; dx++) {
         for (var dy = 0; dy < CHUNK_SIZE_Y; dy++) {
             for (var dz = 0; dz < CHUNK_SIZE_Z; dz++) {
@@ -166,21 +167,140 @@ function fillChunk(chunk, x, y, z) {
                 var wz = (z + dz);
                 var blockType = worldBlocks[wx * BLOCKS_Y * BLOCKS_Z + wy * BLOCKS_Z + wz];
                 if (blockType != BlockType.AIR && isVisible(wx, wy, wz)) {
-                    createCube(blockVertices, lineVertices, wx, wy, wz, blockType);
-                }
-            }
-        }
-    }
-
+					createCubeFaster(
+						blockVertices.subarray(36 * 3 * 4 * cubeIndex, 36 * 3 * 4 * (cubeIndex + 1)), 
+						lineVertices.subarray(24 * 4 * cubeIndex, 24 * 4 * (cubeIndex + 1)),
+						wx, wy, wz, 
+						blockType
+					);
+					cubeIndex++;
+				}
+			}
+		}
+	}
+	
     gl.bindBuffer(gl.ARRAY_BUFFER, chunk.blockBufferId);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(blockVertices), gl.DYNAMIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, blockVertices, gl.DYNAMIC_DRAW);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, chunk.lineBufferId);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(lineVertices), gl.DYNAMIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, lineVertices, gl.DYNAMIC_DRAW);
 
-	chunk.blockVertexCount = blockVertices.length / 3;
-    chunk.lineVertexCount = lineVertices.length;
-} 
+	chunk.blockVertexCount = 36 * cubeIndex;
+    chunk.lineVertexCount = 24 * cubeIndex;
+}
+
+var cube;
+var cubeEdges;
+
+function createCubeFaster(blockVertices, lineVertices, x, y, z, blockType) {
+	if(!cube) {
+	   cube = new Float32Array([
+			// Front
+			-0.5,  0.5, -0.5,  1.0,  0.0,  0.0, -1.0,  0.0,  0.0,  1.0, 42.0, 42.0,
+			 0.5,  0.5, -0.5,  1.0,  0.0,  0.0, -1.0,  0.0,  1.0,  1.0, 42.0, 42.0,
+			-0.5, -0.5, -0.5,  1.0,  0.0,  0.0, -1.0,  0.0,  0.0,  0.0, 42.0, 42.0,
+			-0.5, -0.5, -0.5,  1.0,  0.0,  0.0, -1.0,  0.0,  0.0,  0.0, 42.0, 42.0,
+			 0.5,  0.5, -0.5,  1.0,  0.0,  0.0, -1.0,  0.0,  1.0,  1.0, 42.0, 42.0,
+			 0.5, -0.5, -0.5,  1.0,  0.0,  0.0, -1.0,  0.0,  1.0,  0.0, 42.0, 42.0,
+
+			// Back
+			 0.5,  0.5,  0.5,  1.0,  0.0,  0.0,  1.0,  0.0,  1.0,  1.0, 42.0, 42.0,
+			-0.5,  0.5,  0.5,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0, 42.0, 42.0,
+			-0.5, -0.5,  0.5,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  0.0, 42.0, 42.0,
+			-0.5, -0.5,  0.5,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  0.0, 42.0, 42.0,
+			 0.5, -0.5,  0.5,  1.0,  0.0,  0.0,  1.0,  0.0,  1.0,  0.0, 42.0, 42.0,
+			 0.5,  0.5,  0.5,  1.0,  0.0,  0.0,  1.0,  0.0,  1.0,  1.0, 42.0, 42.0,
+
+			// Right
+			 0.5,  0.5, -0.5,  1.0,  1.0,  0.0,  0.0,  0.0,  1.0,  0.0, 42.0, 42.0,
+			 0.5,  0.5,  0.5,  1.0,  1.0,  0.0,  0.0,  0.0,  1.0,  1.0, 42.0, 42.0,
+			 0.5, -0.5, -0.5,  1.0,  1.0,  0.0,  0.0,  0.0,  0.0,  0.0, 42.0, 42.0,
+			 0.5, -0.5, -0.5,  1.0,  1.0,  0.0,  0.0,  0.0,  0.0,  0.0, 42.0, 42.0,
+			 0.5,  0.5,  0.5,  1.0,  1.0,  0.0,  0.0,  0.0,  1.0,  1.0, 42.0, 42.0,
+			 0.5, -0.5,  0.5,  1.0,  1.0,  0.0,  0.0,  0.0,  0.0,  1.0, 42.0, 42.0,
+
+			// Left
+			-0.5, -0.5, -0.5,  1.0, -1.0,  0.0,  0.0,  0.0,  0.0,  0.0, 42.0, 42.0,
+			-0.5,  0.5,  0.5,  1.0, -1.0,  0.0,  0.0,  0.0,  1.0,  1.0, 42.0, 42.0,
+			-0.5,  0.5, -0.5,  1.0, -1.0,  0.0,  0.0,  0.0,  1.0,  0.0, 42.0, 42.0,
+			-0.5, -0.5, -0.5,  1.0, -1.0,  0.0,  0.0,  0.0,  0.0,  0.0, 42.0, 42.0,
+			-0.5, -0.5,  0.5,  1.0, -1.0,  0.0,  0.0,  0.0,  0.0,  1.0, 42.0, 42.0,
+			-0.5,  0.5,  0.5,  1.0, -1.0,  0.0,  0.0,  0.0,  1.0,  1.0, 42.0, 42.0,
+
+			// Top
+			-0.5,  0.5, -0.5,  1.0,  0.0,  1.0,  0.0,  0.0,  0.0,  0.0, 42.0, 42.0,
+			-0.5,  0.5,  0.5,  1.0,  0.0,  1.0,  0.0,  0.0,  0.0,  1.0, 42.0, 42.0,
+			 0.5,  0.5,  0.5,  1.0,  0.0,  1.0,  0.0,  0.0,  1.0,  1.0, 42.0, 42.0,
+			-0.5,  0.5, -0.5,  1.0,  0.0,  1.0,  0.0,  0.0,  0.0,  0.0, 42.0, 42.0,
+			 0.5,  0.5,  0.5,  1.0,  0.0,  1.0,  0.0,  0.0,  1.0,  1.0, 42.0, 42.0,
+			 0.5,  0.5, -0.5,  1.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0, 42.0, 42.0,
+
+			// Bottom
+			 0.5, -0.5,  0.5,  1.0,  0.0, -1.0,  0.0,  0.0,  1.0,  1.0, 42.0, 42.0,
+			-0.5, -0.5,  0.5,  1.0,  0.0, -1.0,  0.0,  0.0,  0.0,  1.0, 42.0, 42.0,
+			-0.5, -0.5, -0.5,  1.0,  0.0, -1.0,  0.0,  0.0,  0.0,  0.0, 42.0, 42.0,
+			 0.5, -0.5, -0.5,  1.0,  0.0, -1.0,  0.0,  0.0,  1.0,  0.0, 42.0, 42.0,
+			 0.5, -0.5,  0.5,  1.0,  0.0, -1.0,  0.0,  0.0,  1.0,  1.0, 42.0, 42.0,
+			-0.5, -0.5, -0.5,  1.0,  0.0, -1.0,  0.0,  0.0,  0.0,  0.0, 42.0, 42.0
+		]);
+	}	
+    var xStart = blockType[0] * (1.0/16.0);
+    var yStart = blockType[1] * (1.0/16.0);
+    var xEnd = blockType[0] * (1.0/16.0) + (1.0/16.0);
+    var yEnd = blockType[1] * (1.0/16.0) + (1.0/16.0);
+	
+	var index = 0;
+	for(var i = 0; i < 36; i++) {
+		// Position
+		blockVertices[index] = cube[index] + x + 0.5;								index++;
+		blockVertices[index] = cube[index] + y + 0.5;								index++;
+		blockVertices[index] = cube[index] + z + 0.5;								index++;
+		blockVertices[index] = cube[index];											index++;
+		
+		// Normal
+		blockVertices[index] = cube[index];											index++;
+		blockVertices[index] = cube[index];											index++;
+		blockVertices[index] = cube[index];											index++;
+		blockVertices[index] = cube[index];											index++;
+		
+		// Texture coordinate
+		blockVertices[index] = (1.0 - cube[index]) * xStart + cube[index] * xEnd;	index++;
+		blockVertices[index] = (1.0 - cube[index]) * yStart + cube[index] * yEnd;	index++;
+		blockVertices[index] = cube[index];											index++;
+		blockVertices[index] = cube[index];											index++;
+	}
+
+	if(!cubeEdges) {
+		cubeEdges = new Float32Array([
+			// Back ring
+			-0.5, -0.5, 0.5, 1.0, -0.5, 0.5, 0.5, 1.0,
+			-0.5, -0.5, 0.5, 1.0, 0.5, -0.5, 0.5, 1.0,
+			0.5, -0.5, 0.5, 1.0, 0.5, 0.5, 0.5, 1.0,
+			0.5, 0.5, 0.5, 1.0, -0.5, 0.5, 0.5, 1.0,
+
+			// Front ring
+			-0.5, -0.5, -0.5, 1.0, -0.5, 0.5, -0.5, 1.0,
+			-0.5, -0.5, -0.5, 1.0, 0.5, -0.5, -0.5, 1.0,
+			0.5, -0.5, -0.5, 1.0, 0.5, 0.5, -0.5, 1.0,
+			0.5, 0.5, -0.5, 1.0, -0.5, 0.5, -0.5, 1.0,
+
+			// Left track
+			-0.5, -0.5, 0.5, 1.0, -0.5, -0.5, -0.5, 1.0,
+			-0.5, 0.5, 0.5, 1.0, -0.5, 0.5, -0.5, 1.0,
+
+			// Right track
+			0.5, -0.5, 0.5, 1.0, 0.5, -0.5, -0.5, 1.0,
+			0.5, 0.5, 0.5, 1.0, 0.5, 0.5, -0.5, 1.0
+		]);
+	}
+    for (var i = 0; i < 24; i++) {
+		// Position
+		lineVertices[i * 4 + 0] = cubeEdges[i * 4 + 0] + x + 0.5;
+		lineVertices[i * 4 + 1] = cubeEdges[i * 4 + 1] + y + 0.5;
+		lineVertices[i * 4 + 2] = cubeEdges[i * 4 + 2] + z + 0.5;
+		lineVertices[i * 4 + 3] = cubeEdges[i * 4 + 3];
+    }
+}
 
 function createChunk(x, y, z) {
     var blockBufferId = gl.createBuffer();

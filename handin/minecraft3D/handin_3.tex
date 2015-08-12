@@ -14,6 +14,8 @@
 \usepackage{color}
 \usepackage{framed}
 
+\usepackage{hyperref}
+
 % logic proofs
 \usepackage{lplfitch}
 \usepackage{stmaryrd}
@@ -67,66 +69,88 @@
 \pageref{LastPage}}
 
 \section{Usage}
+
+You can access the game at \url{http://silentfeet.rocks/}.
+
 You can select different types of blocks by pressing '1' through '7' on the keyboard.
 
 You can toggle flying mode by pressing 'f'.
 
-\section{Representation of graphical elements}
+You can toggle map mode by pressing 'm'.
 
-\subsection{Blocks}
-Our world consists of 40 by 30 blocks of 20 by 20 pixels.
-Each block is represented as two triangles.
-Each vertex has a position and a color attribute. The color is chosen based on the block type.
-The buffer object containing block data is updated with (potentially new) data every frame. With this solution, deleting and creating new blocks is straightforward.
+\section{Overview of our code}
+Our code consists of three Javascript files.
 
-Block-data only needs to be updated interactively when it actually changes. With our current approach we update all blocks no matter what.
+\subsection{camera.js}
+Keeps track of our projection and our view matrix. It can be toggled to be in "map mode" to switch between perspective (1st person) or orthogonal (map).
+We have a very basic collision system that interprets the camera as a point and projects it to the closest "fluid" (air, fire, water) point outside of a solid block.
 
-We could have used gl.bufferSubData.
+\subsection{whale.js}
+Responsible for creating a whale from an OBJ file using the OBJ loader from \url{https://github.com/frenchtoast747/webgl-obj-loader} as well as drawing them.
 
-Instead of representing the entire world in a single buffer, we could have partitioned it into multiple "chunks" and only update chunks that change.
+\subsection{minecraft3D.js}
+Responsible for everything else.
 
-\subsection{Block-outline}
-We create a buffer containing 4 vertices once and for all.
-The block-outline is drawn using the LINE\_LOOP mode.
-In order to draw the block-outline at the desired position, we use a uniform to offset it.
+\begin{itemize}
+	\item Window creation.
+	\item Object creation (shader programs, cubes, wireframes, textures)
+	\item Control handling (mouse, keyboard)
+	\item Picking using offscreen rendering onto a texture.
+	\item Drawing cubes/whales.
+	\item etc.
+\end{itemize}
 
-\subsection{Stickman}
-We create a buffer containing 10 vertices once and for all.
-The Stickman is drawn using the LINES mode.
-In order to draw the Stickman at the desired position, we use a uniform to offset it.
+\section{Buffers}
+
+Our world is split into 16x16x16 chunks, each of which has a blockBufferId (containing block vertices) and a lineBufferId (containing wireframe vertices).
+The idea was only to update part of the world when blocks are inserted/removed. There is a trade off between the amount of draw calls and the size of the data to upload when the world changes.
+
+We have two buffers containing data for drawing a single tilted cube (one for triangles and one for lines). We use a two draw calls for each of the spinning cubes. Since cubes can be picked up in an arbitrary order, this was the most straight forward approach we could think of.
+
+We create a single buffer containing the "block placement wireframe".
+
+\section{Draw Calls}
+
+We have two draw call for each chunk (one for blocks and one for block wireframes). Optimization: If we could somehow determine whether a chunk is actually visible we could omit some draw calls.
+A chunk has three vertex attributes, namely positions, normal vectors and texture coordinates.
+
+We have two draw call for each spinning cube (one for the block and one for the block wireframe). It has the same vertex attributes as a chunk.
+
+We have a single draw call for the "block placement wireframe".
+
+In order to perform picking using offscreen rendering, we render all of our chunks (again) using a special shader program. We only use the position and the normal attribute.
 
 \section{Shaders}
-All our positions are in "block space". Each of our vertex shaders converts block-space to clip-space coordinates.
+We have the following shader programs:
+\begin{itemize}
+	\item Our "cube program" is used to render chunks and spinning cubes.
+	\item Our "cube wireframe program" is used to render chunk block wireframes, spinning cube wireframes and the "block placement wireframe".
+	\item Our "whale program" is used to render the sky whales. The fragment shader simply chooses a color based on the whale's normal vectors.
+	\item Our "picking program" creates unique colors for each cube. The color is composed of the position of the fragment in world space, as well as which side of the cube the fragment is from.
+\end{itemize}
 
-Our Stickman/block-outline fragment shaders simply outputs a "hardcoded" color. The block fragment shader is augmented with the clickwave effect and a gradient based on a fragments distance to the center of the block it belongs to.
+\section{Parameters}
 
-\subsection{ClickWave}
-When the user places or destroys a block we start a "click wave". 
+All of our shaders gets three different matrices.
 
-We implemented the click wave by displacing vertices away from the outline of a circle.
+A model matrix for transforming from "model space" to "world space".
+A view matrix for transforming from "world space" to "view space".
+A projection matrix for transforming from "view space" to "clip space".
 
-We can configure the center/radius of the circle from Javascript using uniforms.
+Our cube program gets loads of parameters for the Phong lighting model. We give it a position for our torch and direction vectors for the sun and the moon as well as colors for each of the lights.
 
-We pass on the result of the calculation from the vertex shader to the fragment shader and use it to slightly darken fragments close to the outline of the circle.
+\section{Final remarks}
 
-\section{Browsers}
+Instead of putting every single cube in a chunk into the chunks buffer, we only upload blocks that are completely covered by other blocks.
+We can do a lot better by omitting more of the occluded faces.
+We could combine faces next to each other into the same face.
 
-Our solution runs on Chrome and Firefox. For some reason gl.lineWidth(5) does not seem to have any effect on 1 out of 3 of our machines.
-
-\section{Collision Detection}
-
-Note: Our collision detection is far from perfect. 
+We have tested our game using Firefox, Chrome and Safari.
 
 % --------------------------------------------------------------
 %     You don't have to mess with anything below this line.
 % --------------------------------------------------------------
 \end{document}
-
-
-
-
-
-
 
 
 
